@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ink: #1C1C1C;
+  --color-paper: #F0EDE8;
+  --color-acid: #E85000;
+  --color-punch: #C23A00;
+  --color-muted: #6B6560;
+  --color-border: #333333;
+  --color-surface: #252525;
+
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+
+  /* shadcn/ui tokens */
+  --color-background: #1C1C1C;
+  --color-foreground: #F0EDE8;
+  --color-primary: #E85000;
+  --color-primary-foreground: #F0EDE8;
+  --color-secondary: #252525;
+  --color-secondary-foreground: #F0EDE8;
+  --color-muted-foreground: #9E9890;
+  --color-accent: #252525;
+  --color-accent-foreground: #F0EDE8;
+  --color-card: #252525;
+  --color-card-foreground: #F0EDE8;
+  --color-ring: #E85000;
+  --color-destructive: #C23A00;
+}
+
+:root {
+  --background: #1C1C1C;
+  --foreground: #F0EDE8;
+  --primary: #E85000;
+  --primary-foreground: #F0EDE8;
+  --muted-foreground: #9E9890;
+  --card: #252525;
+  --card-foreground: #F0EDE8;
+  --accent: #252525;
+  --accent-foreground: #F0EDE8;
+  --border: #333333;
+  --ring: #E85000;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color: var(--foreground);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+/* ── Concrete wall background ────────────────────────────── */
+body {
+  min-height: 100vh;
+  color: var(--foreground);
+  background-color: #1C1C1C;
+  background-image:
+    /* fine grain noise */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E"),
+    /* coarser concrete pores */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.18' numOctaves='6' seed='8' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeBlend in='SourceGraphic' mode='multiply'/%3E%3C/filter%3E%3Crect width='500' height='500' filter='url(%23c)' opacity='0.06'/%3E%3C/svg%3E"),
+    /* subtle light variation — mimics uneven concrete surface */
+    radial-gradient(ellipse at 20% 15%, #2e2e2e 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 85%, #141414 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 40%, #222222 0%, transparent 60%);
+  background-repeat: repeat, repeat, no-repeat, no-repeat, no-repeat;
+  background-size: 300px 300px, 500px 500px, 100% 100%, 100% 100%, 100% 100%;
+  position: relative;
+}
+
+/* thin hairline cracks overlay — fixed so it tiles with scroll */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800'%3E%3Cfilter id='crack'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.035 0.06' numOctaves='8' seed='12' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -6 4'/%3E%3C/filter%3E%3Crect width='800' height='800' filter='url(%23crack)' opacity='0.06'/%3E%3C/svg%3E");
+  background-size: 800px 800px;
+  mix-blend-mode: overlay;
+}
+
+/* ensure all content sits above the texture layers */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #1C1C1C;
+}
+::-webkit-scrollbar-thumb {
+  background: #E85000;
+  border-radius: 0;
+}
+
+/* Selection */
+::selection {
+  background: #E85000;
+  color: #F0EDE8;
+}
+
+/* Focus */
+:focus-visible {
+  outline: 2px solid #E85000;
+  outline-offset: 2px;
+}

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Syne, DM_Sans } from 'next/font/google'
 import Link from 'next/link'
+import { CookieConsent } from '@/components/ui/cookie-consent'
 import './globals.css'
 
 const syne = Syne({
@@ -103,6 +104,8 @@ export default function RootLayout({
 
         {/* Main */}
         <main className="flex-1">{children}</main>
+
+        <CookieConsent />
 
         {/* Footer */}
         <footer className="border-t border-[#333333] mt-auto">

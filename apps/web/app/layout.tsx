@@ -26,6 +26,10 @@ export const metadata: Metadata = {
   description:
     'Entdecke kuriose, lustige und kaufstarke Produkte aus dem DACH-Raum. Handverlesen, ehrlich bewertet.',
   keywords: ['Gadgets', 'Geschenke', 'Affiliate', 'DACH', 'Kurios', 'Lustig'],
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+  },
   openGraph: {
     type: 'website',
     locale: 'de_DE',

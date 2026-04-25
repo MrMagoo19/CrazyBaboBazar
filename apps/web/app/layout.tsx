@@ -42,7 +42,7 @@ const navLinks = [
   { href: '/kategorie/geschenke-maenner', label: 'Geschenke' },
   { href: '/kategorie/buero-gadgets', label: 'Büro' },
   { href: '/kategorie/kuechen-gadgets', label: 'Küche' },
-  { href: '/kategorie/geschenke-20-euro', label: 'Unter 20€' },
+  { href: '/kategorie/geschenke-unter-20', label: 'Unter 20€' },
 ]
 
 export default function RootLayout({
@@ -125,7 +125,7 @@ export default function RootLayout({
                   Kuriose Produkte für schlaue Käufer. Handverlesen.
                 </p>
                 <p className="text-[#3A3A3A] text-xs mt-4">
-                  * Affiliate-Hinweis: Wir verdienen eine Provision bei Käufen über unsere Links — ohne Mehrkosten für dich.
+                  Als Amazon-Partner verdienen wir an qualifizierten Käufen. Preise inkl. MwSt., können variieren.
                 </p>
               </div>
 
@@ -162,7 +162,7 @@ export default function RootLayout({
             </div>
 
             <div className="mt-10 pt-6 border-t border-[#252525] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <p className="text-[#3A3A3A] text-xs">© 2025 Crazy Babo Bazar. Alle Rechte vorbehalten.</p>
+              <p className="text-[#3A3A3A] text-xs">© 2026 Crazy Babo Bazar. Alle Rechte vorbehalten.</p>
               <p className="text-[#3A3A3A] text-xs">Made with obsession, not algorithms.</p>
             </div>
           </div>

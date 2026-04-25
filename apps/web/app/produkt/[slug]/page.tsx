@@ -99,6 +99,7 @@ export default async function ProduktPage({ params }: Props) {
                     <div className="font-[family-name:var(--font-display)] font-extrabold text-4xl">
                       {formatPrice(product.price_cents)}€
                     </div>
+                    <div className="text-[#6B6560] text-[10px] mt-1">inkl. MwSt. · zzgl. Versand</div>
                   </div>
                   <div className="text-right text-xs text-[#3A3A3A]">
                     <div>Preis kann variieren.</div>
@@ -116,7 +117,7 @@ export default async function ProduktPage({ params }: Props) {
                 </a>
 
                 <p className="text-[#3A3A3A] text-xs text-center">
-                  * Wir erhalten eine Provision. Kein Aufpreis für dich.
+                  * Als Amazon-Partner verdienen wir an qualifizierten Käufen. Kein Aufpreis für dich.
                 </p>
               </div>
             </div>

@@ -53,8 +53,11 @@ export default function ImpressumPage() {
               <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
                 Affiliate-Hinweis
               </h2>
+              <p className="text-sm leading-relaxed mb-3">
+                Diese Website enthält Affiliate-Links, insbesondere Links zum Amazon-Partnerprogramm. Als Amazon-Partner verdiene ich an qualifizierten Käufen. Der Preis für Käufer bleibt dabei unverändert.
+              </p>
               <p className="text-sm leading-relaxed">
-                Diese Website enthält Affiliate-Links, insbesondere Links zum Amazon-Partnerprogramm. Als Amazon-Partner verdiene ich an qualifizierten Verkäufen. Der Preis für Käufer bleibt dabei unverändert.
+                Produktpreise und Verfügbarkeit können sich seit der letzten manuellen Aktualisierung verändert haben. Maßgeblich ist der tatsächliche Preis zum Zeitpunkt des Kaufs auf Amazon.de. Alle angezeigten Preise verstehen sich inkl. gesetzlicher MwSt.
               </p>
             </div>
 

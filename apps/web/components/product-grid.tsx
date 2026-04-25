@@ -75,9 +75,12 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
               </p>
 
               <div className="flex items-center gap-2 pt-2 border-t border-[#252525] mt-auto">
-                <span className="font-[family-name:var(--font-display)] font-bold text-sm text-[#F0EDE8]">
-                  {formatPrice(product.price_cents)}€
-                </span>
+                <div>
+                  <span className="font-[family-name:var(--font-display)] font-bold text-sm text-[#F0EDE8]">
+                    {formatPrice(product.price_cents)}€
+                  </span>
+                  <span className="text-[#6B6560] text-[9px] ml-1">inkl. MwSt.</span>
+                </div>
                 <div className="flex items-center gap-2 ml-auto">
                   <Link
                     href={`/produkt/${product.slug}`}

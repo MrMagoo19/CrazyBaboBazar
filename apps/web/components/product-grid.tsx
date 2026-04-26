@@ -10,7 +10,9 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#252525]">
       {products.map((product) => {
-        const catName = product.categories?.name ?? ''
+        const catName = product.shop_main_category
+          ? `${product.shop_persona ?? ''} · ${product.shop_main_category}`
+          : (product.categories?.name ?? '')
 
         return (
           <div

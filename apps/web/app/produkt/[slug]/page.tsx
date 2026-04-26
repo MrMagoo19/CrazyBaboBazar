@@ -23,9 +23,15 @@ export default async function ProduktPage({ params }: Props) {
   const product = await getProductBySlug(slug)
   if (!product) notFound()
 
-  const catSlug = product.categories?.slug ?? ''
-  const catName = product.categories?.name ?? ''
   const catEmoji = product.categories?.emoji ?? '📦'
+
+  // Prefer new persona-based routing, fall back to old categories
+  const persona = product.shop_persona
+  const mainCat = product.shop_main_category
+  const catSlug = persona && mainCat ? `${persona}s/${mainCat}` : `kategorie/${product.categories?.slug ?? ''}`
+  const catName = persona && mainCat
+    ? `${persona.charAt(0).toUpperCase() + persona.slice(1)} · ${mainCat}`
+    : (product.categories?.name ?? '')
 
   return (
     <div>
@@ -35,7 +41,7 @@ export default async function ProduktPage({ params }: Props) {
           <div className="flex items-center gap-2 text-xs text-[#6B6560]">
             <Link href="/" className="hover:text-[#E85000] transition-colors">Start</Link>
             <span>→</span>
-            <Link href={`/kategorie/${catSlug}`} className="hover:text-[#E85000] transition-colors">
+            <Link href={`/${catSlug}`} className="hover:text-[#E85000] transition-colors">
               {catName}
             </Link>
             <span>→</span>

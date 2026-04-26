@@ -34,7 +34,7 @@ insert into products (
 
   'https://www.amazon.de/dp/B09RB6YNLV?tag=geeklist-21',
 
-  null, -- TODO: Amazon-Produktbild-URL hier einfügen
+  'https://m.media-amazon.com/images/I/51JjPRE2rYL._AC_SY879_.jpg',
 
   false, -- erst nach Review veröffentlichen
   false,

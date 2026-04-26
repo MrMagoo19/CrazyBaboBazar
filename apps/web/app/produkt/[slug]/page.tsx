@@ -49,13 +49,13 @@ export default async function ProduktPage({ params }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-[#333333]">
             {/* Image */}
-            <div className="bg-[#252525] aspect-square flex items-center justify-center relative overflow-hidden">
+            <div className="bg-[#252525] aspect-square flex items-center justify-center relative overflow-hidden p-8">
               {product.image_url ? (
                 <Image
                   src={product.image_url}
                   alt={product.name}
                   fill
-                  className="object-cover"
+                  className="object-contain p-8"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               ) : (

@@ -50,14 +50,14 @@ export default async function HomePage() {
               alt="Crazy Stuff"
               width={768}
               height={512}
-              className="object-contain object-right w-full max-w-xs"
-              style={{ clipPath: 'inset(0 50% 0 0)' }}
+              className="object-contain object-right w-full max-w-sm md:max-w-md"
+              style={{ clipPath: 'inset(0 50% 0 0)', filter: 'brightness(0) invert(1)' }}
               priority
             />
           </div>
 
           {/* Löwe mittig */}
-          <div className="shrink-0 z-10 -mx-4">
+          <div className="shrink-0 z-10 -mx-6">
             <Image
               src="/Logo.png"
               alt="Crazy Babo Bazar"
@@ -75,8 +75,8 @@ export default async function HomePage() {
               alt="Crazy Life"
               width={768}
               height={512}
-              className="object-contain object-left w-full max-w-xs"
-              style={{ clipPath: 'inset(0 0 0 50%)' }}
+              className="object-contain object-left w-full max-w-sm md:max-w-md"
+              style={{ clipPath: 'inset(0 0 0 50%)', filter: 'brightness(0) invert(1)' }}
               priority
             />
           </div>

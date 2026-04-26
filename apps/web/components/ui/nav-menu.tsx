@@ -150,7 +150,7 @@ export function NavSearch() {
   const modal = open && (
     <>
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" style={{ zIndex: 9998 }} onClick={() => setOpen(false)} />
-      <div className="fixed left-1/2 top-20 w-full max-w-lg -translate-x-1/2 px-4" style={{ zIndex: 9999 }}>
+      <div style={{ position: 'fixed', top: '72px', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '520px', padding: '0 1rem', zIndex: 9999 }}>
         <div className="bg-[#1C1C1C] border border-[#333333] border-t-2 border-t-[#E85000] shadow-2xl">
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[#2A2A2A]">
             <SearchIcon size={15} className="text-[#6B6560] shrink-0" />

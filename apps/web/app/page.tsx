@@ -42,9 +42,9 @@ export default async function HomePage() {
       {/* ── HERO ───────────────────────────────────────────── */}
       <div className="border-b border-[#333333] flex items-center justify-center py-8">
         <Image
-          src="/Logo_2.png"
+          src="/Logo.png"
           alt="Crazy Babo Bazar"
-          width={320}
+          width={180}
           height={180}
           className="object-contain"
           priority

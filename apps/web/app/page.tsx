@@ -47,8 +47,8 @@ export default async function HomePage() {
           <Image
             src="/Banner.png"
             alt="Crazy Stuff"
-            width={400}
-            height={267}
+            width={600}
+            height={400}
             className="object-contain"
             style={{ clipPath: 'inset(0 50% 0 0)', filter: 'brightness(0) invert(1)', marginRight: '-40px' }}
             priority
@@ -70,8 +70,8 @@ export default async function HomePage() {
           <Image
             src="/Banner.png"
             alt="Crazy Life"
-            width={400}
-            height={267}
+            width={600}
+            height={400}
             className="object-contain"
             style={{ clipPath: 'inset(0 0 0 50%)', filter: 'brightness(0) invert(1)', marginLeft: '-40px' }}
             priority

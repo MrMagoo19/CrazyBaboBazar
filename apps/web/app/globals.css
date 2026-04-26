@@ -113,3 +113,9 @@ body > * {
   outline: 2px solid #E85000;
   outline-offset: 2px;
 }
+
+/* Ticker animation */
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-33.333%); }
+}

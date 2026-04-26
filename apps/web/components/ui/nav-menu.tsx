@@ -205,7 +205,7 @@ export function DesktopNav() {
             key={item.key}
             onMouseEnter={() => openMenu(item.key)}
             onMouseLeave={scheduleClose}
-            className="fixed left-0 right-0 top-16 z-40 w-screen border-b border-[#333333] bg-[#1C1C1C] shadow-xl"
+            className="fixed left-0 right-0 top-16 z-[999] w-screen border-b border-[#333333] bg-[#1C1C1C] shadow-2xl"
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
               <div className="flex items-center gap-2 mb-4">

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Syne, DM_Sans } from 'next/font/google'
 import Link from 'next/link'
+import Image from 'next/image'
 import { CookieConsent } from '@/components/ui/cookie-consent'
 import './globals.css'
 
@@ -59,14 +60,15 @@ export default function RootLayout({
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
-              <Link
-                href="/"
-                className="font-[family-name:var(--font-display)] font-bold text-xl tracking-tight flex items-center gap-2 group"
-              >
-                <span className="bg-[#E85000] text-[#1C1C1C] px-2 py-0.5 text-sm font-extrabold group-hover:bg-[#E8321C] transition-colors duration-200">
-                  CRAZY
-                </span>
-                <span className="text-[#F0EDE8]">BABO BAZAR</span>
+              <Link href="/" className="flex items-center group">
+                <Image
+                  src="/Logo.png"
+                  alt="Crazy Babo Bazar"
+                  width={52}
+                  height={52}
+                  className="object-contain group-hover:scale-105 transition-transform duration-200"
+                  priority
+                />
               </Link>
 
               {/* Desktop Nav */}
@@ -117,9 +119,14 @@ export default function RootLayout({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Brand */}
               <div>
-                <div className="font-[family-name:var(--font-display)] font-extrabold text-2xl mb-3">
-                  <span className="bg-[#E85000] text-[#1C1C1C] px-2">CRAZY</span>
-                  <span>BABO BAZAR</span>
+                <div className="mb-3">
+                  <Image
+                    src="/Logo.png"
+                    alt="Crazy Babo Bazar"
+                    width={72}
+                    height={72}
+                    className="object-contain"
+                  />
                 </div>
                 <p className="text-[#6B6560] text-sm leading-relaxed max-w-xs">
                   Kuriose Produkte für schlaue Käufer. Handverlesen.

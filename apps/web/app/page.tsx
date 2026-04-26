@@ -40,15 +40,47 @@ export default async function HomePage() {
       </div>
 
       {/* ── HERO ───────────────────────────────────────────── */}
-      <div className="border-b border-[#333333] flex items-center justify-center py-8">
-        <Image
-          src="/Logo.png"
-          alt="Crazy Babo Bazar"
-          width={180}
-          height={180}
-          className="object-contain"
-          priority
-        />
+      <div className="border-b border-[#333333] relative flex items-center justify-center py-6">
+        {/* Banner links + rechts */}
+        <div className="flex items-center justify-center w-full max-w-4xl mx-auto px-4 gap-0">
+          {/* CRAZY STUFF — linke Hälfte */}
+          <div className="flex-1 flex justify-end">
+            <Image
+              src="/Banner.png"
+              alt="Crazy Stuff"
+              width={768}
+              height={512}
+              className="object-contain object-right w-full max-w-xs"
+              style={{ clipPath: 'inset(0 50% 0 0)' }}
+              priority
+            />
+          </div>
+
+          {/* Löwe mittig */}
+          <div className="shrink-0 z-10 -mx-4">
+            <Image
+              src="/Logo.png"
+              alt="Crazy Babo Bazar"
+              width={160}
+              height={160}
+              className="object-contain drop-shadow-2xl"
+              priority
+            />
+          </div>
+
+          {/* CRAZY LIFE — rechte Hälfte */}
+          <div className="flex-1 flex justify-start">
+            <Image
+              src="/Banner.png"
+              alt="Crazy Life"
+              width={768}
+              height={512}
+              className="object-contain object-left w-full max-w-xs"
+              style={{ clipPath: 'inset(0 0 0 50%)' }}
+              priority
+            />
+          </div>
+        </div>
       </div>
 
       {/* ── SECTION LABEL ──────────────────────────────────── */}

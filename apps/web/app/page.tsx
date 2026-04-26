@@ -11,14 +11,12 @@ export const metadata: Metadata = {
 }
 
 const tickerItems = [
-  '🔥 Trending jetzt',
-  '👑 Babos',
-  '✨ Queens',
-  '🚀 Miniboss',
-  '👥 Squad',
-  '💸 Unter 20€',
-  '🎯 Handverlesen',
-  '⚡ Täglich neu',
+  '🎁 Geschenke für Männer',
+  '💐 Geschenke für Frauen',
+  '🧸 Geschenke für Kinder',
+  '🐾 Geschenke für Tiere',
+  '❤️ Geschenke für Lieblingsmenschen',
+  '🍎 Geschenke für Lehrer',
 ]
 
 export default async function HomePage() {

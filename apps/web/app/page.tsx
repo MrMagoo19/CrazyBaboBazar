@@ -57,7 +57,7 @@ export default async function HomePage() {
           {/* Löwe mittig */}
           <div className="shrink-0 z-10">
             <Image
-              src="/Logo_1.png"
+              src="/Logo_3.png"
               alt="Crazy Babo Bazar"
               width={500}
               height={334}

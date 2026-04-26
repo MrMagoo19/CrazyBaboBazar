@@ -59,8 +59,8 @@ export default async function HomePage() {
             <Image
               src="/LOGO_1.png"
               alt="Crazy Babo Bazar"
-              width={320}
-              height={320}
+              width={500}
+              height={334}
               className="object-contain drop-shadow-2xl"
               priority
             />

@@ -7,25 +7,145 @@ export type CategoryRule = {
   keywords: string[]
 }
 
+// Rules are evaluated in ORDER — more specific rules must come BEFORE broader ones.
 export const categoryRules: CategoryRule[] = [
+
+  // ── WELLNESS: Spezifisch zuerst ────────────────────────────────────────
+  {
+    persona: 'wellness',
+    main_category: 'entspannung',
+    sub_category: 'sauna',
+    keywords: ['saunadecke', 'infrarotsauna', 'infrarot sauna', 'infrarot decke', 'lifepro'],
+  },
+  {
+    persona: 'wellness',
+    main_category: 'entspannung',
+    sub_category: 'massage',
+    keywords: ['massagepistole', 'massagegeraet', 'nackenmassage', 'akupressurmatte', 'igelball', 'faszienrolle', 'triggerpunkt'],
+  },
+  {
+    persona: 'wellness',
+    main_category: 'entspannung',
+    sub_category: 'schlaf',
+    keywords: ['schlafkopfhoerer', 'schlafkopfhörer', 'bluetooth schlaf', 'meditationskissen', 'yogakissen'],
+  },
+  {
+    persona: 'wellness',
+    main_category: 'fitness',
+    sub_category: 'yoga',
+    keywords: ['trainingsrad', 'yoga rad', 'ab roller', 'yogarad'],
+  },
+  {
+    persona: 'wellness',
+    main_category: 'fitness',
+    sub_category: 'beauty',
+    keywords: ['eisroller gesicht', 'gesichtspflege', 'hautpflege roller', 'luftbefeuchter', 'ultraschall luftbefeuchter', 'porseme'],
+  },
+
+  // ── MINIBOSS: Spiele (spezifisch) ─────────────────────────────────────
+  {
+    persona: 'miniboss',
+    main_category: 'spiele',
+    sub_category: 'party',
+    keywords: ['partyspiel', 'kartenspiel', 'gesellschaftsspiel', 'familienspiel', 'tischkicker', 'shuffleboard', 'jenga', 'wackelturm', 'riesenwackelturm'],
+  },
+  {
+    persona: 'miniboss',
+    main_category: 'spiele',
+    sub_category: 'draussen',
+    keywords: ['wasserpistole', 'schaumstoff pistole', 'flying disc', 'wurfscheibe'],
+  },
+  {
+    persona: 'miniboss',
+    main_category: 'spiele',
+    sub_category: 'wuerfel',
+    keywords: ['wuerfelturm', 'würfelturm', 'lcd wuerfel', 'elektronischer wuerfel', 'unlock raetsel'],
+  },
+  {
+    persona: 'miniboss',
+    main_category: 'deko',
+    sub_category: 'kinderzimmer',
+    keywords: ['jugendzimmer', 'kinderzimmer nachtlicht', 'dodo duck', 'ente pool', 'aufblasbare ente', 'planet wolke nachtlicht'],
+  },
+  {
+    persona: 'miniboss',
+    main_category: 'gadgets',
+    sub_category: 'spass',
+    keywords: ['kaugummi maschine', 'suessigkeitenspender', 'süßigkeitenspender', 'retro spender'],
+  },
+
+  // ── QUEEN: Küche (spezifisch zuerst) ──────────────────────────────────
+  {
+    persona: 'queen',
+    main_category: 'kueche',
+    sub_category: 'getränke',
+    keywords: ['kaffeewaermer', 'kaffeewarmer', 'tassenwaermer', 'tassenwarmer', 'eiswuerfelform', 'eiswürfelform', 'eiswuerfel', 'eiswürfel'],
+  },
+  {
+    persona: 'queen',
+    main_category: 'kueche',
+    sub_category: 'werkzeug',
+    keywords: ['pizzaschneider', 'spaghettimass', 'spaghettimass', 'nudelsieb', 'portionierer', 'mangoschneider', 'fruchthalter', 'küchenhelfer', 'kuchenhelfer'],
+  },
+  {
+    persona: 'queen',
+    main_category: 'kueche',
+    sub_category: 'kurioses',
+    keywords: ['taco staender', 'taco ständer', 'ramen schuessel', 'ramen schüssel', 'walfoermiges', 'waltförmiges', 'one piece ramen'],
+  },
+
+  // ── QUEEN: Deko ────────────────────────────────────────────────────────
+  {
+    persona: 'queen',
+    main_category: 'deko',
+    sub_category: 'beleuchtung',
+    keywords: ['sternenprojektor', 'sternenhimmel', 'mondlampe', 'mond deckenlampe', 'nachtlicht', 'leuchtschild', 'solarlaternen', 'planet nachtlicht'],
+  },
+  {
+    persona: 'queen',
+    main_category: 'deko',
+    sub_category: 'wohnen',
+    keywords: ['schwebendes buecherregal', 'schwebendes bücherregal', 'whiteboard kontaktpapier', 'wanddekoration', 'schubladen ordnung', 'ordnungssystem'],
+  },
+  {
+    persona: 'queen',
+    main_category: 'deko',
+    sub_category: 'pflanzen',
+    keywords: ['terracotta', 'pflanzenbewaesserung', 'pflanzenbewässerung', 'blumentopf bewaesserung'],
+  },
+
+  // ── QUEEN: Lifestyle ───────────────────────────────────────────────────
+  {
+    persona: 'queen',
+    main_category: 'lifestyle',
+    sub_category: 'mode',
+    keywords: ['windbreaker', 'holographic jacke', 'reflektierende jacke', 'rfid blocker', 'parfuemzerstaeuber', 'parfümzerstäuber', 'drehring edelstahl', 'findchic'],
+  },
+  {
+    persona: 'queen',
+    main_category: 'lifestyle',
+    sub_category: 'reise',
+    keywords: ['business rucksack', 'reise rucksack', 'handyhuelle unterwasser', 'wasserdichte handyhuelle', 'reiserucksack', 'fenree'],
+  },
+
   // ── BABO: Gaming ──────────────────────────────────────────────────────
   {
     persona: 'babo',
     main_category: 'gaming',
     sub_category: 'setup',
-    keywords: ['gaming', 'mauspad', 'led schreibtisch', 'rgb', 'mousepad', 'controller ständer', 'gaming regal'],
+    keywords: ['gaming mauspad', 'rgb mauspad', 'led schreibtischpad', 'controller staender', 'controller ständer', 'gaming regal', 'haengevitrine gaming'],
   },
   {
     persona: 'babo',
     main_category: 'gaming',
     sub_category: 'retro',
-    keywords: ['retro konsole', 'spielekonsole', 'arcade', 'joystick', 'old school games'],
+    keywords: ['retro spielekonsole', 'retro konsole', 'arcade joystick', 'mad monkey konsole'],
   },
   {
     persona: 'babo',
     main_category: 'gaming',
     sub_category: 'deko',
-    keywords: ['laufschrift', 'led tafel', 'neon schild', 'lichtschwert', 'star wars'],
+    keywords: ['laufschrift tafel', 'led laufschrift', 'lichtschwert', 'star wars lichtschwert', 'eiswuerfelform todesstern', 'todesstern'],
   },
 
   // ── BABO: Outdoor & Survival ──────────────────────────────────────────
@@ -33,19 +153,19 @@ export const categoryRules: CategoryRule[] = [
     persona: 'babo',
     main_category: 'outdoor',
     sub_category: 'survival',
-    keywords: ['paracord', 'feuerstahl', 'survival', 'messer', 'multifunktionsmesser', 'feuer'],
+    keywords: ['paracord armband', 'feuerstahl', 'survival armband', 'multifunktionsmesser', 'trekline messer'],
   },
   {
     persona: 'babo',
     main_category: 'outdoor',
     sub_category: 'camping',
-    keywords: ['camping', 'campingstuhl', 'laterne', 'campinglampe', 'hängematte', 'outdoor lampe', 'ultraleicht'],
+    keywords: ['campingstuhl', 'campinglaterne', 'camping laterne', 'haengematte', 'hängematte', 'ultraleichter stuhl', 'sportneer'],
   },
   {
     persona: 'babo',
     main_category: 'outdoor',
     sub_category: 'wassersport',
-    keywords: ['wasserpistole', 'wassersport', 'angelzubehör', 'angel', 'wasserfilter trinkflasche'],
+    keywords: ['wasserfilter trinkflasche', 'angelzubehoer', 'angelzubehör', 'angeln set'],
   },
 
   // ── BABO: Auto ───────────────────────────────────────────────────────
@@ -53,184 +173,72 @@ export const categoryRules: CategoryRule[] = [
     persona: 'babo',
     main_category: 'auto',
     sub_category: 'technik',
-    keywords: ['starthilfe', 'booster', 'powerbank auto', 'zigarettenanzünder', 'schnellladegerät auto', 'autoladegerät'],
+    keywords: ['starthilfe powerbank', 'starthilfe booster', 'zigarettenanzuender schnellladegeraet', 'zigarettenanzünder ladegerät', 'kfz ladegeraet'],
   },
   {
     persona: 'babo',
     main_category: 'auto',
     sub_category: 'zubehör',
-    keywords: ['autohalterung', 'brillenhalter auto', 'sonnenblende auto', 'armaturenbrett', 'wackelfigur auto'],
+    keywords: ['autohalterung', 'magsafe autohalterung', 'brillenhalter auto', 'sonnenblende auto', 'armaturenbrett wackelfigur', 'wackelfigur auto'],
   },
 
-  // ── BABO: Bar & Gadgets ───────────────────────────────────────────────
+  // ── BABO: Bar ─────────────────────────────────────────────────────────
   {
     persona: 'babo',
     main_category: 'gadgets',
     sub_category: 'bar',
-    keywords: ['cocktailshaker', 'shaker', 'barkeeper', 'bar set', 'cocktail'],
-  },
-  {
-    persona: 'babo',
-    main_category: 'gadgets',
-    sub_category: 'tech',
-    keywords: ['fingerabdruck', 'schloss', 'powerbank', 'usb', 'bluetooth tastatur', 'klappbare tastatur', 'stehpult', 'schreibtisch aufsatz'],
-  },
-  {
-    persona: 'babo',
-    main_category: 'gadgets',
-    sub_category: 'kurioses',
-    keywords: ['totenkopf', 'skull', 'totenkopf weinhalter', 'wackelturm', 'jenga', 'inflatable', 'aufblasbar'],
+    keywords: ['cocktailshaker', 'cocktail set', 'barkeeper set', 'shaker set'],
   },
 
-  // ── QUEEN: Küche ─────────────────────────────────────────────────────
-  {
-    persona: 'queen',
-    main_category: 'kueche',
-    sub_category: 'werkzeug',
-    keywords: ['pizzaschneider', 'spaghettimass', 'nudelsieb', 'nudelmaß', 'portionierer', 'mangoschneider', 'fruchthalter', 'küchenhelfer'],
-  },
-  {
-    persona: 'queen',
-    main_category: 'kueche',
-    sub_category: 'kurioses',
-    keywords: ['taco ständer', 'ramen schüssel', 'wal', 'walförmig', 'anime küche', 'one piece'],
-  },
-  {
-    persona: 'queen',
-    main_category: 'kueche',
-    sub_category: 'getränke',
-    keywords: ['kaffeewarmer', 'tassenwarmer', 'eiswürfelform', 'eiswürfel', 'getränk'],
-  },
-
-  // ── QUEEN: Deko & Wohnen ─────────────────────────────────────────────
-  {
-    persona: 'queen',
-    main_category: 'deko',
-    sub_category: 'beleuchtung',
-    keywords: ['sternenprojektor', 'sternenhimmel', 'mondlampe', 'mond deckenlampe', 'nachtlicht', 'planet', 'wolke lampe', 'dodo duck', 'schildkröte laterne', 'leuchtschild'],
-  },
-  {
-    persona: 'queen',
-    main_category: 'deko',
-    sub_category: 'wohnen',
-    keywords: ['schwebendes bücherregal', 'bücherregal', 'whiteboard', 'kontaktpapier', 'wanddekoration', 'schubladen ordnung', 'ordnungssystem'],
-  },
-  {
-    persona: 'queen',
-    main_category: 'deko',
-    sub_category: 'pflanzen',
-    keywords: ['terracotta', 'pflanzenbewässerung', 'bewässerung', 'blumen', 'pflanzen'],
-  },
-
-  // ── QUEEN: Mode & Lifestyle ───────────────────────────────────────────
-  {
-    persona: 'queen',
-    main_category: 'lifestyle',
-    sub_category: 'mode',
-    keywords: ['windbreaker', 'holographic', 'reflektierend', 'rfid blocker', 'parfümzerstäuber', 'reise parfüm', 'drehring', 'ring'],
-  },
-  {
-    persona: 'queen',
-    main_category: 'lifestyle',
-    sub_category: 'reise',
-    keywords: ['rucksack', 'reise', 'reiserucksack', 'wasserdicht rucksack', 'handyhülle unterwasser', 'wasserdichte hülle'],
-  },
-
-  // ── WELLNESS: Entspannung & Fitness ──────────────────────────────────
-  {
-    persona: 'wellness',
-    main_category: 'entspannung',
-    sub_category: 'massage',
-    keywords: ['massagepistole', 'massage', 'nackenmassage', 'akupressurmatte', 'igelball', 'faszienrolle', 'triggerpunkt'],
-  },
-  {
-    persona: 'wellness',
-    main_category: 'entspannung',
-    sub_category: 'schlaf',
-    keywords: ['schlafkopfhörer', 'bluetooth schlaf', 'schlafmaske', 'meditationskissen', 'yoga kissen'],
-  },
-  {
-    persona: 'wellness',
-    main_category: 'entspannung',
-    sub_category: 'sauna',
-    keywords: ['saunadecke', 'infrarot', 'infrarotsauna'],
-  },
-  {
-    persona: 'wellness',
-    main_category: 'fitness',
-    sub_category: 'yoga',
-    keywords: ['trainingsrad', 'yoga', 'yogarad', 'ab roller'],
-  },
-  {
-    persona: 'wellness',
-    main_category: 'fitness',
-    sub_category: 'beauty',
-    keywords: ['eisroller', 'gesicht pflege', 'hautpflege', 'beauty', 'luftbefeuchter', 'ultraschall befeuchter'],
-  },
-
-  // ── MINIBOSS: Spaß & Spiele ───────────────────────────────────────────
-  {
-    persona: 'miniboss',
-    main_category: 'spiele',
-    sub_category: 'party',
-    keywords: ['partyspiel', 'kartenspiel', 'what kartenspiel', 'gesellschaftsspiel', 'familien spiel', 'tischkicker', 'shuffleboard'],
-  },
-  {
-    persona: 'miniboss',
-    main_category: 'spiele',
-    sub_category: 'draussen',
-    keywords: ['wasserpistole', 'flying disc', 'wurfscheibe', 'outdoor spiel', 'schaumstoff'],
-  },
-  {
-    persona: 'miniboss',
-    main_category: 'spiele',
-    sub_category: 'wuerfel',
-    keywords: ['würfelturm', 'würfel', 'lcd würfel', 'elektronischer würfel', 'brettspiel', 'unlock'],
-  },
-  {
-    persona: 'miniboss',
-    main_category: 'deko',
-    sub_category: 'kinderzimmer',
-    keywords: ['nachtlicht kinderzimmer', 'led nachtlicht jugend', 'jugendzimmer', 'sterne projektor kind', 'ente pool', 'aufblasbare ente'],
-  },
-  {
-    persona: 'miniboss',
-    main_category: 'gadgets',
-    sub_category: 'spass',
-    keywords: ['kaugummi maschine', 'süßigkeitenspender', 'retro spender', 'wackelfigur'],
-  },
-
-  // ── Shared: Geschenke ─────────────────────────────────────────────────
-  {
-    persona: 'babo',
-    main_category: 'geschenke',
-    sub_category: 'maenner',
-    keywords: ['geschenk männer', 'männergeschenk', 'pizza socken', 'socken geschenk', 'kondome geschenk', 'einhorn kondome', 'lichtschwert'],
-  },
-  {
-    persona: 'queen',
-    main_category: 'geschenke',
-    sub_category: 'frauen',
-    keywords: ['geschenk frauen', 'frauengeschenk', 'foto kalender', 'personalisierter kalender'],
-  },
-  {
-    persona: 'miniboss',
-    main_category: 'geschenke',
-    sub_category: 'kids',
-    keywords: ['geschenk kinder', 'kindergeschenk', 'spielzeug', 'kinderspiel'],
-  },
-
-  // ── BÜRO: Cross-Persona ───────────────────────────────────────────────
+  // ── BABO: Büro ────────────────────────────────────────────────────────
   {
     persona: 'babo',
     main_category: 'buero',
     sub_category: 'setup',
-    keywords: ['kabelmanagement', 'schreibtisch organizer', 'bildschirmhalter', 'monitor halter', 'usb hub', 'kabel organizer', 'magsafe', 'smartphone ständer'],
+    keywords: ['kabelmanagement schreibtisch', 'kabel organizer schreibtisch', 'schreibtisch aufsatz', 'stehpult', 'hoehenverstellbar schreibtisch', 'magsafe ladestation', 'smartphone staender schreibtisch'],
   },
   {
     persona: 'babo',
     main_category: 'buero',
     sub_category: 'produktivitaet',
-    keywords: ['timer', 'würfel timer', 'countdown', 'whiteboard', 'maus bluetooth', 'ergonomisch', 'ticktime'],
+    keywords: ['wuerfel timer', 'würfel timer', 'countdown timer', 'ticktime', 'whiteboard selbstklebend', 'ergonomische maus', 'kabellose maus bluetooth'],
+  },
+
+  // ── BABO: Gadgets & Tech ──────────────────────────────────────────────
+  {
+    persona: 'babo',
+    main_category: 'gadgets',
+    sub_category: 'tech',
+    keywords: ['fingerabdruck schloss', 'bluetooth klappbare tastatur', 'usb c adapter', 'usb hub', 'anker adapter', 'powerbank 7000', 'magsafe wireless'],
+  },
+  {
+    persona: 'babo',
+    main_category: 'gadgets',
+    sub_category: 'kurioses',
+    keywords: ['weinflaschenhalter totenkopf', 'totenkopf halter', 'aufblasbare ente riesig', 'inflatable pool'],
+  },
+
+  // ── BABO: Geschenke ───────────────────────────────────────────────────
+  {
+    persona: 'babo',
+    main_category: 'geschenke',
+    sub_category: 'maenner',
+    keywords: ['pizza socken', 'einhorn kondome', 'kondome geschenk', 'lichtschwert geschenk'],
+  },
+
+  // ── QUEEN: Geschenke ──────────────────────────────────────────────────
+  {
+    persona: 'queen',
+    main_category: 'geschenke',
+    sub_category: 'frauen',
+    keywords: ['foto kalender', 'personalisierter kalender', 'jahreskalender personalisiert'],
+  },
+
+  // ── MINIBOSS: Geschenke ───────────────────────────────────────────────
+  {
+    persona: 'miniboss',
+    main_category: 'geschenke',
+    sub_category: 'kids',
+    keywords: ['kindergeschenk', 'geschenk kinder', 'spielzeug kinder'],
   },
 ]

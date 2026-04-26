@@ -16,22 +16,50 @@ type MenuName = "trending" | "babos" | "queens" | "miniboss" | "squad" | null
 interface SubItem { label: string; href: string; icon: React.ElementType; desc: string }
 interface NavItem { key: MenuName; label: string; icon: React.ElementType; sub: SubItem[] }
 
-// ── Real Supabase categories ───────────────────────────────────────────────
-const CAT_LUSTIG:   SubItem = { label: "Lustige Gadgets",       href: "/kategorie/lustige-gadgets",    icon: PartyPopper,      desc: "Kurioses & Witziges" }
-const CAT_MAENNER:  SubItem = { label: "Geschenke für Männer",  href: "/kategorie/geschenke-maenner",  icon: Crown,            desc: "Gadgets & Lifestyle" }
-const CAT_BUERO:    SubItem = { label: "Büro-Gadgets",          href: "/kategorie/buero-gadgets",      icon: BriefcaseBusiness,desc: "Smarte Schreibtisch-Helfer" }
-const CAT_KUECHE:   SubItem = { label: "Küchen-Gadgets",        href: "/kategorie/kuechen-gadgets",    icon: UtensilsCrossed,  desc: "Coole Küchenhelfer" }
-const CAT_UNTER20:  SubItem = { label: "Unter 20€",             href: "/kategorie/geschenke-unter-20", icon: Zap,              desc: "Bestes fürs kleine Budget" }
-
-const ALL_CATS = [CAT_LUSTIG, CAT_MAENNER, CAT_BUERO, CAT_KUECHE, CAT_UNTER20]
-
 const NAV: NavItem[] = [
-  { key: "trending",  label: "Trending",  icon: Flame,     sub: ALL_CATS },
-  { key: "babos",     label: "Babos",     icon: Crown,     sub: [CAT_MAENNER, CAT_BUERO, CAT_LUSTIG, CAT_UNTER20] },
-  { key: "queens",    label: "Queens",    icon: Sparkles,  sub: [CAT_KUECHE, CAT_UNTER20, CAT_LUSTIG, CAT_MAENNER] },
-  { key: "miniboss",  label: "Miniboss",  icon: Rocket,    sub: [CAT_LUSTIG, CAT_UNTER20, CAT_MAENNER] },
-  { key: "squad",     label: "Squad",     icon: Users,     sub: [CAT_LUSTIG, CAT_UNTER20, CAT_MAENNER, CAT_KUECHE] },
+  {
+    key: "trending", label: "Trending", icon: Flame, sub: [
+      { label: "Alle Trends",    href: "/trending",                      icon: Flame,            desc: "Was gerade abgeht" },
+      { label: "Lustige Gadgets",href: "/kategorie/lustige-gadgets",     icon: PartyPopper,      desc: "Kurioses & Witziges" },
+      { label: "Unter 20€",      href: "/kategorie/geschenke-unter-20",  icon: Zap,              desc: "Günstig & gut" },
+    ],
+  },
+  {
+    key: "babos", label: "Babos", icon: Crown, sub: [
+      { label: "Alle Babos",     href: "/babos",             icon: Crown,            desc: "Komplette Babo-Welt" },
+      { label: "Gaming",         href: "/babos/gaming",      icon: Rocket,           desc: "Setup, Retro & Deko" },
+      { label: "Outdoor",        href: "/babos/outdoor",     icon: Zap,              desc: "Survival & Camping" },
+      { label: "Auto",           href: "/babos/auto",        icon: BriefcaseBusiness,desc: "Technik & Zubehör" },
+      { label: "Büro",           href: "/babos/buero",       icon: BriefcaseBusiness,desc: "Schreibtisch-Setup" },
+      { label: "Gadgets & Tech", href: "/babos/gadgets",     icon: Zap,              desc: "Bar, Tech & Kurioses" },
+    ],
+  },
+  {
+    key: "queens", label: "Queens", icon: Sparkles, sub: [
+      { label: "Alle Queens",    href: "/queens",            icon: Sparkles,         desc: "Komplette Queen-Welt" },
+      { label: "Küche",          href: "/queens/kueche",     icon: UtensilsCrossed,  desc: "Werkzeug & Kurioses" },
+      { label: "Deko & Wohnen",  href: "/queens/deko",       icon: Sparkles,         desc: "Beleuchtung & Pflanzen" },
+      { label: "Lifestyle",      href: "/queens/lifestyle",  icon: Crown,            desc: "Mode & Reise" },
+    ],
+  },
+  {
+    key: "miniboss", label: "Miniboss", icon: Rocket, sub: [
+      { label: "Alle Miniboss",  href: "/miniboss",          icon: Rocket,           desc: "Komplette Miniboss-Welt" },
+      { label: "Spiele",         href: "/miniboss/spiele",   icon: PartyPopper,      desc: "Party, Würfel & draußen" },
+      { label: "Gadgets",        href: "/miniboss/gadgets",  icon: Zap,              desc: "Spaß-Gadgets" },
+      { label: "Deko & Zimmer",  href: "/miniboss/deko",     icon: Sparkles,         desc: "Kinderzimmer & Licht" },
+    ],
+  },
+  {
+    key: "squad", label: "Squad", icon: Users, sub: [
+      { label: "Alle Squad",     href: "/squad",             icon: Users,            desc: "Komplette Squad-Welt" },
+      { label: "Entspannung",    href: "/squad/entspannung", icon: Sparkles,         desc: "Massage & Schlaf" },
+      { label: "Fitness",        href: "/squad/fitness",     icon: Zap,              desc: "Beauty & Yoga" },
+    ],
+  },
 ]
+
+const ALL_CATS = NAV.flatMap(n => n.sub)
 
 // ── Search Modal ───────────────────────────────────────────────────────────
 export function NavSearch() {

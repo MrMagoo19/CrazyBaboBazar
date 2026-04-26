@@ -58,3 +58,35 @@ export async function getProductBySlug(slug: string): Promise<DbProduct | null> 
   return data
 }
 
+export async function getProductsByPersona(
+  persona: string,
+  mainCategory?: string
+): Promise<DbProduct[]> {
+  const supabase = await client()
+  let query = supabase
+    .from('products')
+    .select('*, categories(*)')
+    .eq('is_published', true)
+    .eq('shop_persona', persona)
+    .order('is_featured', { ascending: false })
+
+  if (mainCategory) {
+    query = query.eq('shop_main_category', mainCategory)
+  }
+
+  const { data } = await query
+  return data ?? []
+}
+
+export async function getTrendingProducts(): Promise<DbProduct[]> {
+  const supabase = await client()
+  const { data } = await supabase
+    .from('products')
+    .select('*, categories(*)')
+    .eq('is_published', true)
+    .order('is_featured', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(40)
+  return data ?? []
+}
+

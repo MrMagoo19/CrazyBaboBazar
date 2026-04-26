@@ -21,6 +21,11 @@ export type DbProduct = {
   is_featured: boolean
   category_id: string | null
   categories: DbCategory | null
+  shop_persona: string | null
+  shop_main_category: string | null
+  shop_sub_category: string | null
+  amazon_category: string | null
+  brand: string | null
 }
 
 export function formatPrice(cents: number | null): string {

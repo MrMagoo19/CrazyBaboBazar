@@ -9,6 +9,7 @@ import {
   BriefcaseBusiness, UtensilsCrossed, PartyPopper, Zap,
 } from "lucide-react"
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
+import { createClient } from "@/utils/supabase/client"
 
 // ── Custom persona icons ───────────────────────────────────────────────────
 function BaboIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
@@ -101,11 +102,16 @@ const NAV: NavItem[] = [
 const ALL_CATS = NAV.flatMap(n => n.sub)
 
 // ── Search Modal ───────────────────────────────────────────────────────────
+type ProductResult = { slug: string; name: string; tagline: string | null; image_url: string | null }
+
 export function NavSearch() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
+  const [results, setResults] = useState<ProductResult[]>([])
+  const [loading, setLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -120,17 +126,31 @@ export function NavSearch() {
 
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 50)
-    else setQuery("")
+    else { setQuery(""); setResults([]) }
   }, [open])
 
-  const filtered = query.length > 0
-    ? ALL_CATS.filter(c => c.label.toLowerCase().includes(query.toLowerCase()))
-    : ALL_CATS
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (query.trim().length < 2) { setResults([]); return }
+
+    debounceRef.current = setTimeout(async () => {
+      setLoading(true)
+      const sb = createClient()
+      const { data } = await sb
+        .from("products")
+        .select("slug, name, tagline, image_url")
+        .eq("is_published", true)
+        .or(`name.ilike.%${query}%,description.ilike.%${query}%,tagline.ilike.%${query}%,brand.ilike.%${query}%`)
+        .limit(8)
+      setResults(data ?? [])
+      setLoading(false)
+    }, 250)
+  }, [query])
 
   const modal = open && (
     <>
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" style={{ zIndex: 9998 }} onClick={() => setOpen(false)} />
-      <div className="fixed left-1/2 top-1/3 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 px-4" style={{ zIndex: 9999 }}>
+      <div className="fixed left-1/2 top-20 w-full max-w-lg -translate-x-1/2 px-4" style={{ zIndex: 9999 }}>
         <div className="bg-[#1C1C1C] border border-[#333333] border-t-2 border-t-[#E85000] shadow-2xl">
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[#2A2A2A]">
             <SearchIcon size={15} className="text-[#6B6560] shrink-0" />
@@ -138,27 +158,36 @@ export function NavSearch() {
               ref={inputRef}
               value={query}
               onChange={e => setQuery(e.target.value)}
-              placeholder="Kategorie suchen…"
+              placeholder="Produkt suchen… z.B. Muggle, Gaming, Massagepistole"
               className="flex-1 bg-transparent text-sm text-[#F0EDE8] placeholder:text-[#6B6560] outline-none"
             />
             <button onClick={() => setOpen(false)} className="text-[#6B6560] hover:text-[#F0EDE8] transition-colors">
               <X size={14} />
             </button>
           </div>
-          <div className="p-2">
-            {filtered.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-[#6B6560]">Nichts gefunden.</p>
-            ) : filtered.map(item => (
+          <div className="p-2 max-h-[60vh] overflow-y-auto">
+            {query.length < 2 ? (
+              <p className="px-4 py-4 text-center text-xs text-[#6B6560]">Mindestens 2 Zeichen eingeben…</p>
+            ) : loading ? (
+              <p className="px-4 py-4 text-center text-xs text-[#6B6560]">Suche…</p>
+            ) : results.length === 0 ? (
+              <p className="px-4 py-6 text-center text-sm text-[#6B6560]">Nichts gefunden für „{query}"</p>
+            ) : results.map(item => (
               <Link
-                key={item.href}
-                href={item.href}
+                key={item.slug}
+                href={`/produkt/${item.slug}`}
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 hover:bg-[#252525] hover:text-[#E85000] text-[#9E9890] text-sm transition-colors group"
+                className="flex items-center gap-3 px-3 py-2.5 hover:bg-[#252525] transition-colors group"
               >
-                <item.icon size={13} className="shrink-0 opacity-60 group-hover:opacity-100 group-hover:text-[#E85000]" />
-                <div>
-                  <div className="font-medium text-[#F0EDE8] group-hover:text-[#E85000]">{item.label}</div>
-                  <div className="text-[11px] text-[#6B6560]">{item.desc}</div>
+                <div className="w-10 h-10 bg-[#141414] shrink-0 flex items-center justify-center overflow-hidden">
+                  {item.image_url
+                    ? <img src={item.image_url} alt="" className="w-full h-full object-contain p-1" />
+                    : <span className="text-xl">📦</span>
+                  }
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-[#F0EDE8] group-hover:text-[#E85000] truncate">{item.name}</div>
+                  {item.tagline && <div className="text-[11px] text-[#6B6560] truncate">{item.tagline}</div>}
                 </div>
               </Link>
             ))}

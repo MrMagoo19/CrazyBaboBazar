@@ -10,6 +10,45 @@ import {
 } from "lucide-react"
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
 
+// ── Custom persona icons ───────────────────────────────────────────────────
+function BaboIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor" className={className}>
+      {/* Crown */}
+      <path d="M3 6 L5 3 L8 5 L11 3 L13 6 L12.5 7 H3.5 Z" />
+      {/* Head */}
+      <circle cx="8" cy="11" r="3.5" />
+    </svg>
+  )
+}
+
+function QueenIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor" className={className}>
+      {/* Crown */}
+      <path d="M3 5.5 L5 2.5 L8 4.5 L11 2.5 L13 5.5 L12.5 6.5 H3.5 Z" />
+      {/* Head */}
+      <circle cx="8" cy="10.5" r="3" />
+      {/* Hair strands */}
+      <rect x="4.5" y="12.5" width="1.2" height="2.5" rx="0.6" />
+      <rect x="10.3" y="12.5" width="1.2" height="2.5" rx="0.6" />
+    </svg>
+  )
+}
+
+function MinibossIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor" className={className}>
+      {/* Big round baby head */}
+      <circle cx="8" cy="8.5" r="5" />
+      {/* Eyes cutout */}
+      <circle cx="6.2" cy="8" r="0.8" fill="none" stroke="currentColor" strokeWidth="0" />
+      {/* Use a slightly different approach - baby tuft of hair on top */}
+      <ellipse cx="8" cy="3.8" rx="1.2" ry="1.5" />
+    </svg>
+  )
+}
+
 // ── Types ──────────────────────────────────────────────────────────────────
 type MenuName = "trending" | "babos" | "queens" | "miniboss" | "squad" | null
 
@@ -25,8 +64,8 @@ const NAV: NavItem[] = [
     ],
   },
   {
-    key: "babos", label: "Babos", icon: Crown, sub: [
-      { label: "Alle Babos",     href: "/babos",             icon: Crown,            desc: "Komplette Babo-Welt" },
+    key: "babos", label: "Babos", icon: BaboIcon, sub: [
+      { label: "Alle Babos",     href: "/babos",             icon: BaboIcon,         desc: "Komplette Babo-Welt" },
       { label: "Gaming",         href: "/babos/gaming",      icon: Rocket,           desc: "Setup, Retro & Deko" },
       { label: "Outdoor",        href: "/babos/outdoor",     icon: Zap,              desc: "Survival & Camping" },
       { label: "Auto",           href: "/babos/auto",        icon: BriefcaseBusiness,desc: "Technik & Zubehör" },
@@ -35,16 +74,16 @@ const NAV: NavItem[] = [
     ],
   },
   {
-    key: "queens", label: "Queens", icon: Sparkles, sub: [
-      { label: "Alle Queens",    href: "/queens",            icon: Sparkles,         desc: "Komplette Queen-Welt" },
+    key: "queens", label: "Queens", icon: QueenIcon, sub: [
+      { label: "Alle Queens",    href: "/queens",            icon: QueenIcon,        desc: "Komplette Queen-Welt" },
       { label: "Küche",          href: "/queens/kueche",     icon: UtensilsCrossed,  desc: "Werkzeug & Kurioses" },
       { label: "Deko & Wohnen",  href: "/queens/deko",       icon: Sparkles,         desc: "Beleuchtung & Pflanzen" },
       { label: "Lifestyle",      href: "/queens/lifestyle",  icon: Crown,            desc: "Mode & Reise" },
     ],
   },
   {
-    key: "miniboss", label: "Miniboss", icon: Rocket, sub: [
-      { label: "Alle Miniboss",  href: "/miniboss",          icon: Rocket,           desc: "Komplette Miniboss-Welt" },
+    key: "miniboss", label: "Miniboss", icon: MinibossIcon, sub: [
+      { label: "Alle Miniboss",  href: "/miniboss",          icon: MinibossIcon,     desc: "Komplette Miniboss-Welt" },
       { label: "Spiele",         href: "/miniboss/spiele",   icon: PartyPopper,      desc: "Party, Würfel & draußen" },
       { label: "Gadgets",        href: "/miniboss/gadgets",  icon: Zap,              desc: "Spaß-Gadgets" },
       { label: "Deko & Zimmer",  href: "/miniboss/deko",     icon: Sparkles,         desc: "Kinderzimmer & Licht" },

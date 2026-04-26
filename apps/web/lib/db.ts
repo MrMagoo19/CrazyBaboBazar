@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
-export type { DbCategory, DbProduct } from './db-types'
+import type { DbCategory, DbProduct } from './db-types'
+export type { DbCategory, DbProduct }
 export { formatPrice } from './db-types'
 
 async function client() {
@@ -57,7 +58,3 @@ export async function getProductBySlug(slug: string): Promise<DbProduct | null> 
   return data
 }
 
-export function formatPrice(cents: number | null): string {
-  if (!cents) return '—'
-  return (cents / 100).toFixed(2).replace('.', ',')
-}

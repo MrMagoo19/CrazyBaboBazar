@@ -28,7 +28,7 @@ export default async function KategoriePage({ params }: Props) {
 
   if (!category) notFound()
 
-  const otherCategories = allCategories.filter((c) => c.slug !== slug)
+  const otherCategories = allCategories.filter((c: { slug: string }) => c.slug !== slug)
 
   return (
     <div>
@@ -86,7 +86,7 @@ export default async function KategoriePage({ params }: Props) {
             Weitere Kategorien
           </h2>
           <div className="flex flex-wrap gap-2">
-            {otherCategories.map((cat) => (
+            {otherCategories.map((cat: { slug: string | null; name: string | null; emoji?: string | null }) => (
               <Link
                 key={cat.slug}
                 href={`/kategorie/${cat.slug}`}

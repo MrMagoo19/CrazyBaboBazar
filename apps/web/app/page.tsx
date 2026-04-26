@@ -1,7 +1,7 @@
+import Image from 'next/image'
 import { ProductGrid } from '@/components/product-grid'
 import { getPublishedProducts } from '@/lib/db'
 import type { Metadata } from 'next'
-import { Flame, Zap, Crown } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,46 +40,15 @@ export default async function HomePage() {
       </div>
 
       {/* ── HERO ───────────────────────────────────────────── */}
-      <div className="border-b border-[#333333] relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
-          <div className="max-w-3xl">
-            <div className="flex items-center gap-2 mb-6">
-              <Flame size={14} className="text-[#E85000]" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#E85000]">
-                DACH Affiliate Discovery
-              </span>
-            </div>
-            <h1 className="font-[family-name:var(--font-display)] font-extrabold text-[2.8rem] sm:text-[4rem] md:text-[5rem] leading-[0.95] tracking-tight text-[#F0EDE8] mb-6">
-              PRODUKTE<br />
-              <span className="text-[#E85000]">DIE WAS</span><br />
-              DRAUF HABEN.
-            </h1>
-            <p className="text-[#6B6560] text-base max-w-lg leading-relaxed mb-8">
-              Kuriose, lustige und kaufstarke Produkte — handverlesen für Babos, Queens, Miniboss und Squad.
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-1.5 text-xs text-[#9E9890]">
-                <Zap size={12} className="text-[#E85000]" />
-                Täglich aktualisiert
-              </div>
-              <div className="w-px h-3 bg-[#333333]" />
-              <div className="flex items-center gap-1.5 text-xs text-[#9E9890]">
-                <Crown size={12} className="text-[#E85000]" />
-                Handverlesen
-              </div>
-              <div className="w-px h-3 bg-[#333333]" />
-              <div className="text-xs text-[#9E9890]">
-                🇩🇪🇦🇹🇨🇭 DACH
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Decorative background text */}
-        <div className="absolute right-0 top-0 bottom-0 flex items-center pointer-events-none select-none overflow-hidden">
-          <span className="font-[family-name:var(--font-display)] font-extrabold text-[12rem] md:text-[18rem] text-[#F0EDE8]/[0.03] leading-none pr-4">
-            CBB
-          </span>
-        </div>
+      <div className="border-b border-[#333333] flex items-center justify-center py-8">
+        <Image
+          src="/Logo.png"
+          alt="Crazy Babo Bazar"
+          width={180}
+          height={180}
+          className="object-contain"
+          priority
+        />
       </div>
 
       {/* ── SECTION LABEL ──────────────────────────────────── */}

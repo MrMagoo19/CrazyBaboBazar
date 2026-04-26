@@ -42,22 +42,20 @@ export default async function HomePage() {
       {/* ── HERO ───────────────────────────────────────────── */}
       <div className="border-b border-[#333333] relative flex items-center justify-center py-6">
         {/* Banner links + rechts */}
-        <div className="flex items-center justify-center w-full max-w-4xl mx-auto px-4 gap-0">
-          {/* CRAZY STUFF — linke Hälfte */}
-          <div className="flex-1 flex justify-end">
-            <Image
-              src="/Banner.png"
-              alt="Crazy Stuff"
-              width={768}
-              height={512}
-              className="object-contain object-right w-full max-w-md md:max-w-lg"
-              style={{ clipPath: 'inset(0 50% 0 0)', filter: 'brightness(0) invert(1)' }}
-              priority
-            />
-          </div>
+        <div className="flex items-center justify-center gap-0">
+          {/* CRAZY STUFF */}
+          <Image
+            src="/Banner.png"
+            alt="Crazy Stuff"
+            width={400}
+            height={267}
+            className="object-contain"
+            style={{ clipPath: 'inset(0 50% 0 0)', filter: 'brightness(0) invert(1)', marginRight: '-40px' }}
+            priority
+          />
 
           {/* Löwe mittig */}
-          <div className="shrink-0 z-10 -mx-6">
+          <div className="shrink-0 z-10">
             <Image
               src="/Logo.png"
               alt="Crazy Babo Bazar"
@@ -68,18 +66,16 @@ export default async function HomePage() {
             />
           </div>
 
-          {/* CRAZY LIFE — rechte Hälfte */}
-          <div className="flex-1 flex justify-start">
-            <Image
-              src="/Banner.png"
-              alt="Crazy Life"
-              width={768}
-              height={512}
-              className="object-contain object-left w-full max-w-md md:max-w-lg"
-              style={{ clipPath: 'inset(0 0 0 50%)', filter: 'brightness(0) invert(1)' }}
-              priority
-            />
-          </div>
+          {/* CRAZY LIFE */}
+          <Image
+            src="/Banner.png"
+            alt="Crazy Life"
+            width={400}
+            height={267}
+            className="object-contain"
+            style={{ clipPath: 'inset(0 0 0 50%)', filter: 'brightness(0) invert(1)', marginLeft: '-40px' }}
+            priority
+          />
         </div>
       </div>
 

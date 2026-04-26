@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { ProductGrid } from '@/components/product-grid'
 import { MorphingText } from '@/components/ui/liquid-text'
 import { getPublishedProducts } from '@/lib/db'
@@ -20,7 +21,15 @@ export default async function HomePage() {
 
       {/* ── MORPHING TEXT BANNER ─────────────────────────── */}
       <div className="border-b border-[#333333]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex items-center justify-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-center gap-4">
+          <Image
+            src="/Logo.png"
+            alt="Crazy Babo Bazar Maskottchen"
+            width={64}
+            height={64}
+            className="object-contain shrink-0"
+            priority
+          />
           <MorphingText
             texts={morphTexts}
             className="text-[#F0EDE8] h-10 md:h-14 lg:text-[2.2rem] text-[1.4rem]"

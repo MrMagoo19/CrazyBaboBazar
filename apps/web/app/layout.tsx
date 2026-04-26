@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Syne, DM_Sans } from 'next/font/google'
 import Link from 'next/link'
+import Image from 'next/image'
 import { CookieConsent } from '@/components/ui/cookie-consent'
 import './globals.css'
 
@@ -117,10 +118,13 @@ export default function RootLayout({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Brand */}
               <div>
-                <div className="font-[family-name:var(--font-display)] font-extrabold text-2xl mb-3">
-                  <span className="bg-[#E85000] text-[#1C1C1C] px-2">CRAZY</span>
-                  <span>BABO BAZAR</span>
-                </div>
+                <Image
+                  src="/Logo.png"
+                  alt="Crazy Babo Bazar"
+                  width={160}
+                  height={160}
+                  className="object-contain mb-2"
+                />
                 <p className="text-[#6B6560] text-sm leading-relaxed max-w-xs">
                   Kuriose Produkte für schlaue Käufer. Handverlesen.
                 </p>

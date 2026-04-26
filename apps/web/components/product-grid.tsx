@@ -10,9 +10,6 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#252525]">
       {products.map((product) => {
-        const catName = product.shop_main_category
-          ? `${product.shop_persona ?? ''} · ${product.shop_main_category}`
-          : (product.categories?.name ?? '')
 
         return (
           <div
@@ -44,11 +41,6 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
                   {product.is_featured && (
                     <span className="bg-[#E85000] text-[#1C1C1C] text-[9px] font-extrabold px-2 py-0.5 uppercase tracking-wider">
                       TOP PICK
-                    </span>
-                  )}
-                  {catName && (
-                    <span className="bg-[#1C1C1C]/80 backdrop-blur-sm text-[#9E9890] text-[9px] font-bold px-2 py-0.5 uppercase tracking-wider border border-[#333333]">
-                      {catName}
                     </span>
                   )}
                 </div>

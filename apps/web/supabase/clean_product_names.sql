@@ -1,0 +1,50 @@
+-- ============================================================
+-- Markennamen aus Produkttiteln entfernen
+-- ============================================================
+
+update products set name = 'Paracord Survival Armband Set'              where slug = 'azengear-paracord-survival-armband-set';
+update products set name = 'Gaming Hängevitrine Regal'                  where slug = 'yusing-gaming-haengevitrine-regal';
+update products set name = 'Feuerstahl XXL'                             where slug = 'tre-feuerstahl-xxl';
+update products set name = 'Retro Spielekonsole'                        where slug = 'mad-monkey-retro-spielekonsole';
+update products set name = 'Weinflaschenhalter Totenkopf'               where slug = 'brubaker-weinflaschenhalter-totenkopf';
+update products set name = 'Arcade Joystick'                            where slug = 'mayflash-f300-arcade-joystick';
+update products set name = 'Cocktailshaker Set'                         where slug = 'empation-cocktailshaker-set';
+update products set name = 'Pizzaschneider Edelstahl'                   where slug = 'asdirne-pizzaschneider-edelstahl';
+update products set name = 'Walförmiges Nudelsieb'                      where slug = 'peleg-design-pastail-walfoermiges-nudelsieb';
+update products set name = 'Höhenverstellbares Stehpult'                where slug = 'vivo-hoehenverstellbares-stehpult';
+update products set name = 'Taco Ständer'                               where slug = 'diycut-taco-staender';
+update products set name = 'Höhenverstellbarer Schreibtisch Aufsatz'    where slug = 'dicmky-hoehenverstellbarer-schreibtisch-aufsatz';
+update products set name = 'Zigarettenanzünder Schnellladegerät'        where slug = 'superone-zigarettenanzuender-schnellladegeraet';
+update products set name = 'Ergonomische Kabellose Maus Bluetooth'      where slug = 'tecknet-ergonomische-kabellose-maus-bluetooth';
+update products set name = 'Ultraschall Luftbefeuchter Farbwechsel'     where slug = 'porseme-ultraschall-luftbefeuchter-farbwechsel';
+update products set name = 'Infrarot Saunadecke'                        where slug = 'lifepro-infrarot-saunadecke';
+update products set name = 'Wackelfigur Armaturenbrett Auto'            where slug = 'kiayoo-wackelfigur-armaturenbrett-auto';
+update products set name = 'Programmierbare LED Laufschrift Tafel'      where slug = 'jdvootd-programmierbare-led-laufschrift-tafel';
+update products set name = 'Bluetooth Klappbare Tastatur'               where slug = 'protoarc-xk01-bluetooth-klappbare-tastatur';
+update products set name = 'Kabelmanagement Schreibtisch Selbstklebend' where slug = 'joyroom-kabelmanagement-schreibtisch-selbstklebend';
+update products set name = 'USB-C Adapter'                              where slug = 'anker-usb-c-adapter-upgraded';
+update products set name = 'Schwebendes Bücherregal'                    where slug = 'fentec-schwebendes-buecherregal';
+update products set name = 'Dodo Duck LED Nachtlicht'                   where slug = 'yuandian-dodo-duck-led-nachtlicht';
+update products set name = 'Planet Wolke Nachtlicht 3er Pack'           where slug = 'nelux-3er-pack-planet-wolke-nachtlicht';
+update products set name = 'Wasserdichte Handyhülle Unterwasser'        where slug = 'joto-wasserdichte-handyhuelle-unterwasser';
+update products set name = 'Ultraleichter Campingstuhl'                 where slug = 'sportneer-ultraleichter-campingstuhl';
+update products set name = 'Multifunktionsmesser Rostfrei'              where slug = 'trekline-multifunktionsmesser-rostfrei';
+update products set name = 'Flying Disc Wiederaufladbar'                where slug = 'tosy-flying-disc-wiederaufladbar';
+update products set name = 'Tischkicker'                                where slug = 'costway-tischkicker-kickertisch';
+update products set name = 'What! Kartenspiel'                          where slug = 'huch-what-kartenspiel-deutsche-ausgabe';
+update products set name = 'Aufladbare Campinglaterne'                  where slug = 'suboos-aufladbare-campinglaterne';
+update products set name = 'Schaumstoff Wasserpistole'                  where slug = 'derayee-schaumstoff-wasserpistole';
+update products set name = 'Massagepistole Triggerpunkt'                where slug = 'hyako-massagepistole-triggerpunkt';
+update products set name = 'Retro Kaugummi Maschine'                    where slug = 'ckb-retro-kaugummi-maschine-suessigkeitenspender';
+update products set name = 'MagSafe Wireless Ladestation 15W'           where slug = 'mfi-zertifiziert-magsafe-wireless-ladestation-15w';
+update products set name = 'Edelstahl Drehring'                         where slug = 'findchic-edelstahl-drehring';
+update products set name = 'Brillenhalter Auto Sonnenblende'            where slug = 'joyroom-brillenhalter-auto-sonnenblende';
+update products set name = 'Nachfüllbarer Parfümzerstäuber'             where slug = 'toureal-nachfuellbarer-parfuemzerstaeuber-reise';
+update products set name = 'Riesenwackelturm Jumbo Jenga'               where slug = 'ubergames-riesenwackelturm-jumbo-jenga';
+update products set name = 'Controller Ständer 4 Etagen'               where slug = 'kytok-controller-staender-4-etagen';
+update products set name = 'Partyspiel Geburtstag'                      where slug = 'talking-tables-partyspiel-geburtstag';
+update products set name = 'Akupressurmatte Ganzkörper'                 where slug = 'caspor-akupressurmatte-ganzkoerper';
+update products set name = 'Bluetooth Schlafkopfhörer'                  where slug = 'musicozy-bluetooth-schlafkopfhoerer';
+update products set name = 'Reflektierende Windbreaker Jacke'           where slug = 'newl-reflektierende-holographic-windbreaker';
+update products set name = 'Business Rucksack Wasserdicht'              where slug = 'fenree-business-rucksack-wasserdicht-usb';
+update products set name = 'Würfel Timer Countdown'                     where slug = 'ticktime-tk3-wuerfel-timer-countdown';

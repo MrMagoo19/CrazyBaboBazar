@@ -40,17 +40,17 @@ export default async function HomePage() {
       </div>
 
       {/* ── HERO ───────────────────────────────────────────── */}
-      <div className="border-b border-[#333333] relative flex items-center justify-center py-6">
+      <div className="border-b border-[#333333] relative flex items-center justify-center py-0">
         {/* Banner links + rechts */}
         <div className="flex items-center justify-center gap-0">
           {/* CRAZY STUFF */}
           <Image
             src="/Banner.png"
             alt="Crazy Stuff"
-            width={600}
-            height={400}
+            width={400}
+            height={267}
             className="object-contain"
-            style={{ clipPath: 'inset(0 50% 0 0)', filter: 'brightness(0) invert(1)', marginRight: '-40px' }}
+            style={{ clipPath: 'inset(0 50% 0 0)', filter: 'brightness(0) invert(1)', marginRight: '-250px' }}
             priority
           />
 
@@ -59,8 +59,8 @@ export default async function HomePage() {
             <Image
               src="/Logo_4.png"
               alt="Crazy Babo Bazar"
-              width={500}
-              height={334}
+              width={300}
+              height={200}
               className="object-contain drop-shadow-2xl"
               priority
             />
@@ -70,10 +70,10 @@ export default async function HomePage() {
           <Image
             src="/Banner.png"
             alt="Crazy Life"
-            width={600}
-            height={400}
+            width={400}
+            height={267}
             className="object-contain"
-            style={{ clipPath: 'inset(0 0 0 50%)', filter: 'brightness(0) invert(1)', marginLeft: '-40px' }}
+            style={{ clipPath: 'inset(0 0 0 50%)', filter: 'brightness(0) invert(1)', marginLeft: '-250px' }}
             priority
           />
         </div>

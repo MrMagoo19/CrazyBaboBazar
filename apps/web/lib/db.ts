@@ -28,14 +28,25 @@ export async function getCategoryBySlug(slug: string): Promise<DbCategory | null
   return data
 }
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
 export async function getPublishedProducts(): Promise<DbProduct[]> {
   const supabase = await client()
   const { data } = await supabase
     .from('products')
     .select('*, categories(*)')
     .eq('is_published', true)
-    .order('is_featured', { ascending: false })
-  return data ?? []
+  if (!data) return []
+  const featured = shuffle(data.filter(p => p.is_featured))
+  const rest = shuffle(data.filter(p => !p.is_featured))
+  return [...featured, ...rest]
 }
 
 export async function getProductsByCategory(categorySlug: string): Promise<DbProduct[]> {

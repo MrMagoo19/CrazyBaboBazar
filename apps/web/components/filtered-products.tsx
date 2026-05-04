@@ -35,7 +35,9 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
   const products = useMemo(() => {
     switch (active) {
       case 'neu':
-        return [...allProducts]
+        return [...allProducts].sort((a, b) =>
+          (b.created_at ?? '').localeCompare(a.created_at ?? '')
+        )
       case 'beliebt':
         return [...allProducts].sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0))
       case 'unter20':

@@ -28,10 +28,12 @@ export async function getCategoryBySlug(slug: string): Promise<DbCategory | null
   return data
 }
 
-function shuffle<T>(arr: T[]): T[] {
+function seededShuffle<T>(arr: T[], seed: number): T[] {
   const a = [...arr]
+  let s = seed
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    s = (s * 1664525 + 1013904223) & 0xffffffff
+    const j = Math.abs(s) % (i + 1);
     [a[i], a[j]] = [a[j], a[i]]
   }
   return a
@@ -44,8 +46,10 @@ export async function getPublishedProducts(): Promise<DbProduct[]> {
     .select('*, categories(*)')
     .eq('is_published', true)
   if (!data) return []
-  const featured = shuffle(data.filter(p => p.is_featured))
-  const rest = shuffle(data.filter(p => !p.is_featured))
+  // Seed changes every hour → new order per hour, stable within one request cycle
+  const seed = Math.floor(Date.now() / 3_600_000)
+  const featured = seededShuffle(data.filter(p => p.is_featured), seed)
+  const rest = seededShuffle(data.filter(p => !p.is_featured), seed + 1)
   return [...featured, ...rest]
 }
 

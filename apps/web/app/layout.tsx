@@ -51,7 +51,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="de" className={`${syne.variable} ${dmSans.variable}`}>
+    <html lang="de" className={`${syne.variable} ${dmSans.variable}`} data-scroll-behavior="smooth">
       <body className="bg-[#1C1C1C] text-[#F0EDE8] font-[family-name:var(--font-body)] min-h-screen flex flex-col">
 
         {/* Header */}

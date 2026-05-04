@@ -73,14 +73,8 @@ export default function RootLayout({
               {/* Desktop Nav mit Dropdowns */}
               <NavMenus />
 
-              {/* Rechte Seite: Guide + Suche + Mobile Burger */}
+              {/* Rechte Seite: Suche */}
               <div className="flex items-center gap-3 shrink-0">
-                <Link
-                  href="/guide"
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#E85000] text-[#1C1C1C] text-[10px] font-extrabold uppercase tracking-widest hover:bg-[#E8321C] transition-colors duration-200"
-                >
-                  Filter
-                </Link>
                 <NavSearch />
               </div>
 

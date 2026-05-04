@@ -12,27 +12,31 @@ import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
 import { createClient } from "@/utils/supabase/client"
 
 // ── Custom persona icons ───────────────────────────────────────────────────
+
+// Mann-Silhouette: runder Kopf + breite Schultern + gerader Körper
 function BaboIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor" className={className}>
-      {/* Crown */}
-      <path d="M3 6 L5 3 L8 5 L11 3 L13 6 L12.5 7 H3.5 Z" />
+    <svg width={size} height={size} viewBox="0 0 16 16" className={className}>
       {/* Head */}
-      <circle cx="8" cy="11" r="3.5" />
+      <circle cx="8" cy="4" r="2.8" fill="#A8D8EA" />
+      {/* Body – breite Schultern, gerader Torso = Mann */}
+      <path d="M3 8.5 C3 7.2 5 6.5 8 6.5 C11 6.5 13 7.2 13 8.5 L12 16 L4 16 Z" fill="#A8D8EA" />
     </svg>
   )
 }
 
+// Frau-Silhouette: runder Kopf + lange Haare seitlich + Kleid (A-Linie)
 function QueenIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor" className={className}>
-      {/* Crown */}
-      <path d="M3 5.5 L5 2.5 L8 4.5 L11 2.5 L13 5.5 L12.5 6.5 H3.5 Z" />
+    <svg width={size} height={size} viewBox="0 0 16 16" className={className}>
+      {/* Long hair – left side */}
+      <rect x="3.5" y="3.5" width="2" height="6" rx="1" fill="#F5B8C8" />
+      {/* Long hair – right side */}
+      <rect x="10.5" y="3.5" width="2" height="6" rx="1" fill="#F5B8C8" />
       {/* Head */}
-      <circle cx="8" cy="10.5" r="3" />
-      {/* Hair strands */}
-      <rect x="4.5" y="12.5" width="1.2" height="2.5" rx="0.6" />
-      <rect x="10.3" y="12.5" width="1.2" height="2.5" rx="0.6" />
+      <circle cx="8" cy="4" r="2.8" fill="#F5B8C8" />
+      {/* Dress – schmale Taille, A-Linie Kleid = Frau */}
+      <path d="M6 9 L10 9 L13.5 16 L2.5 16 Z" fill="#F5B8C8" />
     </svg>
   )
 }

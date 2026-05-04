@@ -78,18 +78,26 @@ export async function getProductsByPersona(
   mainCategory?: string
 ): Promise<DbProduct[]> {
   const supabase = await client()
-  let query = supabase
+
+  if (mainCategory) {
+    // Category page: primary match OR tagged → multi-category
+    const tag = `${persona}:${mainCategory}`
+    const { data } = await supabase
+      .from('products')
+      .select('*, categories(*)')
+      .eq('is_published', true)
+      .or(`and(shop_persona.eq.${persona},shop_main_category.eq.${mainCategory}),shop_tags.cs.{"${tag}"}`)
+      .order('is_featured', { ascending: false })
+    return data ?? []
+  }
+
+  // "Alle" page: primary persona only (no tag-based cross-persona bleed)
+  const { data } = await supabase
     .from('products')
     .select('*, categories(*)')
     .eq('is_published', true)
     .eq('shop_persona', persona)
     .order('is_featured', { ascending: false })
-
-  if (mainCategory) {
-    query = query.eq('shop_main_category', mainCategory)
-  }
-
-  const { data } = await query
   return data ?? []
 }
 

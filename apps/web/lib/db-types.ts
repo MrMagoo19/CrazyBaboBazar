@@ -28,6 +28,7 @@ export type DbProduct = {
   brand: string | null
   video_url: string | null
   created_at: string | null
+  shop_tags: string[] | null
 }
 
 export function formatPrice(cents: number | null): string {

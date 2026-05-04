@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { ProductGrid } from '@/components/product-grid'
+import { FilteredProducts } from '@/components/filtered-products'
 import { getPublishedProducts } from '@/lib/db'
 import type { Metadata } from 'next'
 
@@ -37,77 +37,38 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ── HERO ───────────────────────────────────────────── */}
-      <div className="border-b border-[#333333] relative flex items-center justify-center py-0">
-        {/* Banner links + rechts */}
-        <div className="flex items-center justify-center gap-0">
-          {/* CRAZY STUFF */}
-          <Image
-            src="/Banner.png"
-            alt="Crazy Stuff"
-            width={400}
-            height={267}
-            className="object-contain"
-            style={{ clipPath: 'inset(0 50% 0 0)', filter: 'brightness(0) invert(1)', marginRight: '-250px' }}
-            priority
-          />
-
-          {/* Löwe mittig */}
-          <div className="shrink-0 z-10">
-            <Image
-              src="/Logo_4.png"
-              alt="Crazy Babo Bazar"
-              width={300}
-              height={200}
-              className="object-contain drop-shadow-2xl"
-              priority
-            />
-          </div>
-
-          {/* CRAZY LIFE */}
-          <Image
-            src="/Banner.png"
-            alt="Crazy Life"
-            width={400}
-            height={267}
-            className="object-contain"
-            style={{ clipPath: 'inset(0 0 0 50%)', filter: 'brightness(0) invert(1)', marginLeft: '-250px' }}
-            priority
-          />
-        </div>
+      {/* ── HERO (kompakt) ─────────────────────────────────── */}
+      <div className="border-b border-[#333333] flex items-center justify-center py-3 gap-4">
+        <Image
+          src="/Banner.png"
+          alt=""
+          width={160}
+          height={40}
+          className="object-contain opacity-60 hidden sm:block"
+          style={{ filter: 'brightness(0) invert(1)' }}
+          priority
+        />
+        <Image
+          src="/Logo_4.png"
+          alt="Crazy Babo Bazar"
+          width={80}
+          height={54}
+          className="object-contain drop-shadow-lg"
+          priority
+        />
+        <Image
+          src="/Banner.png"
+          alt=""
+          width={160}
+          height={40}
+          className="object-contain opacity-60 hidden sm:block"
+          style={{ filter: 'brightness(0) invert(1)', transform: 'scaleX(-1)' }}
+          priority
+        />
       </div>
 
-      {/* ── SECTION LABEL ──────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-1 h-6 bg-[#E85000]" />
-          <span className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8]">
-            Alle Produkte
-          </span>
-          {products.length > 0 && (
-            <span className="text-xs text-[#6B6560] border border-[#333333] px-2 py-0.5">
-              {products.length} Treffer
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* ── PRODUCT GRID ───────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
-        {products.length === 0 ? (
-          <div className="text-center py-24 text-[#6B6560] border border-[#252525]">
-            <p className="text-4xl mb-4 font-[family-name:var(--font-display)] font-extrabold text-[#333333]">
-              BALD HIER
-            </p>
-            <p className="text-sm">Produkte werden gerade kuratiert.</p>
-          </div>
-        ) : (
-          <ProductGrid products={products} />
-        )}
-        <p className="text-[#333333] text-xs text-center mt-10">
-          * Affiliate-Links — wir verdienen eine Provision ohne Mehrkosten für dich.
-        </p>
-      </div>
+      {/* ── FILTER + PRODUCTS ──────────────────────────────── */}
+      <FilteredProducts allProducts={products} />
 
     </div>
   )

@@ -1,42 +1,42 @@
 import { getProductsByPersona } from '@/lib/db'
 import { PersonaPage } from '@/components/persona-page'
-import { Rocket } from 'lucide-react'
+import { Users } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
 const SUBNAV = [
-  { label: 'Alle', href: '/miniboss' },
-  { label: 'Spielzeug', href: '/miniboss/spielzeug' },
-  { label: 'Gaming', href: '/miniboss/gaming' },
-  { label: 'Spaß', href: '/miniboss/spass' },
+  { label: 'Alle', href: '/wellness' },
+  { label: 'Fitness & Sport', href: '/wellness/fitness' },
+  { label: 'Beauty & Pflege', href: '/wellness/beauty' },
+  { label: 'Outdoor', href: '/wellness/outdoor' },
 ]
 
-const VALID = ['spielzeug', 'gaming', 'spass']
+const VALID = ['fitness', 'beauty', 'outdoor']
 
 const LABELS: Record<string, string> = {
-  spielzeug: 'Spielzeug & Lernen',
-  gaming: 'Gaming & Collectibles',
-  spass: 'Spaß & Party',
+  fitness: 'Fitness & Sport',
+  beauty: 'Beauty & Pflege',
+  outdoor: 'Outdoor',
 }
 
 type Props = { params: Promise<{ category: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params
-  return { title: `Miniboss — ${LABELS[category] ?? category}` }
+  return { title: `Wellness — ${LABELS[category] ?? category}` }
 }
 
-export default async function MinibossCategoryPage({ params }: Props) {
+export default async function WellnessCategoryPage({ params }: Props) {
   const { category } = await params
   if (!VALID.includes(category)) notFound()
 
-  const products = await getProductsByPersona('miniboss', category)
+  const products = await getProductsByPersona('wellness', category)
   return (
     <PersonaPage
-      persona="miniboss"
-      title="Miniboss"
+      persona="wellness"
+      title="Wellness"
       description={LABELS[category]}
-      icon={Rocket}
+      icon={Users}
       products={products}
       subnav={SUBNAV}
       activeCategory={category}

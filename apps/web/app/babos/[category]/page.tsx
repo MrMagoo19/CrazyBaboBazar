@@ -7,22 +7,18 @@ import type { Metadata } from 'next'
 const SUBNAV = [
   { label: 'Alle', href: '/babos' },
   { label: 'Gaming', href: '/babos/gaming' },
+  { label: 'Tech & DIY', href: '/babos/tech' },
+  { label: 'Lifestyle', href: '/babos/lifestyle' },
   { label: 'Outdoor', href: '/babos/outdoor' },
-  { label: 'Auto', href: '/babos/auto' },
-  { label: 'Büro', href: '/babos/buero' },
-  { label: 'Gadgets', href: '/babos/gadgets' },
-  { label: 'Geschenke', href: '/babos/geschenke' },
 ]
 
-const VALID = ['gaming', 'outdoor', 'auto', 'buero', 'gadgets', 'geschenke']
+const VALID = ['gaming', 'tech', 'lifestyle', 'outdoor']
 
 const LABELS: Record<string, string> = {
   gaming: 'Gaming',
+  tech: 'Tech & DIY',
+  lifestyle: 'Lifestyle',
   outdoor: 'Outdoor & Survival',
-  auto: 'Auto',
-  buero: 'Büro',
-  gadgets: 'Gadgets & Tech',
-  geschenke: 'Geschenke',
 }
 
 type Props = { params: Promise<{ category: string }> }

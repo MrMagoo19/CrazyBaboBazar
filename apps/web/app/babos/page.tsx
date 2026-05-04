@@ -5,17 +5,15 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Babos',
-  description: 'Gaming, Outdoor, Auto und Tech-Gadgets für echte Babos.',
+  description: 'Gaming, Tech, Lifestyle und Outdoor für echte Babos.',
 }
 
 const SUBNAV = [
   { label: 'Alle', href: '/babos' },
   { label: 'Gaming', href: '/babos/gaming' },
+  { label: 'Tech & DIY', href: '/babos/tech' },
+  { label: 'Lifestyle', href: '/babos/lifestyle' },
   { label: 'Outdoor', href: '/babos/outdoor' },
-  { label: 'Auto', href: '/babos/auto' },
-  { label: 'Büro', href: '/babos/buero' },
-  { label: 'Gadgets', href: '/babos/gadgets' },
-  { label: 'Geschenke', href: '/babos/geschenke' },
 ]
 
 export default async function BabosPage() {

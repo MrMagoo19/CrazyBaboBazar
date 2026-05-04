@@ -7,17 +7,17 @@ import type { Metadata } from 'next'
 const SUBNAV = [
   { label: 'Alle', href: '/queens' },
   { label: 'Küche', href: '/queens/kueche' },
-  { label: 'Deko', href: '/queens/deko' },
   { label: 'Lifestyle', href: '/queens/lifestyle' },
+  { label: 'Beauty', href: '/queens/beauty' },
   { label: 'Geschenke', href: '/queens/geschenke' },
 ]
 
-const VALID = ['kueche', 'deko', 'lifestyle', 'geschenke']
+const VALID = ['kueche', 'lifestyle', 'beauty', 'geschenke']
 
 const LABELS: Record<string, string> = {
   kueche: 'Küchen-Gadgets',
-  deko: 'Deko & Wohnen',
-  lifestyle: 'Lifestyle & Mode',
+  lifestyle: 'Lifestyle & Deko',
+  beauty: 'Beauty & Pflege',
   geschenke: 'Geschenke',
 }
 

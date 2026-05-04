@@ -51,7 +51,7 @@ function MinibossIcon({ size = 16, className = "" }: { size?: number; className?
 }
 
 // ── Types ──────────────────────────────────────────────────────────────────
-type MenuName = "trending" | "babos" | "queens" | "miniboss" | "squad" | null
+type MenuName = "trending" | "babos" | "queens" | "miniboss" | "wellness" | null
 
 interface SubItem { label: string; href: string; icon: React.ElementType; desc: string }
 interface NavItem { key: MenuName; label: string; icon: React.ElementType; sub: SubItem[] }
@@ -59,42 +59,43 @@ interface NavItem { key: MenuName; label: string; icon: React.ElementType; sub: 
 const NAV: NavItem[] = [
   {
     key: "trending", label: "Trending", icon: Flame, sub: [
-      { label: "Alle Trends",    href: "/trending",                      icon: Flame,            desc: "Was gerade abgeht" },
-      { label: "Lustige Gadgets",href: "/kategorie/lustige-gadgets",     icon: PartyPopper,      desc: "Kurioses & Witziges" },
-      { label: "Unter 20€",      href: "/kategorie/geschenke-unter-20",  icon: Zap,              desc: "Günstig & gut" },
+      { label: "Alle Trends",    href: "/trending",   icon: Flame,       desc: "Was gerade abgeht" },
+      { label: "Unter 20€",      href: "/unter-20",   icon: Zap,         desc: "Günstig & gut" },
+      { label: "Unter 50€",      href: "/unter-50",   icon: Zap,         desc: "Gutes Preis-Leistungs-Verhältnis" },
     ],
   },
   {
     key: "babos", label: "Babos", icon: BaboIcon, sub: [
-      { label: "Alle Babos",     href: "/babos",             icon: BaboIcon,         desc: "Komplette Babo-Welt" },
-      { label: "Gaming",         href: "/babos/gaming",      icon: Rocket,           desc: "Setup, Retro & Deko" },
-      { label: "Outdoor",        href: "/babos/outdoor",     icon: Zap,              desc: "Survival & Camping" },
-      { label: "Auto",           href: "/babos/auto",        icon: BriefcaseBusiness,desc: "Technik & Zubehör" },
-      { label: "Büro",           href: "/babos/buero",       icon: BriefcaseBusiness,desc: "Schreibtisch-Setup" },
-      { label: "Gadgets & Tech", href: "/babos/gadgets",     icon: Zap,              desc: "Bar, Tech & Kurioses" },
+      { label: "Alle Babos",     href: "/babos",             icon: BaboIcon,          desc: "Komplette Babo-Welt" },
+      { label: "Gaming",         href: "/babos/gaming",      icon: Rocket,            desc: "Tabletop, Retro & Collectibles" },
+      { label: "Tech & DIY",     href: "/babos/tech",        icon: Zap,               desc: "Gadgets & Schreibtisch-Setup" },
+      { label: "Lifestyle",      href: "/babos/lifestyle",   icon: PartyPopper,       desc: "Party, Bar & Fun" },
+      { label: "Outdoor",        href: "/babos/outdoor",     icon: BriefcaseBusiness, desc: "Survival & Camping" },
     ],
   },
   {
     key: "queens", label: "Queens", icon: QueenIcon, sub: [
-      { label: "Alle Queens",    href: "/queens",            icon: QueenIcon,        desc: "Komplette Queen-Welt" },
-      { label: "Küche",          href: "/queens/kueche",     icon: UtensilsCrossed,  desc: "Werkzeug & Kurioses" },
-      { label: "Deko & Wohnen",  href: "/queens/deko",       icon: Sparkles,         desc: "Beleuchtung & Pflanzen" },
-      { label: "Lifestyle",      href: "/queens/lifestyle",  icon: Crown,            desc: "Mode & Reise" },
+      { label: "Alle Queens",    href: "/queens",             icon: QueenIcon,        desc: "Komplette Queen-Welt" },
+      { label: "Küche",          href: "/queens/kueche",      icon: UtensilsCrossed,  desc: "Gadgets & Kurioses" },
+      { label: "Lifestyle",      href: "/queens/lifestyle",   icon: Crown,            desc: "Deko, Fandom & Mode" },
+      { label: "Beauty",         href: "/queens/beauty",      icon: Sparkles,         desc: "Pflege & Kosmetik" },
+      { label: "Geschenke",      href: "/queens/geschenke",   icon: PartyPopper,      desc: "Lehrer & Personalisiertes" },
     ],
   },
   {
     key: "miniboss", label: "Miniboss", icon: MinibossIcon, sub: [
-      { label: "Alle Miniboss",  href: "/miniboss",          icon: MinibossIcon,     desc: "Komplette Miniboss-Welt" },
-      { label: "Spiele",         href: "/miniboss/spiele",   icon: PartyPopper,      desc: "Party, Würfel & draußen" },
-      { label: "Gadgets",        href: "/miniboss/gadgets",  icon: Zap,              desc: "Spaß-Gadgets" },
-      { label: "Deko & Zimmer",  href: "/miniboss/deko",     icon: Sparkles,         desc: "Kinderzimmer & Licht" },
+      { label: "Alle Miniboss",  href: "/miniboss",           icon: MinibossIcon,     desc: "Komplette Miniboss-Welt" },
+      { label: "Spielzeug",      href: "/miniboss/spielzeug", icon: Sparkles,         desc: "STEM, Lernen & Tiere" },
+      { label: "Gaming",         href: "/miniboss/gaming",    icon: Rocket,           desc: "Spardosen & Collectibles" },
+      { label: "Spaß",           href: "/miniboss/spass",     icon: PartyPopper,      desc: "Party & Outdoor-Fun" },
     ],
   },
   {
-    key: "squad", label: "Squad", icon: Users, sub: [
-      { label: "Alle Squad",     href: "/squad",             icon: Users,            desc: "Komplette Squad-Welt" },
-      { label: "Entspannung",    href: "/squad/entspannung", icon: Sparkles,         desc: "Massage & Schlaf" },
-      { label: "Fitness",        href: "/squad/fitness",     icon: Zap,              desc: "Beauty & Yoga" },
+    key: "wellness", label: "Wellness", icon: Users, sub: [
+      { label: "Alle Wellness",  href: "/wellness",           icon: Users,            desc: "Komplette Wellness-Welt" },
+      { label: "Fitness & Sport",href: "/wellness/fitness",   icon: Zap,              desc: "Training & Recovery" },
+      { label: "Beauty & Pflege",href: "/wellness/beauty",    icon: Sparkles,         desc: "Hautpflege & Komfort" },
+      { label: "Outdoor",        href: "/wellness/outdoor",   icon: BriefcaseBusiness,desc: "Zelte, Solar & Rucksack" },
     ],
   },
 ]

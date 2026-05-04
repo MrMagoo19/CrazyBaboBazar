@@ -5,14 +5,14 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Queens',
-  description: 'Küche, Deko, Lifestyle und Reise für echte Queens.',
+  description: 'Küche, Lifestyle, Beauty und Geschenke für echte Queens.',
 }
 
 const SUBNAV = [
   { label: 'Alle', href: '/queens' },
   { label: 'Küche', href: '/queens/kueche' },
-  { label: 'Deko', href: '/queens/deko' },
   { label: 'Lifestyle', href: '/queens/lifestyle' },
+  { label: 'Beauty', href: '/queens/beauty' },
   { label: 'Geschenke', href: '/queens/geschenke' },
 ]
 

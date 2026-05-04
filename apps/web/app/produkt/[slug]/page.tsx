@@ -54,9 +54,17 @@ export default async function ProduktPage({ params }: Props) {
       <section className="border-b border-[#333333]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-[#333333]">
-            {/* Image */}
-            <div className="bg-[#252525] aspect-square flex items-center justify-center relative overflow-hidden p-8">
-              {product.image_url ? (
+            {/* Image / Video */}
+            <div className="bg-[#252525] aspect-square flex items-center justify-center relative overflow-hidden">
+              {product.video_url ? (
+                <iframe
+                  src={product.video_url}
+                  title={product.name}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full"
+                />
+              ) : product.image_url ? (
                 <Image
                   src={product.image_url}
                   alt={product.name}

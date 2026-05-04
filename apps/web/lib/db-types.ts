@@ -26,6 +26,7 @@ export type DbProduct = {
   shop_sub_category: string | null
   amazon_category: string | null
   brand: string | null
+  video_url: string | null
 }
 
 export function formatPrice(cents: number | null): string {

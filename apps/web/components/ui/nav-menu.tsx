@@ -43,13 +43,9 @@ function QueenIcon({ size = 16, className = "" }: { size?: number; className?: s
 
 function MinibossIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor" className={className}>
-      {/* Big round baby head */}
-      <circle cx="8" cy="8.5" r="5" />
-      {/* Eyes cutout */}
-      <circle cx="6.2" cy="8" r="0.8" fill="none" stroke="currentColor" strokeWidth="0" />
-      {/* Use a slightly different approach - baby tuft of hair on top */}
-      <ellipse cx="8" cy="3.8" rx="1.2" ry="1.5" />
+    <svg width={size} height={size} viewBox="0 0 16 16" className={className}>
+      <circle cx="8" cy="8.5" r="5" fill="white" />
+      <ellipse cx="8" cy="3.8" rx="1.2" ry="1.5" fill="white" />
     </svg>
   )
 }

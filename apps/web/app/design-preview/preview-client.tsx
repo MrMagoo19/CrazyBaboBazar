@@ -50,7 +50,28 @@ const WARM = {
   divider:    '#E8E0D8',
 }
 
-type Theme = 'dark' | 'warm'
+const BRUTAL = {
+  pageBg:     '#FFFFFF',
+  navBg:      '#0A0A0A',
+  navText:    '#FFFFFF',
+  navBorder:  '#0A0A0A',
+  cardBg:     '#FFFFFF',
+  cardBorder: '#0A0A0A',
+  imgBg:      '#FFFFFF',
+  titleColor: '#0A0A0A',
+  tagline:    '#555555',
+  price:      '#0A0A0A',
+  subText:    '#888888',
+  accent:     '#E85000',
+  accentHov:  '#C84400',
+  filterBg:   '#FFFFFF',
+  filterBord: '#0A0A0A',
+  badgeBg:    '#0A0A0A',
+  badgeText:  '#FFFFFF',
+  divider:    '#0A0A0A',
+}
+
+type Theme = 'dark' | 'warm' | 'brutal'
 
 const FILTERS = [
   { key: 'neu',         label: 'Neueste',    icon: Flame },
@@ -62,7 +83,8 @@ const FILTERS = [
 
 export function PreviewClient({ products }: { products: DbProduct[] }) {
   const [theme, setTheme] = useState<Theme>('warm')
-  const t = theme === 'dark' ? DARK : WARM
+  const t = theme === 'dark' ? DARK : theme === 'warm' ? WARM : BRUTAL
+  const isBrutal = theme === 'brutal'
 
   return (
     <div style={{ background: t.pageBg, minHeight: '100vh', fontFamily: 'inherit', transition: 'background 0.3s' }}>
@@ -80,7 +102,7 @@ export function PreviewClient({ products }: { products: DbProduct[] }) {
           CRAZY BABO BAZAR
         </span>
         <div className="flex items-center gap-2 bg-black/20 rounded-full p-1">
-          {(['dark', 'warm'] as Theme[]).map(v => (
+          {(['dark', 'warm', 'brutal'] as Theme[]).map(v => (
             <button
               key={v}
               onClick={() => setTheme(v)}
@@ -90,7 +112,7 @@ export function PreviewClient({ products }: { products: DbProduct[] }) {
                 color: theme === v ? '#fff' : '#999',
               }}
             >
-              {v === 'dark' ? '🌑 Aktuell' : '☀️ Warm Editorial'}
+              {v === 'dark' ? '🌑 Aktuell' : v === 'warm' ? '☀️ Warm Editorial' : '⬛ Clean Brutalist'}
             </button>
           ))}
         </div>
@@ -138,7 +160,7 @@ export function PreviewClient({ products }: { products: DbProduct[] }) {
       {/* ── PRODUCT GRID ──────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-             style={{ gap: '1px', background: t.divider }}>
+             style={{ gap: isBrutal ? '2px' : '1px', background: t.divider }}>
           {products.map(product => (
             <div key={product.slug}
                  className="group flex flex-col overflow-hidden relative"
@@ -179,9 +201,20 @@ export function PreviewClient({ products }: { products: DbProduct[] }) {
               </div>
 
               {/* Card Body */}
-              <div className="p-5 flex flex-col gap-2 flex-1">
-                <h2 className="font-bold text-[0.95rem] leading-snug line-clamp-2 transition-colors"
-                    style={{ color: t.titleColor, fontFamily: 'var(--font-display, inherit)' }}>
+              <div className="flex flex-col gap-2 flex-1"
+                   style={{ padding: isBrutal ? '14px 16px' : '20px' }}>
+                <h2 style={{
+                      color: t.titleColor,
+                      fontFamily: 'var(--font-display, inherit)',
+                      fontSize: isBrutal ? '0.8rem' : '0.95rem',
+                      fontWeight: isBrutal ? 900 : 700,
+                      lineHeight: '1.3',
+                      letterSpacing: isBrutal ? '-0.01em' : 'normal',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical' as const,
+                      overflow: 'hidden',
+                    }}>
                   {product.name}
                 </h2>
                 <p className="text-xs leading-relaxed line-clamp-2 flex-1"
@@ -189,14 +222,21 @@ export function PreviewClient({ products }: { products: DbProduct[] }) {
                   {product.tagline ?? product.description ?? ''}
                 </p>
                 <div className="flex items-center justify-between pt-3 mt-auto"
-                     style={{ borderTop: `1px solid ${t.divider}` }}>
-                  <span className="font-extrabold text-base" style={{ color: t.price }}>
+                     style={{ borderTop: `${isBrutal ? '2px' : '1px'} solid ${t.divider}` }}>
+                  <span style={{
+                    color: isBrutal ? t.accent : t.price,
+                    fontWeight: 900,
+                    fontSize: isBrutal ? '1.15rem' : '1rem',
+                    letterSpacing: '-0.02em',
+                  }}>
                     {formatPrice(product.price_cents)}
-                    <span className="text-[10px] font-normal ml-1" style={{ color: t.subText }}>€</span>
+                    <span style={{ fontSize: '10px', fontWeight: 400, marginLeft: '3px', color: t.subText }}>€</span>
                   </span>
-                  <span className="flex items-center gap-1 text-xs font-bold"
-                        style={{ color: t.accent }}>
-                    Details <ArrowRight size={12} />
+                  <span className="flex items-center gap-1 font-bold"
+                        style={{ fontSize: isBrutal ? '10px' : '12px', color: t.accent,
+                                 textTransform: isBrutal ? 'uppercase' : 'none',
+                                 letterSpacing: isBrutal ? '0.05em' : 'normal' }}>
+                    {isBrutal ? 'KAUFEN' : 'Details'} <ArrowRight size={12} />
                   </span>
                 </div>
               </div>

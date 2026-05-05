@@ -63,7 +63,7 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
   return (
     <div>
       {/* Filter Bar */}
-      <div className="sticky top-16 z-30 border-b border-[#333333] bg-[#1C1C1C]/95 backdrop-blur-sm">
+      <div className="sticky top-16 z-30 border-b border-[#333333] bg-[#1C1C1C]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center gap-0 overflow-x-auto scrollbar-none">
             {FILTERS.map(({ key, label, icon: Icon }) => (

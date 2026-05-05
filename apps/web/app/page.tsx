@@ -7,7 +7,14 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Crazy Babo Bazar — Kuriose Produkte für schlaue Käufer',
-  description: 'Entdecke kuriose, lustige und kaufstarke Produkte. Handverlesen, ehrlich bewertet.',
+  description: 'Entdecke über 200 handverlesene Gadgets, Spielzeug, Beauty-Produkte und Outdoor-Equipment. Täglich neue Empfehlungen mit direkten Amazon-Links.',
+  openGraph: {
+    title: 'Crazy Babo Bazar — Kuriose Produkte für schlaue Käufer',
+    description: 'Über 200 handverlesene Produkte. Täglich neue Empfehlungen.',
+    type: 'website',
+    url: 'https://www.crazybabobazar.de',
+  },
+  twitter: { card: 'summary_large_image' },
 }
 
 const tickerItems = [

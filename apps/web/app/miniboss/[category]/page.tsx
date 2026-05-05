@@ -19,6 +19,12 @@ const LABELS: Record<string, string> = {
   spass: 'Spaß & Party',
 }
 
+const INTROS: Record<string, string> = {
+  spielzeug: 'Lernroboter, Mikroskope und magnetische Bausteine — Spielzeug das schlau macht.',
+  gaming: 'Minecraft-Nachtlichter, Marvel-Spardosen und Disney-Digital-Pets — Sammeln und Spielen.',
+  spass: 'Partyspiele, Wasserpistolen, Kartenspiele und Jenga-Türme — für unvergessliche Spieleabende.',
+}
+
 type Props = { params: Promise<{ category: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -36,6 +42,7 @@ export default async function MinibossCategoryPage({ params }: Props) {
       persona="miniboss"
       title="Miniboss"
       description={LABELS[category]}
+      intro={INTROS[category]}
       icon={Rocket}
       products={products}
       subnav={SUBNAV}

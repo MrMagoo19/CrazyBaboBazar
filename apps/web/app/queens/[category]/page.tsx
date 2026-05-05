@@ -21,6 +21,13 @@ const LABELS: Record<string, string> = {
   geschenke: 'Geschenke',
 }
 
+const INTROS: Record<string, string> = {
+  kueche: 'Weinbelüfter, Katzen-Suppenkellen und AeroPress — Küche trifft Persönlichkeit.',
+  lifestyle: 'LEGO Botanicals, Haustier-Kameras, Harry Potter Fandom und mehr — Lifestyle für Queens.',
+  beauty: 'Korean Skincare, UV-Nagellampen und japanische Gelstifte — Beauty mit Anspruch.',
+  geschenke: 'Personalisierte Puzzles, Lehrergeschenke und Jutebeutel — Geschenke die ankommen.',
+}
+
 type Props = { params: Promise<{ category: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -38,6 +45,7 @@ export default async function QueensCategoryPage({ params }: Props) {
       persona="queen"
       title="Queens"
       description={LABELS[category]}
+      intro={INTROS[category]}
       icon={Sparkles}
       products={products}
       subnav={SUBNAV}

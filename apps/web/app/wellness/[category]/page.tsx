@@ -19,6 +19,12 @@ const LABELS: Record<string, string> = {
   outdoor: 'Outdoor',
 }
 
+const INTROS: Record<string, string> = {
+  fitness: 'Sprossenwände, Power Tower, Tennis-Trainer und Massagepistolen — Fitness zuhause.',
+  beauty: 'Korean Skincare, Bartöl, UV-Nagellampen und Haarbürsten ohne Ziepen — Pflege mit Anspruch.',
+  outdoor: 'Wurfzelte, Solarpanels und Dry Bags — für spontane Outdoor-Abenteuer.',
+}
+
 type Props = { params: Promise<{ category: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -36,6 +42,7 @@ export default async function WellnessCategoryPage({ params }: Props) {
       persona="wellness"
       title="Wellness"
       description={LABELS[category]}
+      intro={INTROS[category]}
       icon={Users}
       products={products}
       subnav={SUBNAV}

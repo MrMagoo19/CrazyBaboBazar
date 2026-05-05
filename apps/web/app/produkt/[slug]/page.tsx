@@ -15,6 +15,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${product.name} — Crazy Babo Bazar`,
     description: product.tagline ?? product.description ?? '',
+    openGraph: {
+      title: `${product.name} — Crazy Babo Bazar`,
+      description: product.tagline ?? product.description ?? '',
+      images: product.image_url ? [{ url: product.image_url }] : [],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.name} — Crazy Babo Bazar`,
+      images: product.image_url ? [product.image_url] : [],
+    },
   }
 }
 
@@ -163,6 +174,31 @@ export default async function ProduktPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* ── SCHEMA.ORG ─────────────────────────────────────── */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.name,
+            description: product.description ?? '',
+            image: product.image_url ?? '',
+            offers: {
+              '@type': 'Offer',
+              price: ((product.price_cents ?? 0) / 100).toFixed(2),
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock',
+              url: product.affiliate_url,
+              seller: {
+                '@type': 'Organization',
+                name: 'Amazon',
+              },
+            },
+          }),
+        }}
+      />
     </div>
   )
 }

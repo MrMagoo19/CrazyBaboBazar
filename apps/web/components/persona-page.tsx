@@ -12,6 +12,7 @@ type PersonaPageProps = {
   persona: string
   title: string
   description: string
+  intro?: string
   icon: LucideIcon
   accentColor?: string
   products: DbProduct[]
@@ -22,6 +23,7 @@ type PersonaPageProps = {
 export function PersonaPage({
   title,
   description,
+  intro,
   icon: Icon,
   accentColor = '#E85000',
   products,
@@ -42,6 +44,9 @@ export function PersonaPage({
           <h1 className="font-[family-name:var(--font-display)] font-extrabold text-3xl md:text-4xl text-[#F0EDE8]">
             {description}
           </h1>
+          {intro && (
+            <p className="text-[#6B6560] text-sm leading-relaxed mt-2 max-w-2xl">{intro}</p>
+          )}
           <p className="text-[#6B6560] text-sm mt-2">{products.length} Produkte</p>
         </div>
 

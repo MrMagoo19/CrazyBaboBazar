@@ -21,6 +21,13 @@ const LABELS: Record<string, string> = {
   outdoor: 'Outdoor & Survival',
 }
 
+const INTROS: Record<string, string> = {
+  gaming: 'Tabletop, Retro-Konsolen, Speed Cubes und LEGO Collectibles — alles was das Gamer-Herz begehrt.',
+  tech: 'ESP32, LED-Streifen, Schreibtisch-Setup und DIY-Bausätze — für Tüftler und Tech-Enthusiasten.',
+  lifestyle: 'Bier brauen, Fliegenjäger, Kochbücher und Party-Gadgets — für den Babo mit Stil.',
+  outdoor: 'Survival-Kits, Campingausrüstung, Feuerstahl und Zelte — für Abenteuer in der Natur.',
+}
+
 type Props = { params: Promise<{ category: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -38,6 +45,7 @@ export default async function BabosCategoryPage({ params }: Props) {
       persona="babo"
       title="Babos"
       description={LABELS[category]}
+      intro={INTROS[category]}
       icon={Crown}
       products={products}
       subnav={SUBNAV}

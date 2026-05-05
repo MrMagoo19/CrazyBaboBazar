@@ -4,8 +4,8 @@ import { Users } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Wellness',
-  description: 'Fitness, Beauty und Outdoor für Wellness-Bewusste.',
+  title: 'Wellness — Fitness, Beauty & Outdoor | Crazy Babo Bazar',
+  description: 'Sprossenwände, UV-Nagellampen, Insektenstichheiler und Campingzelte — Wellness für draußen und drinnen.',
 }
 
 const SUBNAV = [
@@ -22,6 +22,7 @@ export default async function WellnessPage() {
       persona="wellness"
       title="Wellness"
       description="Fitness, Pflege & Outdoor"
+      intro="Vom Powerball-Training bis zur Korean Skincare — hier findest du alles für Körper und Geist."
       icon={Users}
       products={products}
       subnav={SUBNAV}

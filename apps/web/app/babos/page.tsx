@@ -4,8 +4,8 @@ import { Crown } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Babos',
-  description: 'Gaming, Tech, Lifestyle und Outdoor für echte Babos.',
+  title: 'Babos — Gaming, Tech & Gadgets für Männer | Crazy Babo Bazar',
+  description: 'Handverlesene Gadgets, Gaming-Zubehör, Tech-Spielzeug und Outdoor-Equipment für echte Babos. Kurios, kaufstark, direkt auf Amazon.',
 }
 
 const SUBNAV = [
@@ -23,6 +23,7 @@ export default async function BabosPage() {
       persona="babo"
       title="Babos"
       description="Zeug das Babos wollen"
+      intro="Von LED-Zauberwürfeln bis zum KI-Schachroboter — hier findest du Gadgets, die echte Babos begeistern. Alles handverlesen, mit direktem Amazon-Link."
       icon={Crown}
       products={products}
       subnav={SUBNAV}

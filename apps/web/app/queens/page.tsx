@@ -4,8 +4,8 @@ import { Sparkles } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Queens',
-  description: 'Küche, Lifestyle, Beauty und Geschenke für echte Queens.',
+  title: 'Queens — Lifestyle, Küche & Beauty für Frauen | Crazy Babo Bazar',
+  description: 'Kuriose Küchengadgets, Beauty-Finds, Lifestyle-Produkte und persönliche Geschenke für Queens. Handverlesen mit Amazon-Links.',
 }
 
 const SUBNAV = [
@@ -23,6 +23,7 @@ export default async function QueensPage() {
       persona="queen"
       title="Queens"
       description="Zeug das Queens lieben"
+      intro="Vom selbstrührenden Harry-Potter-Becher bis zur Glass-Skin-Maske — hier shoppt die Queen."
       icon={Sparkles}
       products={products}
       subnav={SUBNAV}

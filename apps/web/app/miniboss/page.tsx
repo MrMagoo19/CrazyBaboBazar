@@ -4,8 +4,8 @@ import { Rocket } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Miniboss',
-  description: 'Spielzeug, Gaming und Spaß für den Miniboss.',
+  title: 'Miniboss — Spielzeug, Gaming & Spaß für Kinder | Crazy Babo Bazar',
+  description: 'STEM-Lernspielzeug, Minecraft-Spardosen, Partyspiele und digitale Haustiere für den Miniboss zuhause.',
 }
 
 const SUBNAV = [
@@ -22,6 +22,7 @@ export default async function MinibossPage() {
       persona="miniboss"
       title="Miniboss"
       description="Für den Boss im Kleinen"
+      intro="Roboter programmieren, Spardosen sammeln, Partyspiele gewinnen — alles für den Miniboss."
       icon={Rocket}
       products={products}
       subnav={SUBNAV}

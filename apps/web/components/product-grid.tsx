@@ -104,7 +104,7 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
 
               <p
                 className="line-clamp-2 flex-1"
-                style={{ color: '#666', fontSize: '11px', lineHeight: '1.5', fontWeight: 400 }}
+                style={{ color: '#333', fontSize: '12px', lineHeight: '1.55', fontWeight: 500 }}
               >
                 {product.tagline ?? product.description ?? ''}
               </p>

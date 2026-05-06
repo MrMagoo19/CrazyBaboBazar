@@ -43,17 +43,18 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ── HERO (Brutalist) ─────────────────────────────────── */}
-      <div className="border-b-2 border-[#0A0A0A] py-8 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#555555] mb-2">
-            Handverlesen. Kurios. Direkt auf Amazon.
-          </p>
-          <h1 className="font-[family-name:var(--font-display)] font-black text-4xl sm:text-6xl lg:text-7xl text-[#0A0A0A] leading-none tracking-tight uppercase">
-            Crazy<br />
-            <span className="text-[#E85000]">Babo</span>{' '}
-            Bazar
+      {/* ── HERO (Brutalist — kompakt, inline) ─────────────── */}
+      <div className="border-b-2 border-[#0A0A0A] px-4 sm:px-6 py-5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+          <h1
+            className="font-[family-name:var(--font-display)] font-black uppercase leading-none text-[#0A0A0A]"
+            style={{ fontSize: 'clamp(1.8rem, 5vw, 3.2rem)', letterSpacing: '-0.04em' }}
+          >
+            Crazy <span className="text-[#E85000]">Babo</span> Bazar
           </h1>
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#888]">
+            Handverlesen · Kurios · Amazon
+          </p>
         </div>
       </div>
 

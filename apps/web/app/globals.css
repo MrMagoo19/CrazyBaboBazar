@@ -56,13 +56,12 @@ html {
   text-rendering: optimizeLegibility;
 }
 
-/* Display font (Syne) — brute force all headings */
-h1, h2, h3, h4, h5, h6,
-.font-display {
+/* Display font — nur große Seitenheadings, nicht Karten-h2 */
+h1 {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  letter-spacing: -0.04em;
+  line-height: 1.0;
 }
 
 /* ── New Brutalist white background ────────────────────────────── */

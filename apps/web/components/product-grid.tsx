@@ -6,12 +6,11 @@ import type { DbProduct } from '@/lib/db-types'
 import { formatPrice } from '@/lib/db-types'
 import { ExternalLink } from 'lucide-react'
 
-// NeoBrutalism accent colors per persona
 const PERSONA_COLOR: Record<string, string> = {
-  babo:     '#FFE500',  // electric yellow
-  queen:    '#FF6B9D',  // hot pink
-  miniboss: '#3BFFDC',  // cyan mint
-  wellness: '#B8FF3B',  // lime green
+  babo:     '#FFE500',
+  queen:    '#FF6B9D',
+  miniboss: '#3BFFDC',
+  wellness: '#B8FF3B',
 }
 const DEFAULT_COLOR = '#E85000'
 
@@ -21,121 +20,93 @@ function getAccent(product: DbProduct): string {
 
 export function ProductGrid({ products }: { products: DbProduct[] }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {products.map((product) => {
         const accent = getAccent(product)
         const isLight = ['#FFE500', '#B8FF3B', '#3BFFDC'].includes(accent)
-        const labelColor = isLight ? '#0A0A0A' : '#FFFFFF'
 
         return (
           <div
             key={product.slug}
-            className="group flex flex-col bg-white relative"
-            style={{
-              border: '2.5px solid #0A0A0A',
-              boxShadow: '4px 4px 0px #0A0A0A',
-              transition: 'box-shadow 0.12s ease, transform 0.12s ease',
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLElement).style.boxShadow = '2px 2px 0px #0A0A0A'
-              ;(e.currentTarget as HTMLElement).style.transform = 'translate(2px, 2px)'
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLElement).style.boxShadow = '4px 4px 0px #0A0A0A'
-              ;(e.currentTarget as HTMLElement).style.transform = 'translate(0,0)'
-            }}
+            className="group bg-white flex flex-col overflow-hidden rounded-2xl border border-[#E8E8E8] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl"
+            style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}
           >
-            {/* ── Kategorie-Streifen (Trading Card Header) ── */}
-            <div
-              className="flex items-center justify-between px-2.5 py-1.5"
-              style={{ background: accent, borderBottom: '2.5px solid #0A0A0A' }}
-            >
-              <span
-                className="text-[9px] font-black uppercase tracking-widest truncate"
-                style={{ color: labelColor }}
-              >
-                {product.shop_persona && product.shop_main_category
-                  ? `${product.shop_persona} · ${product.shop_main_category}`
-                  : 'Crazy Babo Bazar'}
-              </span>
-              {product.is_featured && (
-                <span className="text-[8px] font-black uppercase tracking-wider bg-[#0A0A0A] text-white px-1.5 py-0.5 ml-1 shrink-0">
-                  ★ TOP
-                </span>
-              )}
-            </div>
-
             {/* ── Bild ── */}
             <Link href={`/produkt/${product.slug}`} className="block">
-              <div
-                className="relative w-full overflow-hidden"
-                style={{ aspectRatio: '1/1', background: '#FAFAFA', borderBottom: '2.5px solid #0A0A0A' }}
-              >
+              <div className="relative w-full overflow-hidden rounded-t-2xl bg-[#F7F7F7]"
+                   style={{ aspectRatio: '4/3' }}>
                 {product.image_url ? (
                   <Image
                     src={product.image_url}
                     alt={product.name}
                     fill
-                    className="object-contain p-3 transition-transform duration-300 group-hover:scale-105"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-10">📦</div>
+                  <div className="absolute inset-0 flex items-center justify-center text-5xl opacity-10">📦</div>
                 )}
 
-                {/* Amazon Quick-Link */}
-                <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
+                {product.is_featured && (
+                  <div className="absolute top-3 left-3">
+                    <span className="bg-[#0A0A0A] text-white text-[9px] font-black px-2 py-1 rounded-full uppercase tracking-wider">
+                      ★ Top Pick
+                    </span>
+                  </div>
+                )}
+
+                {/* Amazon hover */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-end justify-end p-3">
                   <a
                     href={product.affiliate_url}
                     target="_blank"
                     rel="noopener noreferrer sponsored"
                     onClick={e => e.stopPropagation()}
-                    className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wide px-2 py-1"
-                    style={{ background: accent, color: labelColor, border: '1.5px solid #0A0A0A' }}
+                    className="flex items-center gap-1.5 text-[10px] font-black px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200 uppercase tracking-wide"
+                    style={{ background: '#0A0A0A', color: '#fff' }}
                   >
-                    Amazon <ExternalLink size={8} />
+                    Amazon <ExternalLink size={9} />
                   </a>
                 </div>
               </div>
             </Link>
 
             {/* ── Card Body ── */}
-            <div className="flex flex-col flex-1 p-3 gap-2">
+            <div className="p-4 flex flex-col gap-3 flex-1">
               <Link href={`/produkt/${product.slug}`}>
-                <h2
-                  className="font-[family-name:var(--font-display)] font-black text-[0.78rem] leading-tight text-[#0A0A0A] line-clamp-2"
-                  style={{ letterSpacing: '-0.01em' }}
-                >
+                <h2 className="font-[family-name:var(--font-display)] font-black text-[1rem] leading-tight text-[#0A0A0A] line-clamp-2 group-hover:text-[#E85000] transition-colors"
+                    style={{ letterSpacing: '-0.02em' }}>
                   {product.name}
                 </h2>
               </Link>
 
-              <p className="text-[#666] text-[11px] leading-snug line-clamp-2 flex-1">
-                {product.tagline ?? ''}
+              <p className="text-[#888] text-[12px] leading-snug line-clamp-2 flex-1">
+                {product.tagline ?? product.description ?? ''}
               </p>
 
-              {/* ── Preis-Footer (Trading Card Stats) ── */}
-              <div
-                className="flex items-center justify-between pt-2 mt-auto"
-                style={{ borderTop: '2px solid #0A0A0A' }}
-              >
-                <div
-                  className="px-2 py-0.5"
-                  style={{ background: accent, border: '1.5px solid #0A0A0A' }}
+              {/* ── Footer Row (wie NFT-Card: links Kategorie, rechts Preis) ── */}
+              <div className="flex items-center justify-between pt-3 border-t border-[#F0F0F0]">
+                {/* Kategorie-Pill */}
+                <span
+                  className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full"
+                  style={{
+                    background: accent,
+                    color: isLight ? '#0A0A0A' : '#fff',
+                  }}
                 >
-                  <span
-                    className="font-black text-base leading-none"
-                    style={{ color: isLight ? '#0A0A0A' : '#0A0A0A', letterSpacing: '-0.03em' }}
-                  >
-                    {formatPrice(product.price_cents)}€
-                  </span>
+                  {product.shop_persona
+                    ? `${product.shop_persona}${product.shop_main_category ? ' · ' + product.shop_main_category : ''}`
+                    : 'Discover'}
+                </span>
+
+                {/* Preis-Badge */}
+                <div className="text-right">
+                  <div className="text-[10px] text-[#AAA] uppercase tracking-wider leading-none mb-0.5">Preis ca.</div>
+                  <div className="font-black text-[1.1rem] text-[#0A0A0A] leading-none"
+                       style={{ letterSpacing: '-0.03em' }}>
+                    {formatPrice(product.price_cents)}<span className="text-[11px] font-bold text-[#E85000] ml-0.5">€</span>
+                  </div>
                 </div>
-                <Link
-                  href={`/produkt/${product.slug}`}
-                  className="text-[9px] font-black uppercase tracking-wider text-[#0A0A0A] hover:text-[#E85000] transition-colors"
-                >
-                  Mehr →
-                </Link>
               </div>
             </div>
           </div>

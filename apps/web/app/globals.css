@@ -47,10 +47,22 @@
 }
 
 html {
-  color: var(--foreground);
+  color: #0A0A0A;
   font-family: 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  /* Brutalist: crisp, no subpixel softening */
+  text-rendering: optimizeLegibility;
+}
+
+/* Display font (Syne) — brute force all headings */
+h1, h2, h3, h4, h5, h6,
+.font-display {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
 }
 
 /* ── New Brutalist white background ────────────────────────────── */

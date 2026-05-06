@@ -14,8 +14,8 @@ const PERSONA_COLOR: Record<string, string> = {
 }
 const DEFAULT_COLOR = '#E85000'
 
-function getAccent(product: DbProduct): string {
-  return PERSONA_COLOR[product.shop_persona ?? ''] ?? DEFAULT_COLOR
+function getAccent(p: DbProduct) {
+  return PERSONA_COLOR[p.shop_persona ?? ''] ?? DEFAULT_COLOR
 }
 
 export function ProductGrid({ products }: { products: DbProduct[] }) {
@@ -24,17 +24,34 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
       {products.map((product) => {
         const accent = getAccent(product)
         const isLight = ['#FFE500', '#B8FF3B', '#3BFFDC'].includes(accent)
+        const onAccent = isLight ? '#0A0A0A' : '#fff'
 
         return (
           <div
             key={product.slug}
-            className="group bg-white flex flex-col overflow-hidden rounded-2xl border border-[#E8E8E8] transition-all duration-200 hover:-translate-y-1 hover:shadow-xl"
-            style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}
+            className="group bg-white flex flex-col overflow-hidden"
+            style={{
+              border: '2.5px solid #0A0A0A',
+              boxShadow: '5px 5px 0px #0A0A0A',
+              transition: 'box-shadow 0.1s ease, transform 0.1s ease',
+            }}
+            onMouseEnter={e => {
+              const el = e.currentTarget as HTMLElement
+              el.style.boxShadow = '2px 2px 0px #0A0A0A'
+              el.style.transform = 'translate(3px, 3px)'
+            }}
+            onMouseLeave={e => {
+              const el = e.currentTarget as HTMLElement
+              el.style.boxShadow = '5px 5px 0px #0A0A0A'
+              el.style.transform = 'translate(0,0)'
+            }}
           >
             {/* ── Bild ── */}
             <Link href={`/produkt/${product.slug}`} className="block">
-              <div className="relative w-full overflow-hidden rounded-t-2xl bg-[#F7F7F7]"
-                   style={{ aspectRatio: '4/3' }}>
+              <div
+                className="relative w-full overflow-hidden bg-[#F5F5F5]"
+                style={{ aspectRatio: '4/3', borderBottom: '2.5px solid #0A0A0A' }}
+              >
                 {product.image_url ? (
                   <Image
                     src={product.image_url}
@@ -49,21 +66,24 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
 
                 {product.is_featured && (
                   <div className="absolute top-3 left-3">
-                    <span className="bg-[#0A0A0A] text-white text-[9px] font-black px-2 py-1 rounded-full uppercase tracking-wider">
+                    <span
+                      className="text-[9px] font-black px-2 py-1 uppercase tracking-widest"
+                      style={{ background: '#0A0A0A', color: '#fff', border: '1.5px solid #0A0A0A' }}
+                    >
                       ★ Top Pick
                     </span>
                   </div>
                 )}
 
-                {/* Amazon hover */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-end justify-end p-3">
+                {/* Amazon Hover */}
+                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200">
                   <a
                     href={product.affiliate_url}
                     target="_blank"
                     rel="noopener noreferrer sponsored"
                     onClick={e => e.stopPropagation()}
-                    className="flex items-center gap-1.5 text-[10px] font-black px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200 uppercase tracking-wide"
-                    style={{ background: '#0A0A0A', color: '#fff' }}
+                    className="flex items-center gap-1.5 text-[10px] font-black px-3 py-1.5 uppercase tracking-wider"
+                    style={{ background: accent, color: onAccent, border: '2px solid #0A0A0A' }}
                   >
                     Amazon <ExternalLink size={9} />
                   </a>
@@ -72,40 +92,52 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
             </Link>
 
             {/* ── Card Body ── */}
-            <div className="p-4 flex flex-col gap-3 flex-1">
+            <div className="flex flex-col flex-1 p-4 gap-3">
               <Link href={`/produkt/${product.slug}`}>
-                <h2 className="font-[family-name:var(--font-display)] font-black text-[1rem] leading-tight text-[#0A0A0A] line-clamp-2 group-hover:text-[#E85000] transition-colors"
-                    style={{ letterSpacing: '-0.02em' }}>
+                <h2
+                  className="font-[family-name:var(--font-display)] font-black text-[#0A0A0A] leading-tight line-clamp-2 group-hover:text-[#E85000] transition-colors"
+                  style={{ fontSize: '1.05rem', letterSpacing: '-0.03em' }}
+                >
                   {product.name}
                 </h2>
               </Link>
 
-              <p className="text-[#888] text-[12px] leading-snug line-clamp-2 flex-1">
+              <p
+                className="line-clamp-2 flex-1"
+                style={{ color: '#666', fontSize: '11px', lineHeight: '1.5', fontWeight: 400 }}
+              >
                 {product.tagline ?? product.description ?? ''}
               </p>
 
-              {/* ── Footer Row (wie NFT-Card: links Kategorie, rechts Preis) ── */}
-              <div className="flex items-center justify-between pt-3 border-t border-[#F0F0F0]">
-                {/* Kategorie-Pill */}
+              {/* ── Footer: Kategorie-Tag | Preis ── */}
+              <div
+                className="flex items-center justify-between pt-3"
+                style={{ borderTop: '2px solid #0A0A0A' }}
+              >
+                {/* Persona-Pill — kantig, fett */}
                 <span
-                  className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full"
+                  className="font-black uppercase tracking-widest"
                   style={{
+                    fontSize: '9px',
                     background: accent,
-                    color: isLight ? '#0A0A0A' : '#fff',
+                    color: onAccent,
+                    border: '2px solid #0A0A0A',
+                    padding: '3px 8px',
                   }}
                 >
-                  {product.shop_persona
-                    ? `${product.shop_persona}${product.shop_main_category ? ' · ' + product.shop_main_category : ''}`
-                    : 'Discover'}
+                  {product.shop_persona ?? 'CBB'}
+                  {product.shop_main_category ? ` · ${product.shop_main_category}` : ''}
                 </span>
 
-                {/* Preis-Badge */}
+                {/* Preis */}
                 <div className="text-right">
-                  <div className="text-[10px] text-[#AAA] uppercase tracking-wider leading-none mb-0.5">Preis ca.</div>
-                  <div className="font-black text-[1.1rem] text-[#0A0A0A] leading-none"
-                       style={{ letterSpacing: '-0.03em' }}>
-                    {formatPrice(product.price_cents)}<span className="text-[11px] font-bold text-[#E85000] ml-0.5">€</span>
-                  </div>
+                  <span
+                    className="font-[family-name:var(--font-display)] font-black leading-none"
+                    style={{ fontSize: '1.35rem', letterSpacing: '-0.04em', color: '#0A0A0A' }}
+                  >
+                    {formatPrice(product.price_cents)}
+                    <span style={{ fontSize: '0.75rem', color: '#E85000', marginLeft: '2px' }}>€</span>
+                  </span>
                 </div>
               </div>
             </div>

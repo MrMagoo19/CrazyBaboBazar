@@ -126,7 +126,7 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
       </div>
 
       {/* Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 pt-8">
         {products.length === 0 ? (
           <div className="text-center py-16 text-[#555555]">
             Keine Produkte in dieser Preisklasse.

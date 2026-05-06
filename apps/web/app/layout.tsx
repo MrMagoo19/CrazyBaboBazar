@@ -52,10 +52,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="de" className={`${syne.variable} ${dmSans.variable}`} data-scroll-behavior="smooth">
-      <body className="bg-[#1C1C1C] text-[#F0EDE8] font-[family-name:var(--font-body)] min-h-screen flex flex-col">
+      <body className="bg-white text-[#0A0A0A] font-[family-name:var(--font-body)] min-h-screen flex flex-col">
 
         {/* Header */}
-        <header className="border-b border-[#333333] sticky top-0 z-50 bg-[#1C1C1C]/95 backdrop-blur-sm">
+        <header className="border-b-2 border-[#0A0A0A] sticky top-0 z-50 bg-[#0A0A0A]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="flex items-center justify-between h-16 gap-4">
 
@@ -64,10 +64,10 @@ export default function RootLayout({
                 href="/"
                 className="font-[family-name:var(--font-display)] font-bold text-xl tracking-tight flex items-center gap-2 group shrink-0"
               >
-                <span className="bg-[#E85000] text-[#1C1C1C] px-2 py-0.5 text-sm font-extrabold group-hover:bg-[#E8321C] transition-colors duration-200">
+                <span className="bg-[#E85000] text-white px-2 py-0.5 text-sm font-extrabold group-hover:bg-[#E8321C] transition-colors duration-200">
                   CRAZY
                 </span>
-                <span className="text-[#F0EDE8]">BABO BAZAR</span>
+                <span className="text-white">BABO BAZAR</span>
               </Link>
 
               {/* Desktop Nav mit Dropdowns */}
@@ -88,7 +88,7 @@ export default function RootLayout({
         <CookieConsent />
 
         {/* Footer */}
-        <footer className="border-t border-[#333333] mt-auto">
+        <footer className="border-t-2 border-[#0A0A0A] mt-auto bg-[#0A0A0A]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
@@ -101,21 +101,21 @@ export default function RootLayout({
                   height={160}
                   className="object-contain mb-2"
                 />
-                <p className="text-[#6B6560] text-sm leading-relaxed max-w-xs">
+                <p className="text-[#999999] text-sm leading-relaxed max-w-xs">
                   Kuriose Produkte für schlaue Käufer. Handverlesen.
                 </p>
-                <p className="text-[#3A3A3A] text-xs mt-4">
+                <p className="text-[#777777] text-xs mt-4">
                   Als Amazon-Partner verdienen wir an qualifizierten Käufen. Preise inkl. MwSt., können variieren.
                 </p>
               </div>
 
               {/* Kategorien */}
               <div>
-                <h3 className="text-xs font-bold text-[#6B6560] uppercase tracking-widest mb-4">Kategorien</h3>
+                <h3 className="text-xs font-bold text-[#666666] uppercase tracking-widest mb-4">Kategorien</h3>
                 <ul className="space-y-2">
                   {footerLinks.map((link) => (
                     <li key={link.href}>
-                      <Link href={link.href} className="text-sm text-[#9E9890] hover:text-[#E85000] transition-colors">
+                      <Link href={link.href} className="text-sm text-[#999999] hover:text-[#E85000] transition-colors">
                         {link.label}
                       </Link>
                     </li>
@@ -125,15 +125,15 @@ export default function RootLayout({
 
               {/* Legal */}
               <div>
-                <h3 className="text-xs font-bold text-[#6B6560] uppercase tracking-widest mb-4">Rechtliches</h3>
+                <h3 className="text-xs font-bold text-[#666666] uppercase tracking-widest mb-4">Rechtliches</h3>
                 <ul className="space-y-2">
                   <li>
-                    <Link href="/impressum" className="text-sm text-[#9E9890] hover:text-[#E85000] transition-colors">
+                    <Link href="/impressum" className="text-sm text-[#999999] hover:text-[#E85000] transition-colors">
                       Impressum
                     </Link>
                   </li>
                   <li>
-                    <Link href="/datenschutz" className="text-sm text-[#9E9890] hover:text-[#E85000] transition-colors">
+                    <Link href="/datenschutz" className="text-sm text-[#999999] hover:text-[#E85000] transition-colors">
                       Datenschutz
                     </Link>
                   </li>
@@ -142,9 +142,9 @@ export default function RootLayout({
 
             </div>
 
-            <div className="mt-10 pt-6 border-t border-[#252525] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <p className="text-[#3A3A3A] text-xs">© 2026 Crazy Babo Bazar. Alle Rechte vorbehalten.</p>
-              <p className="text-[#3A3A3A] text-xs">Made with obsession, not algorithms.</p>
+            <div className="mt-10 pt-6 border-t border-[#222222] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <p className="text-[#777777] text-xs">© 2026 Crazy Babo Bazar. Alle Rechte vorbehalten.</p>
+              <p className="text-[#777777] text-xs">Made with obsession, not algorithms.</p>
             </div>
           </div>
         </footer>

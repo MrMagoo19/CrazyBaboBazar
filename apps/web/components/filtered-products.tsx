@@ -63,7 +63,7 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
   return (
     <div>
       {/* Filter Bar */}
-      <div className="sticky top-16 z-30 border-b border-[#333333] bg-[#1C1C1C]">
+      <div className="sticky top-16 z-30 border-b-2 border-[#0A0A0A] bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center gap-0 overflow-x-auto scrollbar-none">
             {FILTERS.map(({ key, label, icon: Icon }) => (
@@ -73,14 +73,14 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
                 className={`flex items-center gap-2 px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap border-b-2 transition-all duration-150 ${
                   active === key
                     ? 'border-[#E85000] text-[#E85000]'
-                    : 'border-transparent text-[#6B6560] hover:text-[#F0EDE8] hover:border-[#333333]'
+                    : 'border-transparent text-[#555555] hover:text-[#0A0A0A]'
                 }`}
               >
                 <Icon size={13} />
                 {label}
               </button>
             ))}
-            <span className="ml-auto text-[11px] text-[#3A3A3A] pr-2 shrink-0">
+            <span className="ml-auto text-[11px] text-[#999999] pr-2 shrink-0">
               {products.length} Produkte
             </span>
           </div>
@@ -89,7 +89,7 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
         {/* Preisspanne Eingabe */}
         {active === 'preisspanne' && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-3 pt-1 flex items-center gap-3">
-            <span className="text-[11px] text-[#6B6560] uppercase tracking-wider">Von</span>
+            <span className="text-[11px] text-[#555555] uppercase tracking-wider">Von</span>
             <div className="relative">
               <input
                 type="number"
@@ -97,11 +97,11 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
                 placeholder="0"
                 value={minPrice}
                 onChange={e => setMinPrice(e.target.value)}
-                className="w-24 bg-[#252525] border border-[#333333] text-[#F0EDE8] text-sm px-3 py-1.5 pr-6 outline-none focus:border-[#E85000] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-24 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] text-sm px-3 py-1.5 pr-6 outline-none focus:border-[#E85000] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[#6B6560] text-xs">€</span>
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[#555555] text-xs">€</span>
             </div>
-            <span className="text-[11px] text-[#6B6560] uppercase tracking-wider">Bis</span>
+            <span className="text-[11px] text-[#555555] uppercase tracking-wider">Bis</span>
             <div className="relative">
               <input
                 type="number"
@@ -109,14 +109,14 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
                 placeholder="∞"
                 value={maxPrice}
                 onChange={e => setMaxPrice(e.target.value)}
-                className="w-24 bg-[#252525] border border-[#333333] text-[#F0EDE8] text-sm px-3 py-1.5 pr-6 outline-none focus:border-[#E85000] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-24 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] text-sm px-3 py-1.5 pr-6 outline-none focus:border-[#E85000] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[#6B6560] text-xs">€</span>
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[#555555] text-xs">€</span>
             </div>
             {(minPrice || maxPrice) && (
               <button
                 onClick={() => { setMinPrice(''); setMaxPrice('') }}
-                className="text-[11px] text-[#6B6560] hover:text-[#E85000] transition-colors uppercase tracking-wider"
+                className="text-[11px] text-[#555555] hover:text-[#E85000] transition-colors uppercase tracking-wider"
               >
                 Zurücksetzen
               </button>
@@ -128,13 +128,13 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
       {/* Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 pt-6">
         {products.length === 0 ? (
-          <div className="text-center py-16 text-[#6B6560]">
+          <div className="text-center py-16 text-[#555555]">
             Keine Produkte in dieser Preisklasse.
           </div>
         ) : (
           <ProductGrid products={products} />
         )}
-        <p className="text-[#333333] text-xs text-center mt-10">
+        <p className="text-[#999999] text-xs text-center mt-10">
           * Affiliate-Links — wir verdienen eine Provision ohne Mehrkosten für dich.
         </p>
       </div>

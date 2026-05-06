@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { FilteredProducts } from '@/components/filtered-products'
 import { getPublishedProducts } from '@/lib/db'
 import type { Metadata } from 'next'
@@ -30,10 +29,10 @@ export default async function HomePage() {
   const products = await getPublishedProducts()
 
   return (
-    <div className="min-h-screen bg-[#1C1C1C]">
+    <div className="min-h-screen bg-white">
 
       {/* ── TICKER ─────────────────────────────────────────── */}
-      <div className="border-b border-[#333333] bg-[#E85000]/10 overflow-hidden">
+      <div className="border-b-2 border-[#0A0A0A] bg-[#E85000]/5 overflow-hidden">
         <div className="flex animate-[ticker_30s_linear_infinite] whitespace-nowrap py-2">
           {[...tickerItems, ...tickerItems, ...tickerItems].map((item, i) => (
             <span key={i} className="inline-flex items-center gap-6 px-8 text-[11px] font-bold uppercase tracking-widest text-[#E85000]">
@@ -44,34 +43,18 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ── HERO (kompakt) ─────────────────────────────────── */}
-      <div className="border-b border-[#333333] flex items-center justify-center py-3 gap-4">
-        <Image
-          src="/Banner.png"
-          alt=""
-          width={160}
-          height={40}
-          className="object-contain opacity-60 hidden sm:block"
-          style={{ filter: 'brightness(0) invert(1)' }}
-          priority
-        />
-        <Image
-          src="/Logo_4.png"
-          alt="Crazy Babo Bazar"
-          width={80}
-          height={54}
-          className="object-contain drop-shadow-lg"
-          priority
-        />
-        <Image
-          src="/Banner.png"
-          alt=""
-          width={160}
-          height={40}
-          className="object-contain opacity-60 hidden sm:block"
-          style={{ filter: 'brightness(0) invert(1)', transform: 'scaleX(-1)' }}
-          priority
-        />
+      {/* ── HERO (Brutalist) ─────────────────────────────────── */}
+      <div className="border-b-2 border-[#0A0A0A] py-8 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#555555] mb-2">
+            Handverlesen. Kurios. Direkt auf Amazon.
+          </p>
+          <h1 className="font-[family-name:var(--font-display)] font-black text-4xl sm:text-6xl lg:text-7xl text-[#0A0A0A] leading-none tracking-tight uppercase">
+            Crazy<br />
+            <span className="text-[#E85000]">Babo</span>{' '}
+            Bazar
+          </h1>
+        </div>
       </div>
 
       {/* ── FILTER + PRODUCTS ──────────────────────────────── */}

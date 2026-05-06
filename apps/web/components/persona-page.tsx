@@ -33,7 +33,7 @@ export function PersonaPage({
   return (
     <div>
       {/* Header */}
-      <div className="border-b border-[#252525] bg-[#141414]">
+      <div className="border-b-2 border-[#0A0A0A] bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <div className="flex items-center gap-3 mb-2">
             <Icon size={20} style={{ color: accentColor }} />
@@ -41,18 +41,18 @@ export function PersonaPage({
               {title}
             </span>
           </div>
-          <h1 className="font-[family-name:var(--font-display)] font-extrabold text-3xl md:text-4xl text-[#F0EDE8]">
+          <h1 className="font-[family-name:var(--font-display)] font-extrabold text-3xl md:text-4xl text-[#0A0A0A]">
             {description}
           </h1>
           {intro && (
-            <p className="text-[#6B6560] text-sm leading-relaxed mt-2 max-w-2xl">{intro}</p>
+            <p className="text-[#555555] text-sm leading-relaxed mt-2 max-w-2xl">{intro}</p>
           )}
-          <p className="text-[#6B6560] text-sm mt-2">{products.length} Produkte</p>
+          <p className="text-[#555555] text-sm mt-2">{products.length} Produkte</p>
         </div>
 
         {/* Sub-nav */}
         {subnav.length > 0 && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-0">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-0 border-t-2 border-[#0A0A0A]">
             <div className="flex gap-0 overflow-x-auto">
               {subnav.map((item) => {
                 const isActive = item.label === 'Alle'
@@ -65,7 +65,7 @@ export function PersonaPage({
                     className={`shrink-0 px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all duration-150 ${
                       isActive
                         ? 'border-[#E85000] text-[#E85000]'
-                        : 'border-transparent text-[#6B6560] hover:text-[#F0EDE8] hover:border-[#333333]'
+                        : 'border-transparent text-[#555555] hover:text-[#0A0A0A]'
                     }`}
                   >
                     {item.label}
@@ -79,7 +79,7 @@ export function PersonaPage({
 
       {/* Products */}
       {products.length === 0 ? (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 text-center text-[#6B6560]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 text-center text-[#555555]">
           Noch keine Produkte in dieser Kategorie.
         </div>
       ) : (

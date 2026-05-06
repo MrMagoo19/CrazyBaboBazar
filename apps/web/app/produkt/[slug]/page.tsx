@@ -47,26 +47,26 @@ export default async function ProduktPage({ params }: Props) {
   return (
     <div>
       {/* ── BREADCRUMB ─────────────────────────────────────── */}
-      <div className="border-b border-[#333333]">
+      <div className="border-b-2 border-[#0A0A0A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center gap-2 text-xs text-[#6B6560]">
+          <div className="flex items-center gap-2 text-xs text-[#555555]">
             <Link href="/" className="hover:text-[#E85000] transition-colors">Start</Link>
             <span>→</span>
             <Link href={`/${catSlug}`} className="hover:text-[#E85000] transition-colors">
               {catName}
             </Link>
             <span>→</span>
-            <span className="text-[#9E9890] truncate max-w-[200px]">{product.name}</span>
+            <span className="text-[#0A0A0A] truncate max-w-[200px]">{product.name}</span>
           </div>
         </div>
       </div>
 
       {/* ── MAIN PRODUCT ───────────────────────────────────── */}
-      <section className="border-b border-[#333333]">
+      <section className="border-b-2 border-[#0A0A0A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-[#333333]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-[#0A0A0A]">
             {/* Image */}
-            <div className="bg-[#252525] aspect-square flex items-center justify-center relative overflow-hidden p-8">
+            <div className="bg-white border-2 border-[#0A0A0A] aspect-square flex items-center justify-center relative overflow-hidden p-8">
               {product.image_url ? (
                 <Image
                   src={product.image_url}
@@ -80,7 +80,7 @@ export default async function ProduktPage({ params }: Props) {
               )}
               {product.is_featured && (
                 <div className="absolute top-6 left-6">
-                  <span className="bg-[#E8321C] text-[#F0EDE8] text-xs font-bold px-3 py-1 uppercase tracking-wide">
+                  <span className="bg-[#E85000] text-white text-xs font-black px-3 py-1 uppercase tracking-wide">
                     Featured
                   </span>
                 </div>
@@ -88,7 +88,7 @@ export default async function ProduktPage({ params }: Props) {
             </div>
 
             {/* Info */}
-            <div className="bg-[#1C1C1C] p-8 lg:p-12 flex flex-col justify-center">
+            <div className="bg-white p-8 lg:p-12 flex flex-col justify-center">
               <Link
                 href={`/kategorie/${catSlug}`}
                 className="text-[#E85000] text-xs font-bold uppercase tracking-widest mb-4 hover:text-[#E8321C] transition-colors inline-block"
@@ -96,7 +96,7 @@ export default async function ProduktPage({ params }: Props) {
                 ← {catName}
               </Link>
 
-              <h1 className="font-[family-name:var(--font-display)] font-extrabold text-3xl sm:text-4xl leading-tight mb-4">
+              <h1 className="font-[family-name:var(--font-display)] font-extrabold text-3xl sm:text-4xl leading-tight mb-4 text-[#0A0A0A]">
                 {product.name}
               </h1>
 
@@ -104,21 +104,21 @@ export default async function ProduktPage({ params }: Props) {
                 <p className="text-[#E85000] text-base font-bold mb-4">{product.tagline}</p>
               )}
 
-              <p className="text-[#9E9890] text-base leading-relaxed mb-8">
+              <p className="text-[#555555] text-base leading-relaxed mb-8">
                 {product.description ?? ''}
               </p>
 
               {/* CTA */}
-              <div className="border-t border-[#333333] pt-8">
+              <div className="border-t-2 border-[#E8E0D8] pt-8">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <div className="text-[#6B6560] text-xs uppercase tracking-wider mb-1">Preis (ca.)</div>
-                    <div className="font-[family-name:var(--font-display)] font-extrabold text-4xl">
+                    <div className="text-[#777777] text-xs uppercase tracking-wider mb-1">Preis (ca.)</div>
+                    <div className="font-[family-name:var(--font-display)] font-extrabold text-4xl text-[#E85000]">
                       {formatPrice(product.price_cents)}€
                     </div>
-                    <div className="text-[#6B6560] text-[10px] mt-1">inkl. MwSt. · zzgl. Versand</div>
+                    <div className="text-[#777777] text-[10px] mt-1">inkl. MwSt. · zzgl. Versand</div>
                   </div>
-                  <div className="text-right text-xs text-[#3A3A3A]">
+                  <div className="text-right text-xs text-[#777777]">
                     <div>Preis kann variieren.</div>
                     <div>Affiliate-Link*</div>
                   </div>
@@ -128,12 +128,12 @@ export default async function ProduktPage({ params }: Props) {
                   href={product.affiliate_url}
                   target="_blank"
                   rel="noopener noreferrer sponsored"
-                  className="block w-full text-center bg-[#E85000] text-[#1C1C1C] py-4 font-bold text-base hover:bg-[#E8321C] hover:text-[#F0EDE8] transition-all duration-200 mb-3"
+                  className="block w-full text-center bg-[#0A0A0A] text-white py-4 font-bold text-base hover:bg-[#E85000] transition-all duration-200 mb-3"
                 >
                   Jetzt auf Amazon ansehen →
                 </a>
 
-                <p className="text-[#3A3A3A] text-xs text-center">
+                <p className="text-[#777777] text-xs text-center">
                   * Als Amazon-Partner verdienen wir an qualifizierten Käufen. Kein Aufpreis für dich.
                 </p>
               </div>
@@ -144,13 +144,13 @@ export default async function ProduktPage({ params }: Props) {
 
       {/* ── VIDEO ─────────────────────────────────────────── */}
       {product.video_url && (
-        <section className="border-b border-[#333333]">
+        <section className="border-b-2 border-[#0A0A0A]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-1 h-6 bg-[#E85000]" />
-              <span className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8]">Produkt-Video</span>
+              <span className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A]">Produkt-Video</span>
             </div>
-            <div className="relative w-full aspect-video bg-[#141414]">
+            <div className="relative w-full aspect-video bg-white border-2 border-[#0A0A0A]">
               <iframe
                 src={product.video_url}
                 title={`${product.name} Video`}
@@ -166,9 +166,9 @@ export default async function ProduktPage({ params }: Props) {
       {/* ── DISCLAIMER ─────────────────────────────────────── */}
       <section>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-          <div className="border border-[#333333] p-6 bg-[#252525]">
+          <div className="border-2 border-[#0A0A0A] p-6 bg-white">
             <div className="text-[#E85000] text-xs font-bold uppercase tracking-widest mb-2">Affiliate-Hinweis</div>
-            <p className="text-[#6B6560] text-xs leading-relaxed">
+            <p className="text-[#555555] text-xs leading-relaxed">
               Dieser Beitrag enthält Affiliate-Links. Wenn du über einen unserer Links ein Produkt kaufst, erhalten wir eine Provision. Der Preis für dich bleibt derselbe.
             </p>
           </div>

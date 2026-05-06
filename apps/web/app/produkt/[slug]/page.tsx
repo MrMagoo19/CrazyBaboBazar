@@ -109,16 +109,16 @@ export default async function ProduktPage({ params }: Props) {
               </p>
 
               {/* CTA */}
-              <div className="border-t-2 border-[#E8E0D8] pt-8">
+              <div className="border-t-2 border-[#E0E0E0] pt-8">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <div className="text-[#777777] text-xs uppercase tracking-wider mb-1">Preis (ca.)</div>
+                    <div className="text-[#555] text-xs uppercase tracking-wider mb-1">Preis (ca.)</div>
                     <div className="font-[family-name:var(--font-display)] font-extrabold text-4xl text-[#0A0A0A]">
                       {formatPrice(product.price_cents)}€
                     </div>
-                    <div className="text-[#777777] text-[10px] mt-1">inkl. MwSt. · zzgl. Versand</div>
+                    <div className="text-[#555] text-[10px] mt-1">inkl. MwSt. · zzgl. Versand</div>
                   </div>
-                  <div className="text-right text-xs text-[#777777]">
+                  <div className="text-right text-xs text-[#555]">
                     <div>Preis kann variieren.</div>
                     <div>Affiliate-Link*</div>
                   </div>
@@ -133,7 +133,7 @@ export default async function ProduktPage({ params }: Props) {
                   Jetzt auf Amazon ansehen →
                 </a>
 
-                <p className="text-[#777777] text-xs text-center">
+                <p className="text-[#555] text-xs text-center">
                   * Als Amazon-Partner verdienen wir an qualifizierten Käufen. Kein Aufpreis für dich.
                 </p>
               </div>

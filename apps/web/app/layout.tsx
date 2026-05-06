@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Syne, DM_Sans } from 'next/font/google'
 import Link from 'next/link'
-import Image from 'next/image'
 import { CookieConsent } from '@/components/ui/cookie-consent'
 import { NavMenus, NavSearch } from '@/components/ui/nav-menu'
 import './globals.css'
@@ -38,14 +37,6 @@ export const metadata: Metadata = {
     siteName: 'Crazy Babo Bazar',
   },
 }
-
-const footerLinks = [
-  { href: '/kategorie/lustige-gadgets', label: 'Lustige Gadgets' },
-  { href: '/kategorie/geschenke-maenner', label: 'Babos' },
-  { href: '/kategorie/buero-gadgets', label: 'Büro-Gadgets' },
-  { href: '/kategorie/kuechen-gadgets', label: 'Küchen-Gadgets' },
-  { href: '/kategorie/geschenke-unter-20', label: 'Unter 20€' },
-]
 
 export default function RootLayout({
   children,
@@ -90,32 +81,36 @@ export default function RootLayout({
         {/* Footer */}
         <footer className="border-t-2 border-[#0A0A0A] mt-auto bg-[#0A0A0A]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b-2 border-[#222]">
 
-              {/* Brand */}
+              {/* Brand — Wortmarke statt Logo-Bild */}
               <div>
-                <Image
-                  src="/Logo.png"
-                  alt="Crazy Babo Bazar"
-                  width={160}
-                  height={160}
-                  className="object-contain mb-2"
-                />
-                <p className="text-[#999999] text-sm leading-relaxed max-w-xs">
+                <div className="font-[family-name:var(--font-display)] font-black text-2xl text-white leading-none tracking-tight mb-4" style={{ letterSpacing: '-0.04em' }}>
+                  CRAZY<br />
+                  <span style={{ background: '#FFE500', color: '#0A0A0A', paddingLeft: '4px', paddingRight: '4px' }}>BABO</span>{' '}
+                  BAZAR
+                </div>
+                <p className="text-[#888] text-sm leading-relaxed max-w-xs">
                   Kuriose Produkte für schlaue Käufer. Handverlesen.
                 </p>
-                <p className="text-[#777777] text-xs mt-4">
-                  Als Amazon-Partner verdienen wir an qualifizierten Käufen. Preise inkl. MwSt., können variieren.
+                <p className="text-[#555] text-xs mt-4">
+                  Als Amazon-Partner verdienen wir an qualifizierten Käufen.
                 </p>
               </div>
 
-              {/* Kategorien */}
+              {/* Kategorien — neue Links */}
               <div>
-                <h3 className="text-xs font-bold text-[#666666] uppercase tracking-widest mb-4">Kategorien</h3>
+                <h3 className="text-xs font-black text-[#FFE500] uppercase tracking-widest mb-4">Kategorien</h3>
                 <ul className="space-y-2">
-                  {footerLinks.map((link) => (
+                  {[
+                    { href: '/babos', label: 'Babos' },
+                    { href: '/queens', label: 'Queens' },
+                    { href: '/miniboss', label: 'Miniboss' },
+                    { href: '/wellness', label: 'Wellness' },
+                    { href: '/unter-20', label: 'Unter 20€' },
+                  ].map(link => (
                     <li key={link.href}>
-                      <Link href={link.href} className="text-sm text-[#999999] hover:text-[#FFE500] transition-colors">
+                      <Link href={link.href} className="text-sm text-[#999] hover:text-[#FFE500] transition-colors font-medium">
                         {link.label}
                       </Link>
                     </li>
@@ -125,26 +120,17 @@ export default function RootLayout({
 
               {/* Legal */}
               <div>
-                <h3 className="text-xs font-bold text-[#666666] uppercase tracking-widest mb-4">Rechtliches</h3>
+                <h3 className="text-xs font-black text-[#FFE500] uppercase tracking-widest mb-4">Rechtliches</h3>
                 <ul className="space-y-2">
-                  <li>
-                    <Link href="/impressum" className="text-sm text-[#999999] hover:text-[#FFE500] transition-colors">
-                      Impressum
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/datenschutz" className="text-sm text-[#999999] hover:text-[#FFE500] transition-colors">
-                      Datenschutz
-                    </Link>
-                  </li>
+                  <li><Link href="/impressum" className="text-sm text-[#999] hover:text-[#FFE500] transition-colors font-medium">Impressum</Link></li>
+                  <li><Link href="/datenschutz" className="text-sm text-[#999] hover:text-[#FFE500] transition-colors font-medium">Datenschutz</Link></li>
                 </ul>
               </div>
-
             </div>
 
-            <div className="mt-10 pt-6 border-t border-[#222222] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <p className="text-[#777777] text-xs">© 2026 Crazy Babo Bazar. Alle Rechte vorbehalten.</p>
-              <p className="text-[#777777] text-xs">Made with obsession, not algorithms.</p>
+            <div className="pt-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <p className="text-[#555] text-xs font-medium">© 2026 Crazy Babo Bazar.</p>
+              <p className="text-[#555] text-xs font-medium">Made with obsession, not algorithms.</p>
             </div>
           </div>
         </footer>

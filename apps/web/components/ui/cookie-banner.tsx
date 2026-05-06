@@ -36,15 +36,15 @@ export function CookieBanner() {
       role="dialog"
       aria-modal="false"
       aria-label="Cookie-Hinweis"
-      className="fixed bottom-0 left-0 right-0 z-[100] border-t border-[#333333] bg-[#1C1C1C]/98 backdrop-blur-sm"
+      className="fixed bottom-0 left-0 right-0 z-[100] border-t-2 border-[#0A0A0A] bg-white"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
 
           {/* Text */}
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-[#9E9890] leading-relaxed">
-              <strong className="text-[#F0EDE8]">Hinweis zu externen Diensten:</strong>{' '}
+            <p className="text-xs text-[#555] leading-relaxed">
+              <strong className="text-[#0A0A0A]">Hinweis zu externen Diensten:</strong>{' '}
               Diese Website setzt keine eigenen Cookies. Wenn Sie auf einen Amazon-Affiliate-Link klicken,
               kann Amazon Cookies setzen, um Käufe Ihrer Session zuzuordnen.
               Mit Klick auf „Verstanden" bestätigen Sie, dass Sie unsere{' '}
@@ -62,7 +62,7 @@ export function CookieBanner() {
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => handleConsent('declined')}
-              className="text-xs text-[#6B6560] hover:text-[#9E9890] transition-colors px-3 py-2 whitespace-nowrap"
+              className="text-xs text-[#555] hover:text-[#0A0A0A] transition-colors px-3 py-2 whitespace-nowrap"
               aria-label="Cookie-Hinweis schließen ohne Zustimmung"
             >
               Ablehnen

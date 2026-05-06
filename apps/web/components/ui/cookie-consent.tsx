@@ -33,7 +33,7 @@ export function CookieConsent() {
   return (
     <>
       {/* Backdrop — blockiert Klicks auf die Seite */}
-      <div className="fixed inset-0 z-[90] bg-[#1C1C1C]/70 backdrop-blur-sm" aria-hidden="true" />
+      <div className="fixed inset-0 z-[90] bg-[#0A0A0A]/70" aria-hidden="true" />
 
       {/* Modal — zentriert im Viewport */}
       <div
@@ -42,21 +42,21 @@ export function CookieConsent() {
         aria-label="Cookie-Einstellungen"
         className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       >
-        <div className="w-full max-w-lg bg-[#1C1C1C] border border-[#333333] border-t-2 border-t-[#FFE500] px-8 py-8">
+        <div className="w-full max-w-lg bg-white border-2 border-[#0A0A0A] border-t-4 border-t-[#FFE500] px-8 py-8">
 
           {/* Label */}
-          <div className="mb-2 text-[#FFE500] text-[10px] font-bold uppercase tracking-widest">
+          <div className="mb-2 text-[10px] font-black uppercase tracking-widest" style={{ background: '#FFE500', color: '#0A0A0A', display: 'inline-block', padding: '2px 8px' }}>
             Datenschutz &amp; Cookies
           </div>
 
           {/* Heading */}
-          <h2 className="font-[family-name:var(--font-display)] font-extrabold text-xl text-[#F0EDE8] mb-3">
+          <h2 className="font-[family-name:var(--font-display)] font-extrabold text-xl text-[#0A0A0A] mb-3 mt-3">
             Bevor du weitermachst
           </h2>
 
           {/* Body */}
-          <p className="text-sm text-[#9E9890] leading-relaxed mb-6 max-w-2xl">
-            Diese Website setzt <strong className="text-[#F0EDE8]">keine eigenen Cookies</strong>.
+          <p className="text-sm text-[#555] leading-relaxed mb-6 max-w-2xl">
+            Diese Website setzt <strong className="text-[#0A0A0A]">keine eigenen Cookies</strong>.
             Wenn du auf einen Amazon-Affiliate-Link klickst, kann Amazon Cookies setzen,
             um deinen Kauf unserer Empfehlung zuzuordnen — ohne Mehrkosten für dich.
             Mit „Akzeptieren" stimmst du dem zu und bestätigst, unsere{' '}
@@ -79,13 +79,13 @@ export function CookieConsent() {
             </button>
             <button
               onClick={() => handleConsent('declined')}
-              className="sm:w-auto text-sm font-bold border border-[#333333] text-[#9E9890] px-8 py-3 hover:border-[#9E9890] hover:text-[#F0EDE8] transition-colors"
+              className="sm:w-auto text-sm font-bold border-2 border-[#0A0A0A] text-[#0A0A0A] px-8 py-3 hover:bg-[#F5F5F5] transition-colors"
             >
               Ablehnen
             </button>
             <Link
               href="/datenschutz"
-              className="sm:ml-auto text-xs text-[#6B6560] hover:text-[#9E9890] transition-colors self-center"
+              className="sm:ml-auto text-xs text-[#555] hover:text-[#0A0A0A] transition-colors self-center"
             >
               Mehr erfahren →
             </Link>

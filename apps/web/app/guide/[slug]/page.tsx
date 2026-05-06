@@ -29,36 +29,36 @@ export default async function GuidePage({ params }: Props) {
   return (
     <div>
       {/* ── BREADCRUMB ─────────────────────────────────────── */}
-      <div className="border-b border-[#333333]">
+      <div className="border-b-2 border-[#0A0A0A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center gap-2 text-xs text-[#6B6560]">
-            <Link href="/" className="hover:text-[#FFE500] transition-colors">Start</Link>
+          <div className="flex items-center gap-2 text-xs text-[#555]">
+            <Link href="/" className="hover:text-[#0A0A0A] hover:underline transition-colors">Start</Link>
             <span>→</span>
-            <span className="text-[#9E9890]">Guide</span>
+            <span className="text-[#555]">Guide</span>
             <span>→</span>
-            <span className="text-[#9E9890] truncate max-w-[200px]">{guide.title}</span>
+            <span className="text-[#0A0A0A] truncate max-w-[200px]">{guide.title}</span>
           </div>
         </div>
       </div>
 
       {/* ── GUIDE HEADER ───────────────────────────────────── */}
-      <section className="border-b border-[#333333]">
+      <section className="border-b-2 border-[#0A0A0A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
           <div className="max-w-3xl">
             <div className="flex items-center gap-3 mb-6">
-              <span className="bg-[#FFE500] text-[#0A0A0A] text-[10px] font-bold px-3 py-1 uppercase tracking-widest">
+              <span className="bg-[#FFE500] text-[#0A0A0A] text-[10px] font-black px-3 py-1 uppercase tracking-widest">
                 Guide
               </span>
-              <span className="text-[#6B6560] text-xs">{guide.category}</span>
-              <span className="text-[#3A3A3A]">·</span>
-              <span className="text-[#6B6560] text-xs">⏱ {guide.readTime} Lesezeit</span>
+              <span className="text-[#555] text-xs">{guide.category}</span>
+              <span className="text-[#555]">·</span>
+              <span className="text-[#555] text-xs">⏱ {guide.readTime} Lesezeit</span>
             </div>
 
-            <h1 className="font-[family-name:var(--font-display)] font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-tight mb-4">
+            <h1 className="font-[family-name:var(--font-display)] font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-tight mb-4 text-[#0A0A0A]">
               {guide.title}
             </h1>
 
-            <p className="text-[#9E9890] text-xl leading-relaxed">
+            <p className="text-[#555] text-xl leading-relaxed">
               {guide.subtitle}
             </p>
           </div>
@@ -66,13 +66,13 @@ export default async function GuidePage({ params }: Props) {
       </section>
 
       {/* ── CONTENT ────────────────────────────────────────── */}
-      <section className="border-b border-[#333333]">
+      <section className="border-b-2 border-[#0A0A0A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-[#333333]">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-[#0A0A0A]">
             {/* Article */}
-            <div className="lg:col-span-2 bg-[#1C1C1C] p-8 lg:p-12">
+            <div className="lg:col-span-2 bg-white p-8 lg:p-12">
               {/* Intro */}
-              <p className="text-[#F0EDE8] text-lg leading-relaxed mb-10 pb-10 border-b border-[#333333]">
+              <p className="text-[#0A0A0A] text-lg leading-relaxed mb-10 pb-10 border-b-2 border-[#0A0A0A]">
                 {guide.intro}
               </p>
 
@@ -81,14 +81,14 @@ export default async function GuidePage({ params }: Props) {
                 {guide.sections.map((section, i) => (
                   <div key={i}>
                     <div className="flex items-start gap-4 mb-4">
-                      <span className="font-[family-name:var(--font-display)] font-extrabold text-3xl text-[#333333] leading-none shrink-0 tabular-nums mt-1">
+                      <span className="font-[family-name:var(--font-display)] font-extrabold text-3xl text-[#E0E0E0] leading-none shrink-0 tabular-nums mt-1">
                         {String(i + 1).padStart(2, '0')}
                       </span>
-                      <h2 className="font-[family-name:var(--font-display)] font-bold text-xl leading-tight text-[#F0EDE8]">
+                      <h2 className="font-[family-name:var(--font-display)] font-bold text-xl leading-tight text-[#0A0A0A]">
                         {section.heading}
                       </h2>
                     </div>
-                    <p className="text-[#9E9890] leading-relaxed pl-12">
+                    <p className="text-[#555] leading-relaxed pl-12">
                       {section.body}
                     </p>
                   </div>
@@ -96,21 +96,21 @@ export default async function GuidePage({ params }: Props) {
               </div>
 
               {/* Affiliate Note */}
-              <div className="mt-12 pt-8 border-t border-[#333333]">
-                <p className="text-[#3A3A3A] text-xs leading-relaxed">
+              <div className="mt-12 pt-8 border-t border-[#E0E0E0]">
+                <p className="text-[#555] text-xs leading-relaxed">
                   * Dieser Guide enthält Affiliate-Links. Käufe über unsere Links unterstützen Crazy Babo Bazar ohne Mehrkosten für dich.
                 </p>
               </div>
             </div>
 
             {/* Sidebar */}
-            <div className="bg-[#252525] p-6 flex flex-col gap-6">
+            <div className="bg-[#F5F5F5] p-6 flex flex-col gap-6">
               <div>
-                <div className="text-[#6B6560] text-xs uppercase tracking-widest mb-4">In diesem Guide</div>
+                <div className="text-[#555] text-xs uppercase tracking-widest mb-4 font-bold">In diesem Guide</div>
                 <ul className="space-y-3">
                   {guide.sections.map((section, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-[#9E9890]">
-                      <span className="text-[#FFE500] font-bold shrink-0">{String(i + 1).padStart(2, '0')}.</span>
+                    <li key={i} className="flex items-start gap-2 text-sm text-[#555]">
+                      <span className="text-[#0A0A0A] font-black shrink-0">{String(i + 1).padStart(2, '0')}.</span>
                       <span className="leading-tight">{section.heading}</span>
                     </li>
                   ))}
@@ -118,14 +118,14 @@ export default async function GuidePage({ params }: Props) {
               </div>
 
               {otherGuides.length > 0 && (
-                <div className="pt-6 border-t border-[#333333]">
-                  <div className="text-[#6B6560] text-xs uppercase tracking-widest mb-4">Weitere Guides</div>
+                <div className="pt-6 border-t border-[#E0E0E0]">
+                  <div className="text-[#555] text-xs uppercase tracking-widest mb-4 font-bold">Weitere Guides</div>
                   <ul className="space-y-3">
                     {otherGuides.map((g) => (
                       <li key={g.slug}>
                         <Link
                           href={`/guide/${g.slug}`}
-                          className="block text-sm text-[#9E9890] hover:text-[#FFE500] transition-colors leading-tight group"
+                          className="block text-sm text-[#555] hover:text-[#0A0A0A] transition-colors leading-tight group"
                         >
                           <span className="group-hover:translate-x-0.5 inline-block transition-transform">
                             {g.title} →
@@ -137,10 +137,10 @@ export default async function GuidePage({ params }: Props) {
                 </div>
               )}
 
-              <div className="pt-6 border-t border-[#333333] mt-auto">
+              <div className="pt-6 border-t border-[#E0E0E0] mt-auto">
                 <Link
                   href="/"
-                  className="block text-center border border-[#FFE500] text-[#FFE500] px-4 py-3 text-sm font-bold hover:bg-[#FFE500] hover:text-[#0A0A0A] transition-all"
+                  className="block text-center border-2 border-[#0A0A0A] text-[#0A0A0A] px-4 py-3 text-sm font-bold hover:bg-[#FFE500] hover:border-[#FFE500] transition-all"
                 >
                   Alle Deals entdecken →
                 </Link>

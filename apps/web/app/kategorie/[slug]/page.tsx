@@ -33,21 +33,21 @@ export default async function KategoriePage({ params }: Props) {
   return (
     <div>
       {/* ── HEADER ─────────────────────────────────────────── */}
-      <section className="border-b border-[#333333]">
+      <section className="border-b-2 border-[#0A0A0A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center gap-2 py-4 text-xs text-[#6B6560]">
+          <div className="flex items-center gap-2 py-4 text-xs text-[#555]">
             <Link href="/" className="hover:text-[#0A0A0A] hover:underline transition-colors">Start</Link>
             <span>→</span>
-            <span className="text-[#9E9890]">{category.name}</span>
+            <span className="text-[#0A0A0A]">{category.name}</span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 border-t border-[#333333]">
-            <div className="lg:col-span-2 py-12 pr-0 lg:pr-12 lg:border-r border-[#333333]">
+          <div className="grid grid-cols-1 lg:grid-cols-3 border-t-2 border-[#0A0A0A]">
+            <div className="lg:col-span-2 py-12 pr-0 lg:pr-12 lg:border-r-2 border-[#0A0A0A]">
               <div className="text-6xl mb-4">{category.emoji}</div>
-              <h1 className="font-[family-name:var(--font-display)] font-extrabold text-5xl sm:text-6xl leading-tight mb-4">
+              <h1 className="font-[family-name:var(--font-display)] font-extrabold text-5xl sm:text-6xl leading-tight mb-4 text-[#0A0A0A]">
                 {category.name}
               </h1>
-              <p className="text-[#9E9890] text-lg max-w-xl leading-relaxed">
+              <p className="text-[#555] text-lg max-w-xl leading-relaxed">
                 {category.description}
               </p>
             </div>
@@ -56,7 +56,7 @@ export default async function KategoriePage({ params }: Props) {
               <div className="font-[family-name:var(--font-display)] font-extrabold text-7xl text-[#0A0A0A] mb-2 tabular-nums">
                 {products.length}
               </div>
-              <div className="text-[#6B6560] text-sm uppercase tracking-widest">
+              <div className="text-[#555] text-sm uppercase tracking-widest">
                 Produkte in dieser Kategorie
               </div>
             </div>
@@ -65,10 +65,10 @@ export default async function KategoriePage({ params }: Props) {
       </section>
 
       {/* ── PRODUCTS GRID ──────────────────────────────────── */}
-      <section className="border-b border-[#333333]">
+      <section className="border-b-2 border-[#0A0A0A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
           {products.length === 0 ? (
-            <div className="text-center py-24 text-[#6B6560]">
+            <div className="text-center py-24 text-[#555]">
               <div className="text-5xl mb-4">🔍</div>
               <p className="text-xl font-bold mb-2">Noch keine Produkte</p>
               <p className="text-sm">Wir arbeiten daran. Schau bald wieder vorbei.</p>
@@ -82,7 +82,7 @@ export default async function KategoriePage({ params }: Props) {
       {/* ── ANDERE KATEGORIEN ──────────────────────────────── */}
       <section>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-          <h2 className="font-[family-name:var(--font-display)] font-bold text-xl mb-6 text-[#6B6560]">
+          <h2 className="font-[family-name:var(--font-display)] font-bold text-xl mb-6 text-[#0A0A0A]">
             Weitere Kategorien
           </h2>
           <div className="flex flex-wrap gap-2">
@@ -90,7 +90,7 @@ export default async function KategoriePage({ params }: Props) {
               <Link
                 key={cat.slug}
                 href={`/kategorie/${cat.slug}`}
-                className="flex items-center gap-2 px-4 py-2 border border-[#333333] text-sm text-[#9E9890] hover:border-[#FFE500] hover:text-[#0A0A0A] transition-all"
+                className="flex items-center gap-2 px-4 py-2 border-2 border-[#0A0A0A] text-sm text-[#555] hover:bg-[#FFE500] hover:text-[#0A0A0A] transition-all"
               >
                 <span>{cat.emoji}</span>
                 <span>{cat.name}</span>

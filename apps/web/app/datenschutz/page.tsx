@@ -9,12 +9,12 @@ export const metadata: Metadata = {
 export default function DatenschutzPage() {
   return (
     <div>
-      <div className="border-b border-[#333333]">
+      <div className="border-b-2 border-[#0A0A0A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center gap-2 text-xs text-[#6B6560]">
+          <div className="flex items-center gap-2 text-xs text-[#555]">
             <Link href="/" className="hover:text-[#0A0A0A] hover:underline transition-colors">Start</Link>
             <span>→</span>
-            <span className="text-[#9E9890]">Datenschutz</span>
+            <span className="text-[#0A0A0A]">Datenschutz</span>
           </div>
         </div>
       </div>
@@ -25,26 +25,26 @@ export default function DatenschutzPage() {
           <h1 className="font-[family-name:var(--font-display)] font-extrabold text-5xl mb-3">
             Datenschutz
           </h1>
-          <p className="text-[#6B6560] text-sm mb-12">Zuletzt aktualisiert: April 2026</p>
+          <p className="text-[#555] text-sm mb-12">Zuletzt aktualisiert: April 2026</p>
 
-          <div className="space-y-10 text-[#9E9890]">
+          <div className="space-y-10 text-[#555]">
 
             {/* 1 */}
             <div className="border-l-2 border-[#FFE500] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 1. Datenschutz auf einen Blick
               </h2>
               <p className="text-sm leading-relaxed mb-3">
                 Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie unsere Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
               </p>
               <p className="text-sm leading-relaxed">
-                <strong className="text-[#F0EDE8]">Cookies:</strong> Diese Website setzt keine eigenen Cookies. Externe Dienste (z. B. Amazon über Affiliate-Links) können eigene Cookies setzen, sobald Sie deren Links aufrufen. Darauf haben wir keinen Einfluss.
+                <strong className="text-[#0A0A0A]">Cookies:</strong> Diese Website setzt keine eigenen Cookies. Externe Dienste (z. B. Amazon über Affiliate-Links) können eigene Cookies setzen, sobald Sie deren Links aufrufen. Darauf haben wir keinen Einfluss.
               </p>
             </div>
 
             {/* 2 */}
-            <div className="border-l-2 border-[#333333] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 2. Verantwortliche Stelle (Art. 4 Nr. 7 DSGVO)
               </h2>
               <p className="text-sm leading-relaxed">
@@ -58,8 +58,8 @@ export default function DatenschutzPage() {
             </div>
 
             {/* 3 */}
-            <div className="border-l-2 border-[#333333] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 3. Hosting &amp; Server-Logs
               </h2>
               <p className="text-sm leading-relaxed mb-3">
@@ -87,8 +87,8 @@ export default function DatenschutzPage() {
             </div>
 
             {/* 4 */}
-            <div className="border-l-2 border-[#333333] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 4. Affiliate-Links (Amazon Partnerprogramm)
               </h2>
               <p className="text-sm leading-relaxed mb-3">
@@ -111,8 +111,8 @@ export default function DatenschutzPage() {
             </div>
 
             {/* 5 */}
-            <div className="border-l-2 border-[#333333] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 5. Schriftarten (Google Fonts)
               </h2>
               <p className="text-sm leading-relaxed">
@@ -121,8 +121,8 @@ export default function DatenschutzPage() {
             </div>
 
             {/* 6 */}
-            <div className="border-l-2 border-[#333333] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 6. Ihre Rechte (Art. 15–22 DSGVO)
               </h2>
               <p className="text-sm leading-relaxed mb-3">
@@ -149,8 +149,8 @@ export default function DatenschutzPage() {
             </div>
 
             {/* 7 */}
-            <div className="border-l-2 border-[#333333] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 7. Beschwerderecht bei der Aufsichtsbehörde (Art. 77 DSGVO)
               </h2>
               <p className="text-sm leading-relaxed">
@@ -160,7 +160,7 @@ export default function DatenschutzPage() {
 
           </div>
 
-          <div className="mt-16 pt-8 border-t border-[#333333]">
+          <div className="mt-16 pt-8 border-t border-[#E0E0E0]">
             <Link
               href="/impressum"
               className="text-[#0A0A0A] text-sm hover:underline transition-colors"

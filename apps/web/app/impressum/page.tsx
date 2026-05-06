@@ -9,12 +9,12 @@ export const metadata: Metadata = {
 export default function ImpressumPage() {
   return (
     <div>
-      <div className="border-b border-[#333333]">
+      <div className="border-b-2 border-[#0A0A0A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center gap-2 text-xs text-[#6B6560]">
+          <div className="flex items-center gap-2 text-xs text-[#555]">
             <Link href="/" className="hover:text-[#0A0A0A] hover:underline transition-colors">Start</Link>
             <span>→</span>
-            <span className="text-[#9E9890]">Impressum</span>
+            <span className="text-[#0A0A0A]">Impressum</span>
           </div>
         </div>
       </div>
@@ -26,9 +26,9 @@ export default function ImpressumPage() {
             Impressum
           </h1>
 
-          <div className="space-y-10 text-[#9E9890]">
+          <div className="space-y-10 text-[#555]">
             <div className="border-l-2 border-[#FFE500] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 Angaben gemäß § 5 TMG
               </h2>
               <p className="text-sm leading-loose">
@@ -39,8 +39,8 @@ export default function ImpressumPage() {
               </p>
             </div>
 
-            <div className="border-l-2 border-[#333333] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 Kontakt
               </h2>
               <p className="text-sm leading-loose">
@@ -49,8 +49,8 @@ export default function ImpressumPage() {
               </p>
             </div>
 
-            <div className="border-l-2 border-[#333333] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 Affiliate-Hinweis
               </h2>
               <p className="text-sm leading-relaxed mb-3">
@@ -61,20 +61,20 @@ export default function ImpressumPage() {
               </p>
             </div>
 
-            <div className="border-l-2 border-[#333333] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 Haftungsausschluss
               </h2>
               <p className="text-sm leading-relaxed mb-3">
-                <strong className="text-[#F0EDE8]">Haftung für Inhalte (§ 7 Abs. 1 TMG):</strong> Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen. Eine Verpflichtung zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleibt hiervon unberührt.
+                <strong className="text-[#0A0A0A]">Haftung für Inhalte (§ 7 Abs. 1 TMG):</strong> Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen. Eine Verpflichtung zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleibt hiervon unberührt.
               </p>
               <p className="text-sm leading-relaxed">
-                <strong className="text-[#F0EDE8]">Haftung für Links:</strong> Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.
+                <strong className="text-[#0A0A0A]">Haftung für Links:</strong> Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.
               </p>
             </div>
 
-            <div className="border-l-2 border-[#333333] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 Urheberrecht
               </h2>
               <p className="text-sm leading-relaxed">
@@ -82,8 +82,8 @@ export default function ImpressumPage() {
               </p>
             </div>
 
-            <div className="border-l-2 border-[#333333] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
                 EU-Streitschlichtung
               </h2>
               <p className="text-sm leading-relaxed mb-3">
@@ -103,7 +103,7 @@ export default function ImpressumPage() {
             </div>
           </div>
 
-          <div className="mt-16 pt-8 border-t border-[#333333]">
+          <div className="mt-16 pt-8 border-t border-[#E0E0E0]">
             <Link
               href="/datenschutz"
               className="text-[#0A0A0A] text-sm hover:underline transition-colors"

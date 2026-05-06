@@ -14,10 +14,10 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
           <GlowCard
             glowColor={glowColors[i % glowColors.length]}
             customSize
-            className="w-full h-full min-h-[340px] bg-[#1C1C1C] hover:bg-[#1C1C1C] transition-colors"
+            className="w-full h-full min-h-[340px] bg-white hover:bg-white transition-colors"
           >
             {/* Image placeholder */}
-            <div className="flex-1 flex items-center justify-center bg-[#252525] rounded-xl border border-[#333333] min-h-[160px] relative overflow-hidden">
+            <div className="flex-1 flex items-center justify-center bg-[#F5F5F5] rounded-xl border border-[#E0E0E0] min-h-[160px] relative overflow-hidden">
               <span className="text-7xl opacity-20 group-hover:opacity-40 transition-opacity select-none">
                 {product.categorySlug === 'lustige-gadgets' && '🎪'}
                 {product.categorySlug === 'buero-gadgets' && '💼'}
@@ -26,7 +26,7 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
                 {product.categorySlug === 'geschenke-20-euro' && '💸'}
               </span>
               {product.tag && (
-                <span className="absolute top-3 left-3 bg-[#E8321C] text-[#F0EDE8] text-[10px] font-bold px-2 py-0.5 uppercase tracking-wide">
+                <span className="absolute top-3 left-3 bg-[#FFE500] text-[#0A0A0A] text-[10px] font-bold px-2 py-0.5 uppercase tracking-wide">
                   {product.tag}
                 </span>
               )}
@@ -34,10 +34,10 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
 
             {/* Info */}
             <div className="flex flex-col gap-2">
-              <div className="text-[#6B6560] text-[10px] uppercase tracking-widest">
+              <div className="text-[#555] text-[10px] uppercase tracking-widest">
                 {product.category}
               </div>
-              <h3 className="font-[family-name:var(--font-display)] font-bold text-base leading-tight text-[#F0EDE8] group-hover:text-[#FFE500] transition-colors">
+              <h3 className="font-[family-name:var(--font-display)] font-bold text-base leading-tight text-[#0A0A0A] group-hover:text-[#0A0A0A] transition-colors">
                 {product.name}
               </h3>
               <div className="flex items-center justify-between">
@@ -45,13 +45,13 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
                   {[1, 2, 3, 4, 5].map((star) => (
                     <span
                       key={star}
-                      className={`text-xs ${star <= Math.round(product.rating) ? 'text-[#FFE500]' : 'text-[#333333]'}`}
+                      className={`text-xs ${star <= Math.round(product.rating) ? 'text-[#FFE500]' : 'text-[#E0E0E0]'}`}
                     >
                       ★
                     </span>
                   ))}
                 </div>
-                <span className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8]">
+                <span className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A]">
                   {product.price}€
                 </span>
               </div>

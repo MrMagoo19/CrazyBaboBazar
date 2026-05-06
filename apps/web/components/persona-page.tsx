@@ -36,10 +36,8 @@ export function PersonaPage({
       <div className="border-b-2 border-[#0A0A0A] bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <div className="flex items-center gap-3 mb-2">
-            <Icon size={20} style={{ color: accentColor }} />
-            <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: accentColor }}>
-              {title}
-            </span>
+            <Icon size={20} className="text-[#0A0A0A]" />
+            <span style={{ background: '#FFE500', color: '#0A0A0A', padding: '2px 8px', fontSize: '10px', fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{title}</span>
           </div>
           <h1 className="font-[family-name:var(--font-display)] font-extrabold text-3xl md:text-4xl text-[#0A0A0A]">
             {description}

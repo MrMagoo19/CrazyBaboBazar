@@ -57,7 +57,7 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
   return (
     <div>
       {/* ── Tabs ──────────────────────────────────────────────── */}
-      <div className="border-b border-[#333333]">
+      <div className="border-b-2 border-[#0A0A0A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center gap-0 overflow-x-auto scrollbar-none">
             {TABS.map(tab => (
@@ -69,8 +69,8 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                 }}
                 className={`flex items-center gap-2 px-5 py-4 text-xs font-bold uppercase tracking-widest whitespace-nowrap border-b-2 transition-all duration-200
                   ${activeTab === tab.key
-                    ? 'border-[#FFE500] text-[#FFE500]'
-                    : 'border-transparent text-[#6B6560] hover:text-[#9E9890]'
+                    ? 'border-[#0A0A0A] bg-[#FFE500] text-[#0A0A0A]'
+                    : 'border-transparent text-[#555] hover:text-[#0A0A0A]'
                   }`}
               >
                 <tab.icon size={13} />
@@ -83,35 +83,35 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
 
       {/* ── Filter bar (Preisspanne only) ──────────────────────── */}
       {activeTab === 'preisspanne' && (
-        <div className="border-b border-[#333333] bg-[#252525]">
+        <div className="border-b-2 border-[#0A0A0A] bg-[#F5F5F5]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-end gap-6">
             <div>
-              <label className="block text-[10px] uppercase tracking-widest text-[#6B6560] mb-2">Von (€)</label>
+              <label className="block text-[10px] uppercase tracking-widest text-[#555] mb-2">Von (€)</label>
               <input
                 type="number"
                 min={0}
                 value={minPrice}
                 onChange={e => setMinPrice(Number(e.target.value))}
-                className="w-24 bg-[#1C1C1C] border border-[#333333] text-[#F0EDE8] text-sm px-3 py-2 outline-none focus:border-[#FFE500]"
+                className="w-24 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] text-sm px-3 py-2 outline-none focus:border-[#FFE500]"
               />
             </div>
             <div>
-              <label className="block text-[10px] uppercase tracking-widest text-[#6B6560] mb-2">Bis (€)</label>
+              <label className="block text-[10px] uppercase tracking-widest text-[#555] mb-2">Bis (€)</label>
               <input
                 type="number"
                 min={0}
                 value={maxPrice}
                 onChange={e => setMaxPrice(Number(e.target.value))}
-                className="w-24 bg-[#1C1C1C] border border-[#333333] text-[#F0EDE8] text-sm px-3 py-2 outline-none focus:border-[#FFE500]"
+                className="w-24 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] text-sm px-3 py-2 outline-none focus:border-[#FFE500]"
               />
             </div>
             <button
               onClick={() => { setAppliedMin(minPrice); setAppliedMax(maxPrice) }}
-              className="px-6 py-2 bg-[#FFE500] text-[#0A0A0A] text-xs font-extrabold uppercase tracking-widest hover:bg-[#FFE500] transition-colors"
+              className="px-6 py-2 bg-[#FFE500] text-[#0A0A0A] text-xs font-extrabold uppercase tracking-widest hover:bg-[#FFE500] transition-colors border-2 border-[#0A0A0A]"
             >
               Anwenden
             </button>
-            <span className="text-xs text-[#6B6560] self-center">
+            <span className="text-xs text-[#555] self-center">
               {filtered.length} Produkte gefunden
             </span>
           </div>
@@ -121,31 +121,31 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
       {/* ── Results ───────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         {filtered.length === 0 ? (
-          <div className="text-center py-20 text-[#6B6560]">
+          <div className="text-center py-20 text-[#555]">
             <div className="text-4xl mb-4">🔍</div>
             <p className="font-bold">Keine Produkte in diesem Bereich</p>
             <p className="text-sm mt-1">Preisspanne anpassen oder anderen Filter wählen.</p>
           </div>
         ) : (
           <>
-            <p className="text-xs text-[#6B6560] mb-6 uppercase tracking-widest">
+            <p className="text-xs text-[#555] mb-6 uppercase tracking-widest">
               {filtered.length} Produkte
               {activeTab === 'zufall' && (
                 <button
                   onClick={() => setShuffleSeed(s => s + 1)}
-                  className="ml-3 inline-flex items-center gap-1 text-[#FFE500] hover:underline"
+                  className="ml-3 inline-flex items-center gap-1 text-[#0A0A0A] hover:underline font-bold"
                 >
                   <Shuffle size={10} /> Neu mischen
                 </button>
               )}
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#252525]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-[#0A0A0A]">
               {filtered.map(product => (
-                <div key={product.slug} className="group bg-[#1C1C1C] flex flex-col overflow-hidden relative">
+                <div key={product.slug} className="group bg-white flex flex-col overflow-hidden relative">
 
                   {/* Image */}
                   <Link href={`/produkt/${product.slug}`} className="block">
-                    <div className="relative w-full aspect-[4/3] bg-[#141414] overflow-hidden">
+                    <div className="relative w-full aspect-[4/3] bg-[#F5F5F5] overflow-hidden">
                       {product.image_url ? (
                         <Image
                           src={product.image_url}
@@ -168,17 +168,17 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                   {/* Body */}
                   <div className="p-5 flex flex-col gap-3 flex-1">
                     <Link href={`/produkt/${product.slug}`}>
-                      <h3 className="font-[family-name:var(--font-display)] font-bold text-[1rem] leading-snug text-[#F0EDE8] group-hover:text-[#FFE500] transition-colors line-clamp-2">
+                      <h3 className="font-[family-name:var(--font-display)] font-bold text-[1rem] leading-snug text-[#0A0A0A] group-hover:text-[#0A0A0A] transition-colors line-clamp-2">
                         {product.name}
                       </h3>
                     </Link>
-                    <p className="text-[#6B6560] text-xs leading-relaxed line-clamp-2 flex-1">
+                    <p className="text-[#555] text-xs leading-relaxed line-clamp-2 flex-1">
                       {product.tagline ?? product.description ?? ''}
                     </p>
-                    <div className="flex items-center justify-between pt-3 border-t border-[#252525] mt-auto">
-                      <span className="font-[family-name:var(--font-display)] font-extrabold text-base text-[#F0EDE8]">
+                    <div className="flex items-center justify-between pt-3 border-t border-[#E0E0E0] mt-auto">
+                      <span className="font-[family-name:var(--font-display)] font-extrabold text-base text-[#0A0A0A]">
                         {formatPrice(product.price_cents)}
-                        <span className="text-[#6B6560] text-[10px] font-normal ml-1">€</span>
+                        <span className="text-[#555] text-[10px] font-normal ml-1">€</span>
                       </span>
                       <a
                         href={product.affiliate_url}
@@ -191,7 +191,7 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                     </div>
                     <Link
                       href={`/produkt/${product.slug}`}
-                      className="flex items-center gap-1 text-xs font-bold text-[#6B6560] hover:text-[#FFE500] hover:gap-2 transition-all duration-200"
+                      className="flex items-center gap-1 text-xs font-bold text-[#555] hover:text-[#0A0A0A] hover:gap-2 transition-all duration-200"
                     >
                       Details <ArrowRight size={11} />
                     </Link>

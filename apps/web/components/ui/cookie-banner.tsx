@@ -50,7 +50,7 @@ export function CookieBanner() {
               Mit Klick auf „Verstanden" bestätigen Sie, dass Sie unsere{' '}
               <Link
                 href="/datenschutz"
-                className="text-[#E85000] hover:text-[#E8321C] transition-colors underline underline-offset-2 whitespace-nowrap"
+                className="text-[#FFE500] hover:text-[#FFE500] transition-colors underline underline-offset-2 whitespace-nowrap"
               >
                 Datenschutzerklärung
               </Link>{' '}
@@ -69,7 +69,7 @@ export function CookieBanner() {
             </button>
             <button
               onClick={() => handleConsent('accepted')}
-              className="text-xs font-bold bg-[#E85000] text-[#1C1C1C] px-4 py-2 hover:bg-[#E8321C] transition-colors whitespace-nowrap"
+              className="text-xs font-bold bg-[#FFE500] text-[#0A0A0A] px-4 py-2 hover:bg-[#FFE500] transition-colors whitespace-nowrap"
               aria-label="Datenschutzhinweis bestätigen"
             >
               Verstanden

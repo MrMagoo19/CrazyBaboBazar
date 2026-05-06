@@ -12,7 +12,7 @@ export default function ImpressumPage() {
       <div className="border-b border-[#333333]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center gap-2 text-xs text-[#6B6560]">
-            <Link href="/" className="hover:text-[#E85000] transition-colors">Start</Link>
+            <Link href="/" className="hover:text-[#0A0A0A] hover:underline transition-colors">Start</Link>
             <span>→</span>
             <span className="text-[#9E9890]">Impressum</span>
           </div>
@@ -21,13 +21,13 @@ export default function ImpressumPage() {
 
       <section>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16">
-          <div className="mb-2 text-[#E85000] text-xs font-bold uppercase tracking-widest">Rechtliches</div>
+          <div className="mb-2 text-[#0A0A0A] text-xs font-bold uppercase tracking-widest">Rechtliches</div>
           <h1 className="font-[family-name:var(--font-display)] font-extrabold text-5xl mb-12">
             Impressum
           </h1>
 
           <div className="space-y-10 text-[#9E9890]">
-            <div className="border-l-2 border-[#E85000] pl-6">
+            <div className="border-l-2 border-[#FFE500] pl-6">
               <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
                 Angaben gemäß § 5 TMG
               </h2>
@@ -92,7 +92,7 @@ export default function ImpressumPage() {
                   href="https://ec.europa.eu/consumers/odr"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#E85000] hover:text-[#E8321C] transition-colors underline underline-offset-2"
+                  className="text-[#0A0A0A] hover:underline transition-colors underline underline-offset-2"
                 >
                   https://ec.europa.eu/consumers/odr
                 </a>
@@ -106,7 +106,7 @@ export default function ImpressumPage() {
           <div className="mt-16 pt-8 border-t border-[#333333]">
             <Link
               href="/datenschutz"
-              className="text-[#E85000] text-sm hover:text-[#E8321C] transition-colors"
+              className="text-[#0A0A0A] text-sm hover:underline transition-colors"
             >
               Zur Datenschutzerklärung →
             </Link>

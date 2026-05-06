@@ -25,7 +25,7 @@ export function PersonaPage({
   description,
   intro,
   icon: Icon,
-  accentColor = '#E85000',
+  accentColor = '#FFE500',
   products,
   subnav,
   activeCategory,
@@ -64,8 +64,8 @@ export function PersonaPage({
                     href={item.href}
                     className={`shrink-0 px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all duration-150 ${
                       isActive
-                        ? 'border-[#E85000] text-[#E85000]'
-                        : 'border-transparent text-[#555555] hover:text-[#0A0A0A]'
+                        ? 'border-[#FFE500] bg-[#FFE500] text-[#0A0A0A]'
+                        : 'border-transparent text-[#555555] hover:text-[#0A0A0A] hover:border-[#0A0A0A]'
                     }`}
                   >
                     {item.label}

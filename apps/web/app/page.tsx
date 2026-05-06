@@ -32,10 +32,10 @@ export default async function HomePage() {
     <div className="min-h-screen bg-white">
 
       {/* ── TICKER ─────────────────────────────────────────── */}
-      <div className="border-b-2 border-[#0A0A0A] bg-[#E85000]/5 overflow-hidden">
+      <div className="border-b-2 border-[#0A0A0A] bg-[#FFE500]/30 overflow-hidden">
         <div className="flex animate-[ticker_30s_linear_infinite] whitespace-nowrap py-2">
           {[...tickerItems, ...tickerItems, ...tickerItems].map((item, i) => (
-            <span key={i} className="inline-flex items-center gap-6 px-8 text-[11px] font-bold uppercase tracking-widest text-[#E85000]">
+            <span key={i} className="inline-flex items-center gap-6 px-8 text-[11px] font-bold uppercase tracking-widest text-[#0A0A0A]">
               {item}
               <span className="text-[#333333]">·</span>
             </span>
@@ -50,7 +50,7 @@ export default async function HomePage() {
             className="font-[family-name:var(--font-display)] font-black uppercase leading-none text-[#0A0A0A]"
             style={{ fontSize: 'clamp(1.8rem, 5vw, 3.2rem)', letterSpacing: '-0.04em' }}
           >
-            Crazy <span className="text-[#E85000]">Babo</span> Bazar
+            Crazy <span style={{ background: '#FFE500', paddingLeft: '6px', paddingRight: '6px' }}>Babo</span> Bazar
           </h1>
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#888]">
             Handverlesen · Kurios · Amazon

@@ -72,7 +72,7 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
                 onClick={() => handleFilter(key)}
                 className={`flex items-center gap-2 px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap border-b-2 transition-all duration-150 ${
                   active === key
-                    ? 'border-[#E85000] text-[#E85000]'
+                    ? 'bg-[#FFE500] text-[#0A0A0A] border-[#0A0A0A]'
                     : 'border-transparent text-[#555555] hover:text-[#0A0A0A]'
                 }`}
               >
@@ -97,7 +97,7 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
                 placeholder="0"
                 value={minPrice}
                 onChange={e => setMinPrice(e.target.value)}
-                className="w-24 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] text-sm px-3 py-1.5 pr-6 outline-none focus:border-[#E85000] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-24 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] text-sm px-3 py-1.5 pr-6 outline-none focus:border-[#FFE500] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[#555555] text-xs">€</span>
             </div>
@@ -109,14 +109,14 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
                 placeholder="∞"
                 value={maxPrice}
                 onChange={e => setMaxPrice(e.target.value)}
-                className="w-24 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] text-sm px-3 py-1.5 pr-6 outline-none focus:border-[#E85000] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-24 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] text-sm px-3 py-1.5 pr-6 outline-none focus:border-[#FFE500] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[#555555] text-xs">€</span>
             </div>
             {(minPrice || maxPrice) && (
               <button
                 onClick={() => { setMinPrice(''); setMaxPrice('') }}
-                className="text-[11px] text-[#555555] hover:text-[#E85000] transition-colors uppercase tracking-wider"
+                className="text-[11px] text-[#555555] hover:text-[#0A0A0A] transition-colors uppercase tracking-wider"
               >
                 Zurücksetzen
               </button>

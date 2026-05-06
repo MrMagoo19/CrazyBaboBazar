@@ -69,7 +69,7 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                 }}
                 className={`flex items-center gap-2 px-5 py-4 text-xs font-bold uppercase tracking-widest whitespace-nowrap border-b-2 transition-all duration-200
                   ${activeTab === tab.key
-                    ? 'border-[#E85000] text-[#E85000]'
+                    ? 'border-[#FFE500] text-[#FFE500]'
                     : 'border-transparent text-[#6B6560] hover:text-[#9E9890]'
                   }`}
               >
@@ -92,7 +92,7 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                 min={0}
                 value={minPrice}
                 onChange={e => setMinPrice(Number(e.target.value))}
-                className="w-24 bg-[#1C1C1C] border border-[#333333] text-[#F0EDE8] text-sm px-3 py-2 outline-none focus:border-[#E85000]"
+                className="w-24 bg-[#1C1C1C] border border-[#333333] text-[#F0EDE8] text-sm px-3 py-2 outline-none focus:border-[#FFE500]"
               />
             </div>
             <div>
@@ -102,12 +102,12 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                 min={0}
                 value={maxPrice}
                 onChange={e => setMaxPrice(Number(e.target.value))}
-                className="w-24 bg-[#1C1C1C] border border-[#333333] text-[#F0EDE8] text-sm px-3 py-2 outline-none focus:border-[#E85000]"
+                className="w-24 bg-[#1C1C1C] border border-[#333333] text-[#F0EDE8] text-sm px-3 py-2 outline-none focus:border-[#FFE500]"
               />
             </div>
             <button
               onClick={() => { setAppliedMin(minPrice); setAppliedMax(maxPrice) }}
-              className="px-6 py-2 bg-[#E85000] text-[#1C1C1C] text-xs font-extrabold uppercase tracking-widest hover:bg-[#E8321C] transition-colors"
+              className="px-6 py-2 bg-[#FFE500] text-[#0A0A0A] text-xs font-extrabold uppercase tracking-widest hover:bg-[#FFE500] transition-colors"
             >
               Anwenden
             </button>
@@ -133,7 +133,7 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
               {activeTab === 'zufall' && (
                 <button
                   onClick={() => setShuffleSeed(s => s + 1)}
-                  className="ml-3 inline-flex items-center gap-1 text-[#E85000] hover:underline"
+                  className="ml-3 inline-flex items-center gap-1 text-[#FFE500] hover:underline"
                 >
                   <Shuffle size={10} /> Neu mischen
                 </button>
@@ -158,7 +158,7 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                         <div className="absolute inset-0 flex items-center justify-center text-6xl opacity-10">📦</div>
                       )}
                       {product.is_featured && (
-                        <span className="absolute top-3 left-3 bg-[#E85000] text-[#1C1C1C] text-[9px] font-extrabold px-2 py-0.5 uppercase tracking-wider">
+                        <span className="absolute top-3 left-3 bg-[#FFE500] text-[#0A0A0A] text-[9px] font-extrabold px-2 py-0.5 uppercase tracking-wider">
                           TOP PICK
                         </span>
                       )}
@@ -168,7 +168,7 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                   {/* Body */}
                   <div className="p-5 flex flex-col gap-3 flex-1">
                     <Link href={`/produkt/${product.slug}`}>
-                      <h3 className="font-[family-name:var(--font-display)] font-bold text-[1rem] leading-snug text-[#F0EDE8] group-hover:text-[#E85000] transition-colors line-clamp-2">
+                      <h3 className="font-[family-name:var(--font-display)] font-bold text-[1rem] leading-snug text-[#F0EDE8] group-hover:text-[#FFE500] transition-colors line-clamp-2">
                         {product.name}
                       </h3>
                     </Link>
@@ -184,20 +184,20 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                         href={product.affiliate_url}
                         target="_blank"
                         rel="noopener noreferrer sponsored"
-                        className="flex items-center gap-1.5 bg-[#E85000] text-[#1C1C1C] text-[10px] font-extrabold px-3 py-1.5 hover:bg-[#E8321C] transition-colors"
+                        className="flex items-center gap-1.5 bg-[#FFE500] text-[#0A0A0A] text-[10px] font-extrabold px-3 py-1.5 hover:bg-[#FFE500] transition-colors"
                       >
                         Amazon <ExternalLink size={10} />
                       </a>
                     </div>
                     <Link
                       href={`/produkt/${product.slug}`}
-                      className="flex items-center gap-1 text-xs font-bold text-[#6B6560] hover:text-[#E85000] hover:gap-2 transition-all duration-200"
+                      className="flex items-center gap-1 text-xs font-bold text-[#6B6560] hover:text-[#FFE500] hover:gap-2 transition-all duration-200"
                     >
                       Details <ArrowRight size={11} />
                     </Link>
                   </div>
 
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#E85000] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#FFE500] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                 </div>
               ))}
             </div>

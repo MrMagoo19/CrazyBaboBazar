@@ -16,8 +16,8 @@ export default async function Unter20Page() {
       <div className="border-b border-[#252525] bg-[#141414]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <div className="flex items-center gap-3 mb-2">
-            <Zap size={20} className="text-[#E85000]" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#E85000]">Preisfilter</span>
+            <Zap size={20} className="text-[#FFE500]" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#FFE500]">Preisfilter</span>
           </div>
           <h1 className="font-[family-name:var(--font-display)] font-extrabold text-3xl md:text-4xl text-[#F0EDE8]">
             Unter 20€

@@ -37,7 +37,7 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
               <div className="text-[#6B6560] text-[10px] uppercase tracking-widest">
                 {product.category}
               </div>
-              <h3 className="font-[family-name:var(--font-display)] font-bold text-base leading-tight text-[#F0EDE8] group-hover:text-[#E85000] transition-colors">
+              <h3 className="font-[family-name:var(--font-display)] font-bold text-base leading-tight text-[#F0EDE8] group-hover:text-[#FFE500] transition-colors">
                 {product.name}
               </h3>
               <div className="flex items-center justify-between">
@@ -45,7 +45,7 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
                   {[1, 2, 3, 4, 5].map((star) => (
                     <span
                       key={star}
-                      className={`text-xs ${star <= Math.round(product.rating) ? 'text-[#E85000]' : 'text-[#333333]'}`}
+                      className={`text-xs ${star <= Math.round(product.rating) ? 'text-[#FFE500]' : 'text-[#333333]'}`}
                     >
                       ★
                     </span>

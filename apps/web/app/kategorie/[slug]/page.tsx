@@ -36,7 +36,7 @@ export default async function KategoriePage({ params }: Props) {
       <section className="border-b border-[#333333]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center gap-2 py-4 text-xs text-[#6B6560]">
-            <Link href="/" className="hover:text-[#E85000] transition-colors">Start</Link>
+            <Link href="/" className="hover:text-[#0A0A0A] hover:underline transition-colors">Start</Link>
             <span>→</span>
             <span className="text-[#9E9890]">{category.name}</span>
           </div>
@@ -53,7 +53,7 @@ export default async function KategoriePage({ params }: Props) {
             </div>
 
             <div className="py-12 pl-0 lg:pl-12 flex flex-col justify-center">
-              <div className="font-[family-name:var(--font-display)] font-extrabold text-7xl text-[#E85000] mb-2 tabular-nums">
+              <div className="font-[family-name:var(--font-display)] font-extrabold text-7xl text-[#0A0A0A] mb-2 tabular-nums">
                 {products.length}
               </div>
               <div className="text-[#6B6560] text-sm uppercase tracking-widest">
@@ -90,7 +90,7 @@ export default async function KategoriePage({ params }: Props) {
               <Link
                 key={cat.slug}
                 href={`/kategorie/${cat.slug}`}
-                className="flex items-center gap-2 px-4 py-2 border border-[#333333] text-sm text-[#9E9890] hover:border-[#E85000] hover:text-[#E85000] transition-all"
+                className="flex items-center gap-2 px-4 py-2 border border-[#333333] text-sm text-[#9E9890] hover:border-[#FFE500] hover:text-[#0A0A0A] transition-all"
               >
                 <span>{cat.emoji}</span>
                 <span>{cat.name}</span>

@@ -32,7 +32,7 @@ export default async function GuidePage({ params }: Props) {
       <div className="border-b border-[#333333]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center gap-2 text-xs text-[#6B6560]">
-            <Link href="/" className="hover:text-[#E85000] transition-colors">Start</Link>
+            <Link href="/" className="hover:text-[#FFE500] transition-colors">Start</Link>
             <span>→</span>
             <span className="text-[#9E9890]">Guide</span>
             <span>→</span>
@@ -46,7 +46,7 @@ export default async function GuidePage({ params }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
           <div className="max-w-3xl">
             <div className="flex items-center gap-3 mb-6">
-              <span className="bg-[#E85000] text-[#1C1C1C] text-[10px] font-bold px-3 py-1 uppercase tracking-widest">
+              <span className="bg-[#FFE500] text-[#0A0A0A] text-[10px] font-bold px-3 py-1 uppercase tracking-widest">
                 Guide
               </span>
               <span className="text-[#6B6560] text-xs">{guide.category}</span>
@@ -110,7 +110,7 @@ export default async function GuidePage({ params }: Props) {
                 <ul className="space-y-3">
                   {guide.sections.map((section, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-[#9E9890]">
-                      <span className="text-[#E85000] font-bold shrink-0">{String(i + 1).padStart(2, '0')}.</span>
+                      <span className="text-[#FFE500] font-bold shrink-0">{String(i + 1).padStart(2, '0')}.</span>
                       <span className="leading-tight">{section.heading}</span>
                     </li>
                   ))}
@@ -125,7 +125,7 @@ export default async function GuidePage({ params }: Props) {
                       <li key={g.slug}>
                         <Link
                           href={`/guide/${g.slug}`}
-                          className="block text-sm text-[#9E9890] hover:text-[#E85000] transition-colors leading-tight group"
+                          className="block text-sm text-[#9E9890] hover:text-[#FFE500] transition-colors leading-tight group"
                         >
                           <span className="group-hover:translate-x-0.5 inline-block transition-transform">
                             {g.title} →
@@ -140,7 +140,7 @@ export default async function GuidePage({ params }: Props) {
               <div className="pt-6 border-t border-[#333333] mt-auto">
                 <Link
                   href="/"
-                  className="block text-center border border-[#E85000] text-[#E85000] px-4 py-3 text-sm font-bold hover:bg-[#E85000] hover:text-[#1C1C1C] transition-all"
+                  className="block text-center border border-[#FFE500] text-[#FFE500] px-4 py-3 text-sm font-bold hover:bg-[#FFE500] hover:text-[#0A0A0A] transition-all"
                 >
                   Alle Deals entdecken →
                 </Link>

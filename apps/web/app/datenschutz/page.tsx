@@ -12,7 +12,7 @@ export default function DatenschutzPage() {
       <div className="border-b border-[#333333]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center gap-2 text-xs text-[#6B6560]">
-            <Link href="/" className="hover:text-[#E85000] transition-colors">Start</Link>
+            <Link href="/" className="hover:text-[#0A0A0A] hover:underline transition-colors">Start</Link>
             <span>→</span>
             <span className="text-[#9E9890]">Datenschutz</span>
           </div>
@@ -21,7 +21,7 @@ export default function DatenschutzPage() {
 
       <section>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16">
-          <div className="mb-2 text-[#E85000] text-xs font-bold uppercase tracking-widest">Rechtliches</div>
+          <div className="mb-2 text-[#0A0A0A] text-xs font-bold uppercase tracking-widest">Rechtliches</div>
           <h1 className="font-[family-name:var(--font-display)] font-extrabold text-5xl mb-3">
             Datenschutz
           </h1>
@@ -30,7 +30,7 @@ export default function DatenschutzPage() {
           <div className="space-y-10 text-[#9E9890]">
 
             {/* 1 */}
-            <div className="border-l-2 border-[#E85000] pl-6">
+            <div className="border-l-2 border-[#FFE500] pl-6">
               <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#F0EDE8] mb-3">
                 1. Datenschutz auf einen Blick
               </h2>
@@ -76,7 +76,7 @@ export default function DatenschutzPage() {
                   'Referrer-URL (zuvor besuchte Seite)',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <span className="text-[#E85000] shrink-0 mt-0.5">▪</span>
+                    <span className="text-[#0A0A0A] shrink-0 mt-0.5">▪</span>
                     {item}
                   </li>
                 ))}
@@ -103,7 +103,7 @@ export default function DatenschutzPage() {
                   href="https://www.amazon.de/gp/help/customer/display.html?nodeId=GX7NJQ4ZB8MHFRNJ"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#E85000] hover:text-[#E8321C] transition-colors underline underline-offset-2"
+                  className="text-[#0A0A0A] hover:underline transition-colors underline underline-offset-2"
                 >
                   Datenschutzerklärung von Amazon
                 </a>
@@ -138,7 +138,7 @@ export default function DatenschutzPage() {
                   'Recht auf Widerspruch gegen die Verarbeitung (Art. 21 DSGVO)',
                 ].map((right) => (
                   <li key={right} className="flex items-start gap-2">
-                    <span className="text-[#E85000] shrink-0 mt-0.5">▪</span>
+                    <span className="text-[#0A0A0A] shrink-0 mt-0.5">▪</span>
                     {right}
                   </li>
                 ))}
@@ -163,7 +163,7 @@ export default function DatenschutzPage() {
           <div className="mt-16 pt-8 border-t border-[#333333]">
             <Link
               href="/impressum"
-              className="text-[#E85000] text-sm hover:text-[#E8321C] transition-colors"
+              className="text-[#0A0A0A] text-sm hover:underline transition-colors"
             >
               Zum Impressum →
             </Link>

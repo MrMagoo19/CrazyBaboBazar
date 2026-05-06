@@ -18,8 +18,8 @@ export default async function GuidePage() {
       <section className="border-b border-[#333333]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-1 h-6 bg-[#E85000]" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#E85000]">Produkt-Finder</span>
+            <div className="w-1 h-6 bg-[#FFE500]" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#FFE500]">Produkt-Finder</span>
           </div>
           <h1 className="font-[family-name:var(--font-display)] font-extrabold text-4xl sm:text-5xl leading-tight text-[#F0EDE8] mb-3">
             Was suchst du?

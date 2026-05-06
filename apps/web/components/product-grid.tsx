@@ -12,7 +12,7 @@ const PERSONA_COLOR: Record<string, string> = {
   miniboss: '#3BFFDC',
   wellness: '#B8FF3B',
 }
-const DEFAULT_COLOR = '#E85000'
+const DEFAULT_COLOR = '#FFE500'
 
 function getAccent(p: DbProduct) {
   return PERSONA_COLOR[p.shop_persona ?? ''] ?? DEFAULT_COLOR
@@ -95,7 +95,7 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
             <div className="flex flex-col flex-1 p-4 gap-3">
               <Link href={`/produkt/${product.slug}`}>
                 <h2
-                  className="font-[family-name:var(--font-display)] font-black text-[#0A0A0A] leading-tight line-clamp-2 group-hover:text-[#E85000] transition-colors"
+                  className="font-[family-name:var(--font-display)] font-black text-[#0A0A0A] leading-tight line-clamp-2 group-hover:underline transition-colors"
                   style={{ fontSize: '1.05rem', letterSpacing: '-0.03em' }}
                 >
                   {product.name}
@@ -136,7 +136,7 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
                     style={{ fontSize: '1.35rem', letterSpacing: '-0.04em', color: '#0A0A0A' }}
                   >
                     {formatPrice(product.price_cents)}
-                    <span style={{ fontSize: '0.75rem', color: '#E85000', marginLeft: '2px' }}>€</span>
+                    <span style={{ fontSize: '0.75rem', color: '#0A0A0A', marginLeft: '2px' }}>€</span>
                   </span>
                 </div>
               </div>

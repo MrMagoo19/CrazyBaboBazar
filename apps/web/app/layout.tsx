@@ -64,7 +64,7 @@ export default function RootLayout({
                 href="/"
                 className="font-[family-name:var(--font-display)] font-bold text-xl tracking-tight flex items-center gap-2 group shrink-0"
               >
-                <span className="bg-[#E85000] text-white px-2 py-0.5 text-sm font-extrabold group-hover:bg-[#E8321C] transition-colors duration-200">
+                <span className="bg-[#FFE500] text-[#0A0A0A] px-2 py-0.5 text-sm font-extrabold transition-colors duration-200">
                   CRAZY
                 </span>
                 <span className="text-white">BABO BAZAR</span>
@@ -115,7 +115,7 @@ export default function RootLayout({
                 <ul className="space-y-2">
                   {footerLinks.map((link) => (
                     <li key={link.href}>
-                      <Link href={link.href} className="text-sm text-[#999999] hover:text-[#E85000] transition-colors">
+                      <Link href={link.href} className="text-sm text-[#999999] hover:text-[#FFE500] transition-colors">
                         {link.label}
                       </Link>
                     </li>
@@ -128,12 +128,12 @@ export default function RootLayout({
                 <h3 className="text-xs font-bold text-[#666666] uppercase tracking-widest mb-4">Rechtliches</h3>
                 <ul className="space-y-2">
                   <li>
-                    <Link href="/impressum" className="text-sm text-[#999999] hover:text-[#E85000] transition-colors">
+                    <Link href="/impressum" className="text-sm text-[#999999] hover:text-[#FFE500] transition-colors">
                       Impressum
                     </Link>
                   </li>
                   <li>
-                    <Link href="/datenschutz" className="text-sm text-[#999999] hover:text-[#E85000] transition-colors">
+                    <Link href="/datenschutz" className="text-sm text-[#999999] hover:text-[#FFE500] transition-colors">
                       Datenschutz
                     </Link>
                   </li>

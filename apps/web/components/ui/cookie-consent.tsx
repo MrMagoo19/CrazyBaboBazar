@@ -42,10 +42,10 @@ export function CookieConsent() {
         aria-label="Cookie-Einstellungen"
         className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       >
-        <div className="w-full max-w-lg bg-[#1C1C1C] border border-[#333333] border-t-2 border-t-[#E85000] px-8 py-8">
+        <div className="w-full max-w-lg bg-[#1C1C1C] border border-[#333333] border-t-2 border-t-[#FFE500] px-8 py-8">
 
           {/* Label */}
-          <div className="mb-2 text-[#E85000] text-[10px] font-bold uppercase tracking-widest">
+          <div className="mb-2 text-[#FFE500] text-[10px] font-bold uppercase tracking-widest">
             Datenschutz &amp; Cookies
           </div>
 
@@ -62,7 +62,7 @@ export function CookieConsent() {
             Mit „Akzeptieren" stimmst du dem zu und bestätigst, unsere{' '}
             <Link
               href="/datenschutz"
-              className="text-[#E85000] hover:text-[#E8321C] transition-colors underline underline-offset-2"
+              className="text-[#FFE500] hover:text-[#FFE500] transition-colors underline underline-offset-2"
             >
               Datenschutzerklärung
             </Link>{' '}
@@ -73,7 +73,7 @@ export function CookieConsent() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <button
               onClick={() => handleConsent('accepted')}
-              className="sm:w-auto text-sm font-bold bg-[#E85000] text-[#1C1C1C] px-8 py-3 hover:bg-[#E8321C] transition-colors"
+              className="sm:w-auto text-sm font-bold bg-[#FFE500] text-[#0A0A0A] px-8 py-3 hover:bg-[#FFE500] transition-colors"
             >
               Akzeptieren
             </button>

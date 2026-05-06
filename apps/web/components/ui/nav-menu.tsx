@@ -152,7 +152,7 @@ export function NavSearch() {
     <>
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" style={{ zIndex: 9998 }} onClick={() => setOpen(false)} />
       <div style={{ position: 'fixed', top: '72px', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '520px', padding: '0 1rem', zIndex: 9999 }}>
-        <div className="bg-[#1C1C1C] border border-[#333333] border-t-2 border-t-[#E85000] shadow-2xl">
+        <div className="bg-[#1C1C1C] border border-[#333333] border-t-2 border-t-[#FFE500] shadow-2xl">
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[#2A2A2A]">
             <SearchIcon size={15} className="text-[#6B6560] shrink-0" />
             <input
@@ -187,7 +187,7 @@ export function NavSearch() {
                   }
                 </div>
                 <div className="min-w-0">
-                  <div className="text-sm font-medium text-[#F0EDE8] group-hover:text-[#E85000] truncate">{item.name}</div>
+                  <div className="text-sm font-medium text-[#F0EDE8] group-hover:text-[#FFE500] truncate">{item.name}</div>
                   {item.tagline && <div className="text-[11px] text-[#6B6560] truncate">{item.tagline}</div>}
                 </div>
               </Link>
@@ -252,8 +252,8 @@ export function DesktopNav() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex items-center gap-2 mb-4">
-            <item.icon size={13} className="text-[#E85000]" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#E85000]">{item.label}</span>
+            <item.icon size={13} className="text-[#FFE500]" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#FFE500]">{item.label}</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
             {item.sub.map(sub => (
@@ -261,11 +261,11 @@ export function DesktopNav() {
                 key={sub.href}
                 href={sub.href}
                 onClick={() => setActiveMenu(null)}
-                className="flex flex-col gap-1 px-3 py-3 border border-[#2A2A2A] hover:border-[#E85000] hover:bg-[#252525] transition-all duration-150 group"
+                className="flex flex-col gap-1 px-3 py-3 border border-[#2A2A2A] hover:border-[#FFE500] hover:bg-[#252525] transition-all duration-150 group"
               >
                 <div className="flex items-center gap-2">
-                  <sub.icon size={13} className="text-[#6B6560] group-hover:text-[#E85000] transition-colors shrink-0" />
-                  <span className="text-sm font-semibold text-[#F0EDE8] group-hover:text-[#E85000] transition-colors">
+                  <sub.icon size={13} className="text-[#6B6560] group-hover:text-[#FFE500] transition-colors shrink-0" />
+                  <span className="text-sm font-semibold text-[#F0EDE8] group-hover:text-[#FFE500] transition-colors">
                     {sub.label}
                   </span>
                 </div>
@@ -286,7 +286,7 @@ export function DesktopNav() {
             <button
               onClick={() => toggleMenu(item.key)}
               className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-wide transition-colors
-                ${activeMenu === item.key ? "text-[#E85000]" : "text-[#9E9890] hover:text-[#F0EDE8]"}`}
+                ${activeMenu === item.key ? "text-[#FFE500]" : "text-[#9E9890] hover:text-[#F0EDE8]"}`}
             >
               <item.icon size={13} />
               {item.label}
@@ -316,7 +316,7 @@ function MobileSheet() {
               <Link
                 key={cat.href}
                 href={cat.href}
-                className="flex items-center gap-2 py-2.5 text-sm text-[#9E9890] hover:text-[#E85000] transition-colors"
+                className="flex items-center gap-2 py-2.5 text-sm text-[#9E9890] hover:text-[#FFE500] transition-colors"
               >
                 <cat.icon size={13} className="opacity-60 shrink-0" />
                 {cat.label}

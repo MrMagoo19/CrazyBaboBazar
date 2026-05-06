@@ -16,32 +16,11 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image' },
 }
 
-const tickerItems = [
-  '🎁 Geschenke für Männer',
-  '💐 Geschenke für Frauen',
-  '🧸 Geschenke für Kinder',
-  '🐾 Geschenke für Tiere',
-  '❤️ Geschenke für Lieblingsmenschen',
-  '🍎 Geschenke für Lehrer',
-]
-
 export default async function HomePage() {
   const products = await getPublishedProducts()
 
   return (
     <div className="min-h-screen bg-white">
-
-      {/* ── TICKER ─────────────────────────────────────────── */}
-      <div className="border-b-2 border-[#0A0A0A] bg-[#FFE500]/30 overflow-hidden">
-        <div className="flex animate-[ticker_30s_linear_infinite] whitespace-nowrap py-2">
-          {[...tickerItems, ...tickerItems, ...tickerItems].map((item, i) => (
-            <span key={i} className="inline-flex items-center gap-6 px-8 text-[11px] font-bold uppercase tracking-widest text-[#0A0A0A]">
-              {item}
-              <span className="text-[#333333]">·</span>
-            </span>
-          ))}
-        </div>
-      </div>
 
       {/* ── HERO (Brutalist — kompakt, inline) ─────────────── */}
       <div className="border-b-2 border-[#0A0A0A] px-4 sm:px-6 py-5">

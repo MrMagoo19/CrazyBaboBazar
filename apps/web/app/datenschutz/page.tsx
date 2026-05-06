@@ -31,7 +31,7 @@ export default function DatenschutzPage() {
 
             {/* 1 */}
             <div className="border-l-2 border-[#FFE500] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 1. Datenschutz auf einen Blick
               </h2>
               <p className="text-sm leading-relaxed mb-3">
@@ -44,7 +44,7 @@ export default function DatenschutzPage() {
 
             {/* 2 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 2. Verantwortliche Stelle (Art. 4 Nr. 7 DSGVO)
               </h2>
               <p className="text-sm leading-relaxed">
@@ -59,7 +59,7 @@ export default function DatenschutzPage() {
 
             {/* 3 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 3. Hosting &amp; Server-Logs
               </h2>
               <p className="text-sm leading-relaxed mb-3">
@@ -88,7 +88,7 @@ export default function DatenschutzPage() {
 
             {/* 4 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 4. Affiliate-Links (Amazon Partnerprogramm)
               </h2>
               <p className="text-sm leading-relaxed mb-3">
@@ -112,7 +112,7 @@ export default function DatenschutzPage() {
 
             {/* 5 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 5. Schriftarten (Google Fonts)
               </h2>
               <p className="text-sm leading-relaxed">
@@ -122,7 +122,7 @@ export default function DatenschutzPage() {
 
             {/* 6 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 6. Ihre Rechte (Art. 15–22 DSGVO)
               </h2>
               <p className="text-sm leading-relaxed mb-3">
@@ -150,7 +150,7 @@ export default function DatenschutzPage() {
 
             {/* 7 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 7. Beschwerderecht bei der Aufsichtsbehörde (Art. 77 DSGVO)
               </h2>
               <p className="text-sm leading-relaxed">

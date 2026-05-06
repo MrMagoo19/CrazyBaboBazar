@@ -50,7 +50,7 @@ export function CookieConsent() {
           </div>
 
           {/* Heading */}
-          <h2 className="font-[family-name:var(--font-display)] font-extrabold text-xl text-[#0A0A0A] mb-3 mt-3">
+          <h2 className="font-[family-name:var(--font-body)] font-semibold text-xl text-[#0A0A0A] mb-3 mt-3">
             Bevor du weitermachst
           </h2>
 

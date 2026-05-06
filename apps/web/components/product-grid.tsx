@@ -95,8 +95,8 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
             <div className="flex flex-col flex-1 p-4 gap-3">
               <Link href={`/produkt/${product.slug}`}>
                 <h2
-                  className="font-[family-name:var(--font-display)] font-black text-[#0A0A0A] leading-tight line-clamp-2 group-hover:underline transition-colors"
-                  style={{ fontSize: '1.05rem', letterSpacing: '-0.03em' }}
+                  className="font-[family-name:var(--font-body)] font-semibold text-[#0A0A0A] leading-snug line-clamp-2 group-hover:underline transition-colors"
+                  style={{ fontSize: '0.95rem', letterSpacing: '0' }}
                 >
                   {product.name}
                 </h2>
@@ -132,8 +132,8 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
                 {/* Preis */}
                 <div className="text-right">
                   <span
-                    className="font-[family-name:var(--font-display)] font-black leading-none"
-                    style={{ fontSize: '1.35rem', letterSpacing: '-0.04em', color: '#0A0A0A' }}
+                    className="font-[family-name:var(--font-body)] font-bold leading-none"
+                    style={{ fontSize: '1.15rem', letterSpacing: '-0.01em', color: '#0A0A0A' }}
                   >
                     {formatPrice(product.price_cents)}
                     <span style={{ fontSize: '0.75rem', color: '#0A0A0A', marginLeft: '2px' }}>€</span>

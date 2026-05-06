@@ -176,7 +176,7 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                       {product.tagline ?? product.description ?? ''}
                     </p>
                     <div className="flex items-center justify-between pt-3 border-t border-[#E0E0E0] mt-auto">
-                      <span className="font-[family-name:var(--font-display)] font-extrabold text-base text-[#0A0A0A]">
+                      <span className="font-[family-name:var(--font-body)] font-semibold text-base text-[#0A0A0A]">
                         {formatPrice(product.price_cents)}
                         <span className="text-[#555] text-[10px] font-normal ml-1">€</span>
                       </span>

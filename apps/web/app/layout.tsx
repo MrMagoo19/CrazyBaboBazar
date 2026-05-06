@@ -53,7 +53,7 @@ export default function RootLayout({
               {/* Logo */}
               <Link
                 href="/"
-                className="font-[family-name:var(--font-display)] font-bold text-xl tracking-tight flex items-center gap-2 group shrink-0"
+                className="font-[family-name:var(--font-body)] font-semibold text-xl tracking-tight flex items-center gap-2 group shrink-0"
               >
                 <span className="bg-[#FFE500] text-[#0A0A0A] px-2 py-0.5 text-sm font-extrabold transition-colors duration-200">
                   CRAZY

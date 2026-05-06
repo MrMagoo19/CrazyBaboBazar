@@ -82,7 +82,7 @@ export default async function KategoriePage({ params }: Props) {
       {/* ── ANDERE KATEGORIEN ──────────────────────────────── */}
       <section>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-          <h2 className="font-[family-name:var(--font-display)] font-bold text-xl mb-6 text-[#0A0A0A]">
+          <h2 className="font-[family-name:var(--font-body)] font-semibold text-xl mb-6 text-[#0A0A0A]">
             Weitere Kategorien
           </h2>
           <div className="flex flex-wrap gap-2">

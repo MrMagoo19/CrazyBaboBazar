@@ -37,7 +37,7 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
               <div className="text-[#555] text-[10px] uppercase tracking-widest">
                 {product.category}
               </div>
-              <h3 className="font-[family-name:var(--font-display)] font-bold text-base leading-tight text-[#0A0A0A] group-hover:text-[#0A0A0A] transition-colors">
+              <h3 className="font-[family-name:var(--font-body)] font-semibold text-base leading-tight text-[#0A0A0A] group-hover:text-[#0A0A0A] transition-colors">
                 {product.name}
               </h3>
               <div className="flex items-center justify-between">
@@ -51,7 +51,7 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
                     </span>
                   ))}
                 </div>
-                <span className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A]">
+                <span className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A]">
                   {product.price}€
                 </span>
               </div>

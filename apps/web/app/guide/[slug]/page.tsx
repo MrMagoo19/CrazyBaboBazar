@@ -84,7 +84,7 @@ export default async function GuidePage({ params }: Props) {
                       <span className="font-[family-name:var(--font-display)] font-extrabold text-3xl text-[#E0E0E0] leading-none shrink-0 tabular-nums mt-1">
                         {String(i + 1).padStart(2, '0')}
                       </span>
-                      <h2 className="font-[family-name:var(--font-display)] font-bold text-xl leading-tight text-[#0A0A0A]">
+                      <h2 className="font-[family-name:var(--font-body)] font-semibold text-xl leading-tight text-[#0A0A0A]">
                         {section.heading}
                       </h2>
                     </div>

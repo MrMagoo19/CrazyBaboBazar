@@ -28,7 +28,7 @@ export default function ImpressumPage() {
 
           <div className="space-y-10 text-[#555]">
             <div className="border-l-2 border-[#FFE500] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 Angaben gemäß § 5 TMG
               </h2>
               <p className="text-sm leading-loose">
@@ -40,7 +40,7 @@ export default function ImpressumPage() {
             </div>
 
             <div className="border-l-2 border-[#E0E0E0] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 Kontakt
               </h2>
               <p className="text-sm leading-loose">
@@ -50,7 +50,7 @@ export default function ImpressumPage() {
             </div>
 
             <div className="border-l-2 border-[#E0E0E0] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 Affiliate-Hinweis
               </h2>
               <p className="text-sm leading-relaxed mb-3">
@@ -62,7 +62,7 @@ export default function ImpressumPage() {
             </div>
 
             <div className="border-l-2 border-[#E0E0E0] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 Haftungsausschluss
               </h2>
               <p className="text-sm leading-relaxed mb-3">
@@ -74,7 +74,7 @@ export default function ImpressumPage() {
             </div>
 
             <div className="border-l-2 border-[#E0E0E0] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 Urheberrecht
               </h2>
               <p className="text-sm leading-relaxed">
@@ -83,7 +83,7 @@ export default function ImpressumPage() {
             </div>
 
             <div className="border-l-2 border-[#E0E0E0] pl-6">
-              <h2 className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A] mb-3">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 EU-Streitschlichtung
               </h2>
               <p className="text-sm leading-relaxed mb-3">

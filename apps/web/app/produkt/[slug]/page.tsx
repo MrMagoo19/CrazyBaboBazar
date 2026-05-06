@@ -96,12 +96,12 @@ export default async function ProduktPage({ params }: Props) {
                 ← {catName}
               </Link>
 
-              <h1 className="font-[family-name:var(--font-display)] font-extrabold text-3xl sm:text-4xl leading-tight mb-4 text-[#0A0A0A]">
+              <h1 className="font-[family-name:var(--font-body)] font-bold text-2xl sm:text-3xl leading-snug mb-3 text-[#0A0A0A]">
                 {product.name}
               </h1>
 
               {product.tagline && (
-                <p className="text-[#0A0A0A] font-black text-base mb-4">{product.tagline}</p>
+                <p className="text-[#555] font-semibold text-base mb-4">{product.tagline}</p>
               )}
 
               <p className="text-[#555555] text-base leading-relaxed mb-8">
@@ -113,7 +113,7 @@ export default async function ProduktPage({ params }: Props) {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <div className="text-[#555] text-xs uppercase tracking-wider mb-1">Preis (ca.)</div>
-                    <div className="font-[family-name:var(--font-display)] font-extrabold text-4xl text-[#0A0A0A]">
+                    <div className="font-[family-name:var(--font-body)] font-bold text-4xl text-[#0A0A0A]" style={{ letterSpacing: '-0.02em' }}>
                       {formatPrice(product.price_cents)}€
                     </div>
                     <div className="text-[#555] text-[10px] mt-1">inkl. MwSt. · zzgl. Versand</div>
@@ -148,7 +148,7 @@ export default async function ProduktPage({ params }: Props) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-1 h-6 bg-[#FFE500]" />
-              <span className="font-[family-name:var(--font-display)] font-bold text-lg text-[#0A0A0A]">Produkt-Video</span>
+              <span className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A]">Produkt-Video</span>
             </div>
             <div className="relative w-full aspect-video bg-white border-2 border-[#0A0A0A]">
               <iframe

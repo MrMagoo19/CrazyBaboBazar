@@ -17,10 +17,8 @@ import { createClient } from "@/utils/supabase/client"
 function BaboIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" className={className}>
-      {/* Head */}
-      <circle cx="8" cy="4" r="2.8" fill="#A8D8EA" />
-      {/* Body – breite Schultern, gerader Torso = Mann */}
-      <path d="M3 8.5 C3 7.2 5 6.5 8 6.5 C11 6.5 13 7.2 13 8.5 L12 16 L4 16 Z" fill="#A8D8EA" />
+      <circle cx="8" cy="4" r="2.8" fill="currentColor" />
+      <path d="M3 8.5 C3 7.2 5 6.5 8 6.5 C11 6.5 13 7.2 13 8.5 L12 16 L4 16 Z" fill="currentColor" />
     </svg>
   )
 }
@@ -29,14 +27,10 @@ function BaboIcon({ size = 16, className = "" }: { size?: number; className?: st
 function QueenIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" className={className}>
-      {/* Long hair – left side */}
-      <rect x="3.5" y="3.5" width="2" height="6" rx="1" fill="#F5B8C8" />
-      {/* Long hair – right side */}
-      <rect x="10.5" y="3.5" width="2" height="6" rx="1" fill="#F5B8C8" />
-      {/* Head */}
-      <circle cx="8" cy="4" r="2.8" fill="#F5B8C8" />
-      {/* Dress – schmale Taille, A-Linie Kleid = Frau */}
-      <path d="M6 9 L10 9 L13.5 16 L2.5 16 Z" fill="#F5B8C8" />
+      <rect x="3.5" y="3.5" width="2" height="6" rx="1" fill="currentColor" />
+      <rect x="10.5" y="3.5" width="2" height="6" rx="1" fill="currentColor" />
+      <circle cx="8" cy="4" r="2.8" fill="currentColor" />
+      <path d="M6 9 L10 9 L13.5 16 L2.5 16 Z" fill="currentColor" />
     </svg>
   )
 }
@@ -44,8 +38,8 @@ function QueenIcon({ size = 16, className = "" }: { size?: number; className?: s
 function MinibossIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" className={className}>
-      <circle cx="8" cy="8.5" r="5" fill="white" />
-      <ellipse cx="8" cy="3.8" rx="1.2" ry="1.5" fill="white" />
+      <circle cx="8" cy="8.5" r="5" fill="currentColor" />
+      <ellipse cx="8" cy="3.8" rx="1.2" ry="1.5" fill="currentColor" />
     </svg>
   )
 }
@@ -247,13 +241,12 @@ export function DesktopNav() {
       <div
         onMouseEnter={() => openMenu(activeMenu)}
         onMouseLeave={scheduleClose}
-        style={{ position: "fixed", left: 0, right: 0, top: 64, zIndex: 9000 }}
-        className="w-screen border-b border-[#333333] bg-[#1C1C1C] shadow-2xl"
+        style={{ position: "fixed", left: 0, right: 0, top: 64, zIndex: 9000, backgroundColor: '#FFE500', borderBottom: '2px solid #0A0A0A' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex items-center gap-2 mb-4">
-            <item.icon size={13} className="text-[#FFE500]" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[#FFE500]">{item.label}</span>
+            <item.icon size={13} style={{ color: '#0A0A0A' }} />
+            <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#0A0A0A' }}>{item.label}</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
             {item.sub.map(sub => (
@@ -261,15 +254,30 @@ export function DesktopNav() {
                 key={sub.href}
                 href={sub.href}
                 onClick={() => setActiveMenu(null)}
-                className="flex flex-col gap-1 px-3 py-3 border border-[#2A2A2A] hover:border-[#FFE500] hover:bg-[#252525] transition-all duration-150 group"
+                className="flex flex-col gap-1 px-3 py-3 transition-all duration-150"
+                style={{ border: '2px solid #0A0A0A', backgroundColor: '#FFFFFF' }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.backgroundColor = '#0A0A0A'
+                  el.querySelectorAll('[data-label]').forEach(n => ((n as HTMLElement).style.color = '#FFE500'))
+                  el.querySelectorAll('[data-desc]').forEach(n => ((n as HTMLElement).style.color = '#888'))
+                  el.querySelectorAll('svg').forEach(n => ((n as HTMLElement).style.color = '#FFE500'))
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.backgroundColor = '#FFFFFF'
+                  el.querySelectorAll('[data-label]').forEach(n => ((n as HTMLElement).style.color = '#0A0A0A'))
+                  el.querySelectorAll('[data-desc]').forEach(n => ((n as HTMLElement).style.color = '#555555'))
+                  el.querySelectorAll('svg').forEach(n => ((n as HTMLElement).style.color = '#0A0A0A'))
+                }}
               >
                 <div className="flex items-center gap-2">
-                  <sub.icon size={13} className="text-[#6B6560] group-hover:text-[#FFE500] transition-colors shrink-0" />
-                  <span className="text-sm font-semibold text-[#F0EDE8] group-hover:text-[#FFE500] transition-colors">
+                  <sub.icon size={13} className="shrink-0" style={{ color: '#0A0A0A', transition: 'color 0.15s' }} />
+                  <span data-label className="text-sm font-bold" style={{ color: '#0A0A0A' }}>
                     {sub.label}
                   </span>
                 </div>
-                <span className="text-[11px] text-[#6B6560] pl-5">{sub.desc}</span>
+                <span data-desc className="text-[11px] pl-5" style={{ color: '#555555' }}>{sub.desc}</span>
               </Link>
             ))}
           </div>
@@ -285,8 +293,8 @@ export function DesktopNav() {
           <div key={item.key} onMouseEnter={() => openMenu(item.key)} onMouseLeave={scheduleClose}>
             <button
               onClick={() => toggleMenu(item.key)}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold uppercase tracking-wide transition-colors
-                ${activeMenu === item.key ? "text-[#FFE500]" : "text-[#9E9890] hover:text-[#F0EDE8]"}`}
+              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-black uppercase tracking-wide transition-colors
+                ${activeMenu === item.key ? "text-[#FFE500]" : "text-white hover:text-[#FFE500]"}`}
             >
               <item.icon size={13} />
               {item.label}

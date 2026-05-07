@@ -62,11 +62,21 @@ export default async function ProduktPage({ params }: Props) {
       </div>
 
       {/* ── MAIN PRODUCT ───────────────────────────────────── */}
-      <section className="border-b-2 border-[#0A0A0A]">
+      <section style={{ borderBottom: '2px solid #0A0A0A', backgroundColor: '#FFFFFF' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-px bg-[#0A0A0A]">
+          <div className="flex flex-col lg:flex-row">
             {/* Image */}
-            <div className="bg-white border-2 border-[#0A0A0A] aspect-square flex items-center justify-center relative overflow-hidden p-8">
+            <div
+              style={{
+                backgroundColor: '#FFFFFF',
+                border: '2px solid #0A0A0A',
+                aspectRatio: '1 / 1',
+                position: 'relative',
+                overflow: 'hidden',
+                flexShrink: 0,
+              }}
+              className="w-full lg:w-1/2"
+            >
               {product.image_url ? (
                 <Image
                   src={product.image_url}
@@ -76,7 +86,7 @@ export default async function ProduktPage({ params }: Props) {
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               ) : (
-                <span className="text-[160px] opacity-20 select-none">{catEmoji}</span>
+                <span className="text-[160px] opacity-20 select-none absolute inset-0 flex items-center justify-center">{catEmoji}</span>
               )}
               {product.is_featured && (
                 <div className="absolute top-6 left-6">
@@ -88,9 +98,20 @@ export default async function ProduktPage({ params }: Props) {
             </div>
 
             {/* Info */}
-            <div className="bg-white p-8 lg:p-12 flex flex-col justify-center">
+            <div
+              style={{
+                backgroundColor: '#FFFFFF',
+                borderTop: '2px solid #0A0A0A',
+                padding: '2rem',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                flex: 1,
+              }}
+              className="lg:border-t-0 lg:border-l-2 lg:border-l-[#0A0A0A] lg:p-12"
+            >
               <Link
-                href={`/kategorie/${catSlug}`}
+                href={`/${catSlug}`}
                 className="inline-block bg-[#FFE500] text-[#0A0A0A] text-xs font-black px-2 py-0.5 uppercase tracking-widest mb-4"
               >
                 ← {catName}
@@ -109,7 +130,7 @@ export default async function ProduktPage({ params }: Props) {
               </p>
 
               {/* CTA */}
-              <div className="border-t-2 border-[#E0E0E0] pt-8">
+              <div style={{ borderTop: '2px solid #E0E0E0', paddingTop: '2rem' }}>
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <div className="text-[#555] text-xs uppercase tracking-wider mb-1">Preis (ca.)</div>
@@ -164,9 +185,9 @@ export default async function ProduktPage({ params }: Props) {
       )}
 
       {/* ── DISCLAIMER ─────────────────────────────────────── */}
-      <section>
+      <section style={{ backgroundColor: '#FFFFFF' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-          <div className="border-2 border-[#0A0A0A] p-6 bg-white">
+          <div className="border-2 border-[#0A0A0A] p-6" style={{ backgroundColor: '#FFFFFF' }}>
             <div className="text-[#0A0A0A] text-xs font-bold uppercase tracking-widest mb-2">Affiliate-Hinweis</div>
             <p className="text-[#555555] text-xs leading-relaxed">
               Dieser Beitrag enthält Affiliate-Links. Wenn du über einen unserer Links ein Produkt kaufst, erhalten wir eine Provision. Der Preis für dich bleibt derselbe.

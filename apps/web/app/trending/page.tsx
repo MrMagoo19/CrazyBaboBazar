@@ -31,7 +31,7 @@ export default async function TrendingPage() {
           Noch keine Produkte verfügbar.
         </div>
       ) : (
-        <ProductGrid products={products} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6"><ProductGrid products={products} /></div>
       )}
     </div>
   )

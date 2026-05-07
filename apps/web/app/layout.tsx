@@ -79,28 +79,28 @@ export default function RootLayout({
         <CookieConsent />
 
         {/* Footer */}
-        <footer className="border-t-2 border-[#0A0A0A] mt-auto bg-[#0A0A0A]">
+        <footer className="border-t-2 border-[#0A0A0A] mt-auto bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b-2 border-[#222]">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b-2 border-[#0A0A0A]">
 
-              {/* Brand — Wortmarke statt Logo-Bild */}
+              {/* Brand */}
               <div>
-                <div className="font-[family-name:var(--font-display)] font-black text-2xl text-white leading-none tracking-tight mb-4" style={{ letterSpacing: '-0.04em' }}>
+                <div className="font-[family-name:var(--font-display)] font-black text-2xl text-[#0A0A0A] leading-none tracking-tight mb-4" style={{ letterSpacing: '-0.04em' }}>
                   CRAZY<br />
                   <span style={{ background: '#FFE500', color: '#0A0A0A', paddingLeft: '4px', paddingRight: '4px' }}>BABO</span>{' '}
                   BAZAR
                 </div>
-                <p className="text-[#888] text-sm leading-relaxed max-w-xs">
+                <p className="text-[#555] text-sm leading-relaxed max-w-xs">
                   Kuriose Produkte für schlaue Käufer. Handverlesen.
                 </p>
-                <p className="text-[#555] text-xs mt-4">
+                <p className="text-[#888] text-xs mt-4">
                   Als Amazon-Partner verdienen wir an qualifizierten Käufen.
                 </p>
               </div>
 
-              {/* Kategorien — neue Links */}
+              {/* Kategorien */}
               <div>
-                <h3 className="text-xs font-black text-[#FFE500] uppercase tracking-widest mb-4">Kategorien</h3>
+                <h3 className="text-xs font-black text-[#0A0A0A] uppercase tracking-widest mb-4 inline-block bg-[#FFE500] px-2 py-0.5">Kategorien</h3>
                 <ul className="space-y-2">
                   {[
                     { href: '/babos', label: 'Babos' },
@@ -110,7 +110,7 @@ export default function RootLayout({
                     { href: '/unter-20', label: 'Unter 20€' },
                   ].map(link => (
                     <li key={link.href}>
-                      <Link href={link.href} className="text-sm text-[#999] hover:text-[#FFE500] transition-colors font-medium">
+                      <Link href={link.href} className="text-sm text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors font-medium">
                         {link.label}
                       </Link>
                     </li>
@@ -120,17 +120,17 @@ export default function RootLayout({
 
               {/* Legal */}
               <div>
-                <h3 className="text-xs font-black text-[#FFE500] uppercase tracking-widest mb-4">Rechtliches</h3>
+                <h3 className="text-xs font-black text-[#0A0A0A] uppercase tracking-widest mb-4 inline-block bg-[#FFE500] px-2 py-0.5">Rechtliches</h3>
                 <ul className="space-y-2">
-                  <li><Link href="/impressum" className="text-sm text-[#999] hover:text-[#FFE500] transition-colors font-medium">Impressum</Link></li>
-                  <li><Link href="/datenschutz" className="text-sm text-[#999] hover:text-[#FFE500] transition-colors font-medium">Datenschutz</Link></li>
+                  <li><Link href="/impressum" className="text-sm text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors font-medium">Impressum</Link></li>
+                  <li><Link href="/datenschutz" className="text-sm text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors font-medium">Datenschutz</Link></li>
                 </ul>
               </div>
             </div>
 
             <div className="pt-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <p className="text-[#555] text-xs font-medium">© 2026 Crazy Babo Bazar.</p>
-              <p className="text-[#555] text-xs font-medium">Made with obsession, not algorithms.</p>
+              <p className="text-[#888] text-xs font-medium">© 2026 Crazy Babo Bazar.</p>
+              <p className="text-[#888] text-xs font-medium">Made with obsession, not algorithms.</p>
             </div>
           </div>
         </footer>

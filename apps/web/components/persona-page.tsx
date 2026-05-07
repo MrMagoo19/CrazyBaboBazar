@@ -81,7 +81,9 @@ export function PersonaPage({
           Noch keine Produkte in dieser Kategorie.
         </div>
       ) : (
-        <ProductGrid products={products} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+          <ProductGrid products={products} />
+        </div>
       )}
     </div>
   )

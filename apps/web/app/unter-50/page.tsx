@@ -33,7 +33,7 @@ export default async function Unter50Page() {
           Aktuell keine Produkte unter 50&nbsp;Euro verfügbar.
         </div>
       ) : (
-        <ProductGrid products={products} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6"><ProductGrid products={products} /></div>
       )}
     </div>
   )

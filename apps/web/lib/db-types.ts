@@ -35,3 +35,14 @@ export function formatPrice(cents: number | null): string {
   if (!cents) return '—'
   return (cents / 100).toFixed(2).replace('.', ',')
 }
+
+export function getPriceBand(cents: number | null): string {
+  if (!cents) return 'Preis auf Amazon'
+  const eur = cents / 100
+  if (eur < 10)  return 'Unter 10€'
+  if (eur < 20)  return 'Unter 20€'
+  if (eur < 50)  return '20 – 50€'
+  if (eur < 100) return '50 – 100€'
+  if (eur < 200) return '100 – 200€'
+  return 'Über 200€'
+}

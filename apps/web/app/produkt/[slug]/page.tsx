@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { getProductBySlug, formatPrice } from '@/lib/db'
+import { getProductBySlug } from '@/lib/db'
+import { getPriceBand } from '@/lib/db-types'
+import { ShareButton } from '@/components/ui/share-button'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
@@ -112,12 +114,13 @@ export default async function ProduktPage({ params }: Props) {
             >
               <Link
                 href={`/${catSlug}`}
-                className="inline-block bg-[#FFE500] text-[#0A0A0A] text-xs font-black px-2 py-0.5 uppercase tracking-widest mb-4"
+                className="font-[family-name:var(--font-mono)] font-bold text-[11px] uppercase tracking-widest mb-4 bg-[#FFE500] text-[#0A0A0A] px-2 py-1"
+                style={{ alignSelf: 'flex-start' }}
               >
                 ← {catName}
               </Link>
 
-              <h1 className="font-[family-name:var(--font-body)] font-bold text-2xl sm:text-3xl leading-snug mb-3 text-[#0A0A0A]">
+              <h1 className="font-[family-name:var(--font-display)] font-black text-2xl sm:text-3xl leading-tight mb-3 text-[#0A0A0A]">
                 {product.name}
               </h1>
 
@@ -131,17 +134,17 @@ export default async function ProduktPage({ params }: Props) {
 
               {/* CTA */}
               <div style={{ borderTop: '2px solid #E0E0E0', paddingTop: '2rem' }}>
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-6">
                   <div>
-                    <div className="text-[#555] text-xs uppercase tracking-wider mb-1">Preis (ca.)</div>
-                    <div className="font-[family-name:var(--font-body)] font-bold text-4xl text-[#0A0A0A]" style={{ letterSpacing: '-0.02em' }}>
-                      {formatPrice(product.price_cents)}€
+                    <div className="text-[#555] text-xs font-[family-name:var(--font-mono)] uppercase tracking-wider mb-2">Preisbereich</div>
+                    <div className="font-[family-name:var(--font-mono)] font-bold text-3xl text-[#0A0A0A]">
+                      {getPriceBand(product.price_cents)}
                     </div>
-                    <div className="text-[#555] text-[10px] mt-1">inkl. MwSt. · zzgl. Versand</div>
+                    <div className="text-[#555] text-[10px] mt-1">Aktueller Preis auf Amazon</div>
                   </div>
-                  <div className="text-right text-xs text-[#555]">
-                    <div>Preis kann variieren.</div>
-                    <div>Affiliate-Link*</div>
+                  <div className="text-right text-xs text-[#555] max-w-[140px]">
+                    <div>Preis wird von Amazon</div>
+                    <div>festgelegt & kann variieren.</div>
                   </div>
                 </div>
 
@@ -151,10 +154,12 @@ export default async function ProduktPage({ params }: Props) {
                   rel="noopener noreferrer sponsored"
                   className="block w-full text-center bg-[#0A0A0A] text-white py-4 font-bold text-base hover:bg-[#FFE500] hover:text-[#0A0A0A] transition-all duration-200 mb-3"
                 >
-                  Jetzt auf Amazon ansehen →
+                  Preis auf Amazon prüfen →
                 </a>
 
-                <p className="text-[#555] text-xs text-center">
+                <ShareButton name={product.name} tagline={product.tagline} />
+
+                <p className="text-[#555] text-xs text-center mt-3">
                   * Als Amazon-Partner verdienen wir an qualifizierten Käufen. Kein Aufpreis für dich.
                 </p>
               </div>
@@ -208,8 +213,6 @@ export default async function ProduktPage({ params }: Props) {
             image: product.image_url ?? '',
             offers: {
               '@type': 'Offer',
-              price: ((product.price_cents ?? 0) / 100).toFixed(2),
-              priceCurrency: 'EUR',
               availability: 'https://schema.org/InStock',
               url: product.affiliate_url,
               seller: {

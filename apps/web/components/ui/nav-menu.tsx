@@ -5,44 +5,11 @@ import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
 import {
-  Flame, Crown, Sparkles, Rocket, Users, Equal, Search as SearchIcon, X,
-  BriefcaseBusiness, UtensilsCrossed, PartyPopper, Zap,
+  Flame, Crown, Sparkles, Rocket, Equal, Search as SearchIcon, X,
+  BriefcaseBusiness, UtensilsCrossed, PartyPopper, Zap, Star, Leaf, Users,
 } from "lucide-react"
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
 import { createClient } from "@/utils/supabase/client"
-
-// ── Custom persona icons ───────────────────────────────────────────────────
-
-// Mann-Silhouette: runder Kopf + breite Schultern + gerader Körper
-function BaboIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 16 16" className={className}>
-      <circle cx="8" cy="4" r="2.8" fill="currentColor" />
-      <path d="M3 8.5 C3 7.2 5 6.5 8 6.5 C11 6.5 13 7.2 13 8.5 L12 16 L4 16 Z" fill="currentColor" />
-    </svg>
-  )
-}
-
-// Frau-Silhouette: runder Kopf + lange Haare seitlich + Kleid (A-Linie)
-function QueenIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 16 16" className={className}>
-      <rect x="3.5" y="3.5" width="2" height="6" rx="1" fill="currentColor" />
-      <rect x="10.5" y="3.5" width="2" height="6" rx="1" fill="currentColor" />
-      <circle cx="8" cy="4" r="2.8" fill="currentColor" />
-      <path d="M6 9 L10 9 L13.5 16 L2.5 16 Z" fill="currentColor" />
-    </svg>
-  )
-}
-
-function MinibossIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 16 16" className={className}>
-      <circle cx="8" cy="8.5" r="5" fill="currentColor" />
-      <ellipse cx="8" cy="3.8" rx="1.2" ry="1.5" fill="currentColor" />
-    </svg>
-  )
-}
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type MenuName = "trending" | "babos" | "queens" | "miniboss" | "wellness" | null
@@ -59,8 +26,8 @@ const NAV: NavItem[] = [
     ],
   },
   {
-    key: "babos", label: "Babos", icon: BaboIcon, sub: [
-      { label: "Alle Babos",     href: "/babos",             icon: BaboIcon,          desc: "Komplette Babo-Welt" },
+    key: "babos", label: "Babos", icon: Zap, sub: [
+      { label: "Alle Babos",     href: "/babos",             icon: Zap,               desc: "Komplette Babo-Welt" },
       { label: "Gaming",         href: "/babos/gaming",      icon: Rocket,            desc: "Tabletop, Retro & Collectibles" },
       { label: "Tech & DIY",     href: "/babos/tech",        icon: Zap,               desc: "Gadgets & Schreibtisch-Setup" },
       { label: "Lifestyle",      href: "/babos/lifestyle",   icon: PartyPopper,       desc: "Party, Bar & Fun" },
@@ -68,25 +35,25 @@ const NAV: NavItem[] = [
     ],
   },
   {
-    key: "queens", label: "Queens", icon: QueenIcon, sub: [
-      { label: "Alle Queens",    href: "/queens",             icon: QueenIcon,        desc: "Komplette Queen-Welt" },
+    key: "queens", label: "Queens", icon: Crown, sub: [
+      { label: "Alle Queens",    href: "/queens",             icon: Crown,            desc: "Komplette Queen-Welt" },
       { label: "Küche",          href: "/queens/kueche",      icon: UtensilsCrossed,  desc: "Gadgets & Kurioses" },
-      { label: "Lifestyle",      href: "/queens/lifestyle",   icon: Crown,            desc: "Deko, Fandom & Mode" },
+      { label: "Lifestyle",      href: "/queens/lifestyle",   icon: Sparkles,         desc: "Deko, Fandom & Mode" },
       { label: "Beauty",         href: "/queens/beauty",      icon: Sparkles,         desc: "Pflege & Kosmetik" },
       { label: "Geschenke",      href: "/queens/geschenke",   icon: PartyPopper,      desc: "Lehrer & Personalisiertes" },
     ],
   },
   {
-    key: "miniboss", label: "Miniboss", icon: MinibossIcon, sub: [
-      { label: "Alle Miniboss",  href: "/miniboss",           icon: MinibossIcon,     desc: "Komplette Miniboss-Welt" },
+    key: "miniboss", label: "Miniboss", icon: Star, sub: [
+      { label: "Alle Miniboss",  href: "/miniboss",           icon: Star,             desc: "Komplette Miniboss-Welt" },
       { label: "Spielzeug",      href: "/miniboss/spielzeug", icon: Sparkles,         desc: "STEM, Lernen & Tiere" },
       { label: "Gaming",         href: "/miniboss/gaming",    icon: Rocket,           desc: "Spardosen & Collectibles" },
       { label: "Spaß",           href: "/miniboss/spass",     icon: PartyPopper,      desc: "Party & Outdoor-Fun" },
     ],
   },
   {
-    key: "wellness", label: "Wellness", icon: Users, sub: [
-      { label: "Alle Wellness",  href: "/wellness",           icon: Users,            desc: "Komplette Wellness-Welt" },
+    key: "wellness", label: "Wellness", icon: Leaf, sub: [
+      { label: "Alle Wellness",  href: "/wellness",           icon: Leaf,             desc: "Komplette Wellness-Welt" },
       { label: "Fitness & Sport",href: "/wellness/fitness",   icon: Zap,              desc: "Training & Recovery" },
       { label: "Beauty & Pflege",href: "/wellness/beauty",    icon: Sparkles,         desc: "Hautpflege & Komfort" },
       { label: "Outdoor",        href: "/wellness/outdoor",   icon: BriefcaseBusiness,desc: "Zelte, Solar & Rucksack" },
@@ -146,43 +113,43 @@ export function NavSearch() {
     <>
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" style={{ zIndex: 9998 }} onClick={() => setOpen(false)} />
       <div style={{ position: 'fixed', top: '72px', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '520px', padding: '0 1rem', zIndex: 9999 }}>
-        <div className="bg-[#1C1C1C] border border-[#333333] border-t-2 border-t-[#FFE500] shadow-2xl">
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-[#2A2A2A]">
-            <SearchIcon size={15} className="text-[#6B6560] shrink-0" />
+        <div className="bg-white border-2 border-[#0A0A0A] border-t-4 border-t-[#FFE500]" style={{ boxShadow: '5px 5px 0px #0A0A0A' }}>
+          <div className="flex items-center gap-3 px-4 py-3 border-b-2 border-[#0A0A0A]">
+            <SearchIcon size={15} className="text-[#0A0A0A] shrink-0" />
             <input
               ref={inputRef}
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Produkt suchen… z.B. Muggle, Gaming, Massagepistole"
-              className="flex-1 bg-transparent text-sm text-[#F0EDE8] placeholder:text-[#6B6560] outline-none"
+              className="flex-1 bg-transparent text-sm text-[#0A0A0A] placeholder:text-[#999] outline-none font-[family-name:var(--font-body)]"
             />
-            <button onClick={() => setOpen(false)} className="text-[#6B6560] hover:text-[#F0EDE8] transition-colors">
+            <button onClick={() => setOpen(false)} className="text-[#555] hover:text-[#0A0A0A] transition-colors">
               <X size={14} />
             </button>
           </div>
           <div className="p-2 max-h-[60vh] overflow-y-auto">
             {query.length < 2 ? (
-              <p className="px-4 py-4 text-center text-xs text-[#6B6560]">Mindestens 2 Zeichen eingeben…</p>
+              <p className="px-4 py-4 text-center text-xs text-[#999] font-[family-name:var(--font-mono)]">Mindestens 2 Zeichen eingeben…</p>
             ) : loading ? (
-              <p className="px-4 py-4 text-center text-xs text-[#6B6560]">Suche…</p>
+              <p className="px-4 py-4 text-center text-xs text-[#999] font-[family-name:var(--font-mono)]">Suche…</p>
             ) : results.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-[#6B6560]">Nichts gefunden für „{query}"</p>
+              <p className="px-4 py-6 text-center text-sm text-[#555]">Nichts gefunden für „{query}"</p>
             ) : results.map(item => (
               <Link
                 key={item.slug}
                 href={`/produkt/${item.slug}`}
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 hover:bg-[#252525] transition-colors group"
+                className="flex items-center gap-3 px-3 py-2.5 hover:bg-[#FFE500] transition-colors group border-b border-[#E0E0E0] last:border-0"
               >
-                <div className="w-10 h-10 bg-[#141414] shrink-0 flex items-center justify-center overflow-hidden">
+                <div className="w-10 h-10 bg-[#F5F5F5] border border-[#E0E0E0] shrink-0 flex items-center justify-center overflow-hidden">
                   {item.image_url
                     ? <img src={item.image_url} alt="" className="w-full h-full object-contain p-1" />
                     : <span className="text-xl">📦</span>
                   }
                 </div>
                 <div className="min-w-0">
-                  <div className="text-sm font-medium text-[#F0EDE8] group-hover:text-[#FFE500] truncate">{item.name}</div>
-                  {item.tagline && <div className="text-[11px] text-[#6B6560] truncate">{item.tagline}</div>}
+                  <div className="text-sm font-bold text-[#0A0A0A] group-hover:text-[#0A0A0A] truncate">{item.name}</div>
+                  {item.tagline && <div className="text-[11px] text-[#555] group-hover:text-[#0A0A0A] truncate">{item.tagline}</div>}
                 </div>
               </Link>
             ))}
@@ -196,11 +163,11 @@ export function NavSearch() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-[#6B6560] hover:text-[#F0EDE8] transition-colors"
+        className="flex items-center gap-1.5 text-white hover:text-[#FFE500] transition-colors font-[family-name:var(--font-mono)] text-xs font-bold"
         aria-label="Suche öffnen"
       >
         <SearchIcon size={16} />
-        <span className="hidden lg:inline text-xs opacity-60">⌘K</span>
+        <span className="hidden lg:inline">⌘K</span>
       </button>
       {mounted && createPortal(modal, document.body)}
     </>
@@ -261,14 +228,14 @@ export function DesktopNav() {
                   el.style.backgroundColor = '#0A0A0A'
                   el.querySelectorAll('[data-label]').forEach(n => ((n as HTMLElement).style.color = '#FFE500'))
                   el.querySelectorAll('[data-desc]').forEach(n => ((n as HTMLElement).style.color = '#888'))
-                  el.querySelectorAll('svg').forEach(n => ((n as HTMLElement).style.color = '#FFE500'))
+                  el.querySelectorAll('svg').forEach(n => ((n as unknown as HTMLElement).style.color = '#FFE500'))
                 }}
                 onMouseLeave={e => {
                   const el = e.currentTarget as HTMLElement
                   el.style.backgroundColor = '#FFFFFF'
                   el.querySelectorAll('[data-label]').forEach(n => ((n as HTMLElement).style.color = '#0A0A0A'))
                   el.querySelectorAll('[data-desc]').forEach(n => ((n as HTMLElement).style.color = '#555555'))
-                  el.querySelectorAll('svg').forEach(n => ((n as HTMLElement).style.color = '#0A0A0A'))
+                  el.querySelectorAll('svg').forEach(n => ((n as unknown as HTMLElement).style.color = '#0A0A0A'))
                 }}
               >
                 <div className="flex items-center gap-2">
@@ -312,28 +279,28 @@ function MobileSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <button className="md:hidden text-[#9E9890] hover:text-[#F0EDE8] transition-colors" aria-label="Menü öffnen">
+        <button className="md:hidden text-white hover:text-[#FFE500] transition-colors" aria-label="Menü öffnen">
           <Equal size={20} />
         </button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[300px] bg-[#1C1C1C] border-l border-[#333333] p-0">
+      <SheetContent side="right" className="w-[300px] bg-white border-l-2 border-[#0A0A0A] p-0">
         <nav className="flex flex-col py-6 overflow-y-auto h-full">
-          <div className="px-6 pb-4 border-b border-[#252525]">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#6B6560] mb-3">Kategorien</p>
+          <div className="px-6 pb-4 border-b-2 border-[#0A0A0A]">
+            <p className="text-[10px] font-[family-name:var(--font-mono)] font-bold uppercase tracking-widest text-[#0A0A0A] mb-3 bg-[#FFE500] inline-block px-2 py-0.5">Kategorien</p>
             {ALL_CATS.map(cat => (
               <Link
                 key={cat.href}
                 href={cat.href}
-                className="flex items-center gap-2 py-2.5 text-sm text-[#9E9890] hover:text-[#FFE500] transition-colors"
+                className="flex items-center gap-2 py-2.5 text-sm font-medium text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors"
               >
-                <cat.icon size={13} className="opacity-60 shrink-0" />
+                <cat.icon size={13} className="shrink-0" />
                 {cat.label}
               </Link>
             ))}
           </div>
           <div className="px-6 pt-6 space-y-2">
-            <Link href="/impressum" className="block text-xs text-[#3A3A3A] hover:text-[#6B6560] transition-colors">Impressum</Link>
-            <Link href="/datenschutz" className="block text-xs text-[#3A3A3A] hover:text-[#6B6560] transition-colors">Datenschutz</Link>
+            <Link href="/impressum" className="block text-xs text-[#555] hover:text-[#0A0A0A] transition-colors font-[family-name:var(--font-mono)]">Impressum</Link>
+            <Link href="/datenschutz" className="block text-xs text-[#555] hover:text-[#0A0A0A] transition-colors font-[family-name:var(--font-mono)]">Datenschutz</Link>
           </div>
         </nav>
       </SheetContent>

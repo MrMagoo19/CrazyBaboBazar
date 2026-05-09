@@ -41,6 +41,15 @@ export default function ImpressumPage() {
 
             <div className="border-l-2 border-[#E0E0E0] pl-6">
               <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
+                Umsatzsteuer
+              </h2>
+              <p className="text-sm leading-loose">
+                Eine Umsatzsteuer-Identifikationsnummer liegt nicht vor.
+              </p>
+            </div>
+
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
                 Kontakt
               </h2>
               <p className="text-sm leading-loose">

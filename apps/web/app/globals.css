@@ -11,6 +11,7 @@
 
   --font-display: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 
   /* shadcn/ui tokens — white design */
   --color-background: #FFFFFF;

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { DbProduct } from '@/lib/db-types'
-import { formatPrice } from '@/lib/db-types'
+import { getPriceBand } from '@/lib/db-types'
 import { ExternalLink } from 'lucide-react'
 
 const PERSONA_COLOR: Record<string, string> = {
@@ -116,7 +116,7 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
               >
                 {/* Persona-Pill — kantig, fett */}
                 <span
-                  className="font-black uppercase tracking-widest"
+                  className="font-[family-name:var(--font-mono)] font-bold uppercase tracking-widest"
                   style={{
                     fontSize: '9px',
                     background: accent,
@@ -129,16 +129,19 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
                   {product.shop_main_category ? ` · ${product.shop_main_category}` : ''}
                 </span>
 
-                {/* Preis */}
-                <div className="text-right">
-                  <span
-                    className="font-[family-name:var(--font-body)] font-bold leading-none"
-                    style={{ fontSize: '1.15rem', letterSpacing: '-0.01em', color: '#0A0A0A' }}
-                  >
-                    {formatPrice(product.price_cents)}
-                    <span style={{ fontSize: '0.75rem', color: '#0A0A0A', marginLeft: '2px' }}>€</span>
-                  </span>
-                </div>
+                {/* Preisband */}
+                <span
+                  className="font-[family-name:var(--font-mono)] font-bold uppercase tracking-widest"
+                  style={{
+                    fontSize: '9px',
+                    background: '#0A0A0A',
+                    color: '#FFFFFF',
+                    border: '2px solid #0A0A0A',
+                    padding: '3px 8px',
+                  }}
+                >
+                  {getPriceBand(product.price_cents)}
+                </span>
               </div>
             </div>
           </div>

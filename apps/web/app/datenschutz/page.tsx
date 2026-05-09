@@ -25,7 +25,7 @@ export default function DatenschutzPage() {
           <h1 className="font-[family-name:var(--font-display)] font-extrabold text-5xl mb-3">
             Datenschutz
           </h1>
-          <p className="text-[#555] text-sm mb-12">Zuletzt aktualisiert: April 2026</p>
+          <p className="text-[#555] text-sm mb-12">Zuletzt aktualisiert: Mai 2026</p>
 
           <div className="space-y-10 text-[#555]">
 
@@ -81,8 +81,11 @@ export default function DatenschutzPage() {
                   </li>
                 ))}
               </ul>
-              <p className="text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed mb-3">
                 Diese Daten werden nicht zusammen mit anderen personenbezogenen Daten gespeichert. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Sicherheit und dem stabilen Betrieb der Website). Die Logs werden nach spätestens 7 Tagen automatisch gelöscht.
+              </p>
+              <p className="text-sm leading-relaxed">
+                <strong className="text-[#0A0A0A]">Hosting-Anbieter:</strong> Diese Website wird gehostet von Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA. Vercel verarbeitet Server-Log-Daten auf Basis von Standardvertragsklauseln (Art. 46 Abs. 2 lit. c DSGVO). Weitere Informationen: <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-[#0A0A0A]">vercel.com/legal/privacy-policy</a>
               </p>
             </div>
 

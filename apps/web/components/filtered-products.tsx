@@ -70,7 +70,7 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
               <button
                 key={key}
                 onClick={() => handleFilter(key)}
-                className={`flex items-center gap-2 px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap border-b-2 transition-all duration-150 ${
+                className={`flex items-center gap-2 px-5 py-3.5 text-[11px] font-[family-name:var(--font-mono)] font-bold uppercase tracking-widest whitespace-nowrap border-b-2 transition-all duration-150 ${
                   active === key
                     ? 'bg-[#FFE500] text-[#0A0A0A] border-[#0A0A0A]'
                     : 'border-transparent text-[#555555] hover:text-[#0A0A0A]'

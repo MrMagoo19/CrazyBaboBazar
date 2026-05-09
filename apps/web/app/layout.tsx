@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Syne, DM_Sans } from 'next/font/google'
+import { Syne, DM_Sans, IBM_Plex_Mono } from 'next/font/google'
 import Link from 'next/link'
 import { CookieConsent } from '@/components/ui/cookie-consent'
 import { NavMenus, NavSearch } from '@/components/ui/nav-menu'
@@ -16,6 +16,13 @@ const dmSans = DM_Sans({
   subsets: ['latin'],
   weight: ['300', '400', '500'],
   variable: '--font-body',
+  display: 'swap',
+})
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'],
+  variable: '--font-mono',
   display: 'swap',
 })
 
@@ -42,7 +49,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="de" className={`${syne.variable} ${dmSans.variable}`} data-scroll-behavior="smooth">
+    <html lang="de" className={`${syne.variable} ${dmSans.variable} ${ibmPlexMono.variable}`} data-scroll-behavior="smooth">
       <body className="bg-white text-[#0A0A0A] font-[family-name:var(--font-body)] min-h-screen flex flex-col">
 
         {/* Header */}

@@ -25,7 +25,6 @@ export function PersonaPage({
   description,
   intro,
   icon: Icon,
-  accentColor = '#FFE500',
   products,
   subnav,
   activeCategory,
@@ -37,7 +36,7 @@ export function PersonaPage({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <div className="flex items-center gap-3 mb-2">
             <Icon size={20} className="text-[#0A0A0A]" />
-            <span style={{ background: '#FFE500', color: '#0A0A0A', padding: '2px 8px', fontSize: '10px', fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{title}</span>
+            <span style={{ background: '#FFE500', color: '#0A0A0A', padding: '2px 8px', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>{title}</span>
           </div>
           <h1 className="font-[family-name:var(--font-display)] font-extrabold text-3xl md:text-4xl text-[#0A0A0A]">
             {description}
@@ -60,7 +59,7 @@ export function PersonaPage({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`shrink-0 px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all duration-150 ${
+                    className={`shrink-0 px-4 py-3 text-xs font-[family-name:var(--font-mono)] font-bold uppercase tracking-wider border-b-2 transition-all duration-150 ${
                       isActive
                         ? 'border-[#FFE500] bg-[#FFE500] text-[#0A0A0A]'
                         : 'border-transparent text-[#555555] hover:text-[#0A0A0A] hover:border-[#0A0A0A]'

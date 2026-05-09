@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const BASE_URL = 'https://www.crazybabobazar.de'
+const BASE_URL = 'https://www.crazybabobazar.com'
 
 type SupabaseProduct = {
   slug: string

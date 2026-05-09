@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/api/',
     },
-    sitemap: 'https://www.crazybabobazar.de/sitemap.xml',
+    sitemap: 'https://www.crazybabobazar.com/sitemap.xml',
   }
 }

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     title: 'Crazy Babo Bazar — Kuriose Produkte für schlaue Käufer',
     description: 'Über 200 handverlesene Produkte. Täglich neue Empfehlungen.',
     type: 'website',
-    url: 'https://www.crazybabobazar.de',
+    url: 'https://www.crazybabobazar.com',
   },
   twitter: { card: 'summary_large_image' },
 }

@@ -11,7 +11,7 @@ type SupabaseProduct = {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch all published products directly via Supabase REST API (server-only, no cookies needed)
   const res = await fetch(
-    'https://ydiihvzcxaaoqhmgoqvu.supabase.co/rest/v1/products?select=slug,updated_at,created_at&status=eq.published',
+    'https://ydiihvzcxaaoqhmgoqvu.supabase.co/rest/v1/products?select=slug,updated_at,created_at&is_published=eq.true',
     {
       headers: {
         apikey: 'sb_publishable_tmWc6BMWU00Nx6Z_YRy7Wg_x5chkWeM',

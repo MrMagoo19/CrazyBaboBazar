@@ -6,7 +6,7 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import {
   Flame, Crown, Sparkles, Rocket, Equal, Search as SearchIcon, X,
-  BriefcaseBusiness, UtensilsCrossed, PartyPopper, Zap, Star, Leaf, Users,
+  BriefcaseBusiness, UtensilsCrossed, PartyPopper, Zap, Star, Leaf,
 } from "lucide-react"
 import { createClient } from "@/utils/supabase/client"
 
@@ -276,6 +276,45 @@ export function DesktopNav() {
 // ── Mobile Menu ────────────────────────────────────────────────────────────
 function MobileSheet() {
   const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
+  const menu = open ? (
+    <>
+      <div
+        onClick={() => setOpen(false)}
+        style={{ position: 'fixed', inset: 0, zIndex: 9998, backgroundColor: 'rgba(0,0,0,0.6)' }}
+      />
+      <div style={{
+        position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 9999,
+        width: '300px', maxWidth: '85vw',
+        backgroundColor: '#FFFFFF', borderLeft: '2px solid #0A0A0A',
+        display: 'flex', flexDirection: 'column', overflowY: 'auto',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '2px solid #0A0A0A', backgroundColor: '#FFFFFF' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: '#FFE500', color: '#0A0A0A', padding: '2px 8px' }}>
+            Kategorien
+          </span>
+          <button onClick={() => setOpen(false)} style={{ color: '#0A0A0A', padding: '4px', background: 'none', border: 'none', cursor: 'pointer' }}>
+            <X size={18} />
+          </button>
+        </div>
+        <nav style={{ flex: 1, padding: '8px 0' }}>
+          {ALL_CATS.map(cat => (
+            <Link key={cat.href} href={cat.href} onClick={() => setOpen(false)}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 24px', fontSize: '14px', fontWeight: 500, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0' }}>
+              <cat.icon size={14} />
+              {cat.label}
+            </Link>
+          ))}
+        </nav>
+        <div style={{ padding: '16px 24px', borderTop: '2px solid #0A0A0A', display: 'flex', gap: '16px' }}>
+          <Link href="/impressum" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Impressum</Link>
+          <Link href="/datenschutz" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Datenschutz</Link>
+        </div>
+      </div>
+    </>
+  ) : null
 
   return (
     <>
@@ -286,55 +325,7 @@ function MobileSheet() {
       >
         <Equal size={20} />
       </button>
-
-      {open && (
-        <>
-          {/* Backdrop */}
-          <div
-            style={{ position: 'fixed', inset: 0, zIndex: 9998, backgroundColor: 'rgba(0,0,0,0.5)' }}
-            onClick={() => setOpen(false)}
-          />
-          {/* Drawer */}
-          <div style={{
-            position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 9999,
-            width: '300px', backgroundColor: '#FFFFFF',
-            borderLeft: '2px solid #0A0A0A',
-            overflowY: 'auto',
-            display: 'flex', flexDirection: 'column',
-          }}>
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '2px solid #0A0A0A' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: '#FFE500', color: '#0A0A0A', padding: '2px 8px' }}>
-                Kategorien
-              </span>
-              <button onClick={() => setOpen(false)} style={{ color: '#0A0A0A', padding: '4px' }}>
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Links */}
-            <nav style={{ padding: '8px 0', flex: 1 }}>
-              {ALL_CATS.map(cat => (
-                <Link
-                  key={cat.href}
-                  href={cat.href}
-                  onClick={() => setOpen(false)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 24px', fontSize: '14px', fontWeight: 500, color: '#0A0A0A', textDecoration: 'none' }}
-                >
-                  <cat.icon size={13} />
-                  {cat.label}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Footer */}
-            <div style={{ padding: '16px 24px', borderTop: '2px solid #0A0A0A', display: 'flex', gap: '16px' }}>
-              <Link href="/impressum" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Impressum</Link>
-              <Link href="/datenschutz" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Datenschutz</Link>
-            </div>
-          </div>
-        </>
-      )}
+      {mounted && createPortal(menu, document.body)}
     </>
   )
 }

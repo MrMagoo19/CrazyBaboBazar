@@ -20,13 +20,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: `${product.name} — Crazy Babo Bazar`,
       description: product.tagline ?? product.description ?? '',
-      images: product.image_url ? [{ url: product.image_url }] : [],
+      images: [{ url: `https://www.crazybabobazar.com/api/pin/${slug}`, width: 1000, height: 1500 }],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title: `${product.name} — Crazy Babo Bazar`,
-      images: product.image_url ? [product.image_url] : [],
+      images: [`https://www.crazybabobazar.com/api/pin/${slug}`],
     },
   }
 }

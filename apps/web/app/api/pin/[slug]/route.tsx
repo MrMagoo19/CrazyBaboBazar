@@ -1,27 +1,8 @@
 import { ImageResponse } from '@vercel/og'
 import { NextRequest } from 'next/server'
 
-export const runtime = 'edge'
-
-async function toDataUrl(url: string): Promise<string | null> {
-  try {
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; CrazyBaboBazar/1.0)' },
-    })
-    if (!res.ok) return null
-    const buffer = await res.arrayBuffer()
-    const bytes = new Uint8Array(buffer)
-    let binary = ''
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i])
-    }
-    const base64 = btoa(binary)
-    const ct = res.headers.get('content-type') || 'image/jpeg'
-    return `data:${ct};base64,${base64}`
-  } catch {
-    return null
-  }
-}
+// Node.js runtime — more memory, no timeout issues with multiple fetches
+export const runtime = 'nodejs'
 
 export async function GET(
   _req: NextRequest,
@@ -30,6 +11,7 @@ export async function GET(
   const { slug } = await params
 
   try {
+    // 1. Fetch product
     const res = await fetch(
       `https://ydiihvzcxaaoqhmgoqvu.supabase.co/rest/v1/products?select=name,tagline,image_url&slug=eq.${encodeURIComponent(slug)}&is_published=eq.true`,
       {
@@ -40,32 +22,29 @@ export async function GET(
         cache: 'no-store',
       }
     )
-
     const products = await res.json()
     const product = products?.[0]
-
-    if (!product) {
-      return new Response('Not found', { status: 404 })
-    }
+    if (!product) return new Response('Not found', { status: 404 })
 
     const name = product.name as string
     const tagline = product.tagline as string | null
     const imageUrl = product.image_url as string | null
 
-    // Pre-fetch image as base64 so Satori doesn't need to fetch it
-    const imgDataUrl = imageUrl ? await toDataUrl(imageUrl) : null
-
-    // Fetch font with fallback
-    let fontData: ArrayBuffer | null = null
-    try {
-      const fontRes = await fetch(
-        'https://fonts.gstatic.com/s/syne/v22/8vIS7w4qzmVxsWxjEAfa_nr.woff'
-      )
-      if (fontRes.ok) fontData = await fontRes.arrayBuffer()
-    } catch {
-      // use sans-serif fallback
+    // 2. Pre-fetch product image → base64 data URL
+    let imgDataUrl: string | null = null
+    if (imageUrl) {
+      try {
+        const imgRes = await fetch(imageUrl)
+        if (imgRes.ok) {
+          const buf = await imgRes.arrayBuffer()
+          const b64 = Buffer.from(buf).toString('base64')
+          const ct = imgRes.headers.get('content-type') ?? 'image/jpeg'
+          imgDataUrl = `data:${ct};base64,${b64}`
+        }
+      } catch { /* no image */ }
     }
 
+    // 3. Return image
     return new ImageResponse(
       (
         <div
@@ -75,11 +54,11 @@ export async function GET(
             display: 'flex',
             flexDirection: 'column',
             backgroundColor: '#FFFFFF',
-            fontFamily: fontData ? 'Syne' : 'sans-serif',
+            fontFamily: 'sans-serif',
             border: '4px solid #0A0A0A',
           }}
         >
-          {/* Image area */}
+          {/* Product image */}
           <div
             style={{
               flex: 1,
@@ -91,19 +70,13 @@ export async function GET(
               borderBottom: '4px solid #0A0A0A',
             }}
           >
-            {imgDataUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={imgDataUrl}
-                alt=""
-                style={{ maxWidth: '700px', maxHeight: '800px' }}
-              />
-            ) : (
-              <div style={{ fontSize: '80px', display: 'flex' }}>📦</div>
-            )}
+            {imgDataUrl
+              ? <img src={imgDataUrl} alt="" style={{ maxWidth: '700px', maxHeight: '800px' }} /> // eslint-disable-line
+              : <div style={{ fontSize: '80px', display: 'flex' }}>📦</div>
+            }
           </div>
 
-          {/* Yellow info bar */}
+          {/* Info bar */}
           <div
             style={{
               backgroundColor: '#FFE500',
@@ -113,71 +86,27 @@ export async function GET(
               gap: '14px',
             }}
           >
-            <div
-              style={{
-                backgroundColor: '#0A0A0A',
-                color: '#FFE500',
-                padding: '4px 12px',
-                fontSize: '12px',
-                fontWeight: 700,
-                letterSpacing: '0.15em',
-                display: 'flex',
-                width: 'fit-content',
-              }}
-            >
+            <div style={{ backgroundColor: '#0A0A0A', color: '#FFE500', padding: '4px 12px', fontSize: '12px', fontWeight: 700, letterSpacing: '0.15em', display: 'flex', width: 'fit-content' }}>
               CRAZY BABO BAZAR
             </div>
-
-            <div
-              style={{
-                fontSize: name.length > 40 ? '30px' : '36px',
-                fontWeight: 800,
-                color: '#0A0A0A',
-                lineHeight: 1.15,
-                display: 'flex',
-              }}
-            >
+            <div style={{ fontSize: name.length > 40 ? '30px' : '36px', fontWeight: 800, color: '#0A0A0A', lineHeight: 1.15, display: 'flex' }}>
               {name}
             </div>
-
             {tagline && (
-              <div
-                style={{
-                  fontSize: '18px',
-                  color: '#333333',
-                  lineHeight: 1.4,
-                  display: 'flex',
-                }}
-              >
+              <div style={{ fontSize: '18px', color: '#333333', lineHeight: 1.4, display: 'flex' }}>
                 {tagline.length > 80 ? tagline.slice(0, 80) + '…' : tagline}
               </div>
             )}
-
-            <div
-              style={{
-                marginTop: '8px',
-                fontSize: '15px',
-                fontWeight: 700,
-                color: '#0A0A0A',
-                letterSpacing: '0.06em',
-                display: 'flex',
-              }}
-            >
+            <div style={{ marginTop: '8px', fontSize: '15px', fontWeight: 700, color: '#0A0A0A', display: 'flex' }}>
               crazybabobazar.com
             </div>
           </div>
         </div>
       ),
-      {
-        width: 1000,
-        height: 1500,
-        fonts: fontData
-          ? [{ name: 'Syne', data: fontData, weight: 800 }]
-          : [],
-      }
+      { width: 1000, height: 1500 }
     )
   } catch (err) {
-    console.error('Pin generation error:', err)
-    return new Response(`Error: ${err}`, { status: 500 })
+    console.error('[pin] error:', err)
+    return new Response(`Error: ${String(err)}`, { status: 500, headers: { 'content-type': 'text/plain' } })
   }
 }

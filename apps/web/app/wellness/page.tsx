@@ -4,7 +4,7 @@ import { Users } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Wellness — Fitness, Beauty & Outdoor | Crazy Babo Bazar',
+  title: 'Wellness & Fitness Produkte — Sport, Beauty & Outdoor | Crazy Babo Bazar',
   description: 'Sprossenwände, UV-Nagellampen, Insektenstichheiler und Campingzelte — Wellness für draußen und drinnen.',
 }
 

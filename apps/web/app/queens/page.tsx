@@ -4,7 +4,7 @@ import { Sparkles } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Queens — Lifestyle, Küche & Beauty für Frauen | Crazy Babo Bazar',
+  title: 'Geschenke für Frauen — Lifestyle, Küche & Beauty | Crazy Babo Bazar',
   description: 'Kuriose Küchengadgets, Beauty-Finds, Lifestyle-Produkte und persönliche Geschenke für Queens. Handverlesen mit Amazon-Links.',
 }
 

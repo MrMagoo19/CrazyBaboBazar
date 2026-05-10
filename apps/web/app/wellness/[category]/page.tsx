@@ -29,7 +29,7 @@ type Props = { params: Promise<{ category: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params
-  return { title: `Wellness — ${LABELS[category] ?? category}` }
+  return { title: `Wellness Produkte — ${LABELS[category] ?? category} | Crazy Babo Bazar` }
 }
 
 export default async function WellnessCategoryPage({ params }: Props) {

@@ -4,7 +4,7 @@ import { Rocket } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Miniboss — Spielzeug, Gaming & Spaß für Kinder | Crazy Babo Bazar',
+  title: 'Geschenke für Kinder — Spielzeug, Gaming & Spaß | Crazy Babo Bazar',
   description: 'STEM-Lernspielzeug, Minecraft-Spardosen, Partyspiele und digitale Haustiere für den Miniboss zuhause.',
 }
 

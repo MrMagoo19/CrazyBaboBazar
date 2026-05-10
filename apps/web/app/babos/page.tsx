@@ -4,7 +4,7 @@ import { Crown } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Babos — Gaming, Tech & Gadgets für Männer | Crazy Babo Bazar',
+  title: 'Geschenke für Männer — Gaming, Tech & Gadgets | Crazy Babo Bazar',
   description: 'Handverlesene Gadgets, Gaming-Zubehör, Tech-Spielzeug und Outdoor-Equipment für echte Babos. Kurios, kaufstark, direkt auf Amazon.',
 }
 

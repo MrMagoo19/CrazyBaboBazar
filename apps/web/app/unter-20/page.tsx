@@ -4,7 +4,7 @@ import { Zap } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Unter 20€ — Günstige Produkte',
+  title: 'Günstige Geschenke unter 20€ | Crazy Babo Bazar',
   description: 'Kuriose und lustige Produkte für unter 20 Euro auf Crazy Babo Bazar.',
 }
 

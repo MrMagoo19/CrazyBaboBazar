@@ -4,7 +4,7 @@ import { Flame } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Trending',
+  title: 'Trending Gadgets & Produkte 2026 | Crazy Babo Bazar',
   description: 'Die aktuell beliebtesten und kuriosesten Produkte auf Crazy Babo Bazar.',
 }
 

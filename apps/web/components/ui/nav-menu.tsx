@@ -8,7 +8,6 @@ import {
   Flame, Crown, Sparkles, Rocket, Equal, Search as SearchIcon, X,
   BriefcaseBusiness, UtensilsCrossed, PartyPopper, Zap, Star, Leaf, Users,
 } from "lucide-react"
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
 import { createClient } from "@/utils/supabase/client"
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -274,37 +273,69 @@ export function DesktopNav() {
   )
 }
 
-// ── Mobile Sheet ───────────────────────────────────────────────────────────
+// ── Mobile Menu ────────────────────────────────────────────────────────────
 function MobileSheet() {
+  const [open, setOpen] = useState(false)
+
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <button className="md:hidden text-white hover:text-[#FFE500] transition-colors" aria-label="Menü öffnen">
-          <Equal size={20} />
-        </button>
-      </SheetTrigger>
-      <SheetContent side="right" className="w-[300px] bg-white border-l-2 border-[#0A0A0A] p-0">
-        <nav className="flex flex-col py-6 overflow-y-auto h-full">
-          <div className="px-6 pb-4 border-b-2 border-[#0A0A0A]">
-            <p className="text-[10px] font-[family-name:var(--font-mono)] font-bold uppercase tracking-widest text-[#0A0A0A] mb-3 bg-[#FFE500] inline-block px-2 py-0.5">Kategorien</p>
-            {ALL_CATS.map(cat => (
-              <Link
-                key={cat.href}
-                href={cat.href}
-                className="flex items-center gap-2 py-2.5 text-sm font-medium text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors"
-              >
-                <cat.icon size={13} className="shrink-0" />
-                {cat.label}
-              </Link>
-            ))}
+    <>
+      <button
+        className="md:hidden text-white hover:text-[#FFE500] transition-colors"
+        aria-label="Menü öffnen"
+        onClick={() => setOpen(true)}
+      >
+        <Equal size={20} />
+      </button>
+
+      {open && (
+        <>
+          {/* Backdrop */}
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 9998, backgroundColor: 'rgba(0,0,0,0.5)' }}
+            onClick={() => setOpen(false)}
+          />
+          {/* Drawer */}
+          <div style={{
+            position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 9999,
+            width: '300px', backgroundColor: '#FFFFFF',
+            borderLeft: '2px solid #0A0A0A',
+            overflowY: 'auto',
+            display: 'flex', flexDirection: 'column',
+          }}>
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '2px solid #0A0A0A' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: '#FFE500', color: '#0A0A0A', padding: '2px 8px' }}>
+                Kategorien
+              </span>
+              <button onClick={() => setOpen(false)} style={{ color: '#0A0A0A', padding: '4px' }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Links */}
+            <nav style={{ padding: '8px 0', flex: 1 }}>
+              {ALL_CATS.map(cat => (
+                <Link
+                  key={cat.href}
+                  href={cat.href}
+                  onClick={() => setOpen(false)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 24px', fontSize: '14px', fontWeight: 500, color: '#0A0A0A', textDecoration: 'none' }}
+                >
+                  <cat.icon size={13} />
+                  {cat.label}
+                </Link>
+              ))}
+            </nav>
+
+            {/* Footer */}
+            <div style={{ padding: '16px 24px', borderTop: '2px solid #0A0A0A', display: 'flex', gap: '16px' }}>
+              <Link href="/impressum" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Impressum</Link>
+              <Link href="/datenschutz" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Datenschutz</Link>
+            </div>
           </div>
-          <div className="px-6 pt-6 space-y-2">
-            <Link href="/impressum" className="block text-xs text-[#555] hover:text-[#0A0A0A] transition-colors font-[family-name:var(--font-mono)]">Impressum</Link>
-            <Link href="/datenschutz" className="block text-xs text-[#555] hover:text-[#0A0A0A] transition-colors font-[family-name:var(--font-mono)]">Datenschutz</Link>
-          </div>
-        </nav>
-      </SheetContent>
-    </Sheet>
+        </>
+      )}
+    </>
   )
 }
 

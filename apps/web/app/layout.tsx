@@ -27,6 +27,9 @@ const ibmPlexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
+  verification: {
+    google: '0-2fBgkGdD22Ok1XDFgGoP_zORgrokNpxohfuAJeL8Y',
+  },
   title: {
     default: 'Crazy Babo Bazar — Kuriose Produkte für schlaue Käufer',
     template: '%s | Crazy Babo Bazar',

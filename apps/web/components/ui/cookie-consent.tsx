@@ -22,77 +22,53 @@ export function CookieConsent() {
   const handleConsent = (value: ConsentState) => {
     try {
       localStorage.setItem(STORAGE_KEY, value)
-    } catch {
-      // privater Modus — kein localStorage
-    }
+    } catch {}
     setVisible(false)
   }
 
   if (!visible) return null
 
   return (
-    <>
-      {/* Backdrop — blockiert Klicks auf die Seite */}
-      <div className="fixed inset-0 z-[90] bg-[#0A0A0A]/70" aria-hidden="true" />
+    <div
+      role="dialog"
+      aria-label="Cookie-Hinweis"
+      className="fixed bottom-0 left-0 right-0 z-[200] border-t-4 border-t-[#FFE500] border-x-0 border-b-0"
+      style={{ backgroundColor: '#0A0A0A', borderTop: '4px solid #FFE500' }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
 
-      {/* Modal — zentriert im Viewport */}
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Cookie-Einstellungen"
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      >
-        <div className="w-full max-w-lg bg-white border-2 border-[#0A0A0A] border-t-4 border-t-[#FFE500] px-8 py-8">
+        {/* Text */}
+        <p className="text-sm text-[#CCC] leading-relaxed flex-1">
+          <span
+            className="font-[family-name:var(--font-mono)] font-bold text-[10px] uppercase tracking-widest mr-2"
+            style={{ background: '#FFE500', color: '#0A0A0A', padding: '2px 6px' }}
+          >
+            Cookies
+          </span>
+          Diese Website setzt keine eigenen Cookies. Amazon kann beim Klick auf Affiliate-Links eigene Cookies setzen.{' '}
+          <Link href="/datenschutz" className="text-[#FFE500] underline underline-offset-2 hover:text-white transition-colors">
+            Mehr erfahren
+          </Link>
+        </p>
 
-          {/* Label */}
-          <div className="mb-2 text-[10px] font-black uppercase tracking-widest" style={{ background: '#FFE500', color: '#0A0A0A', display: 'inline-block', padding: '2px 8px' }}>
-            Datenschutz &amp; Cookies
-          </div>
-
-          {/* Heading */}
-          <h2 className="font-[family-name:var(--font-body)] font-semibold text-xl text-[#0A0A0A] mb-3 mt-3">
-            Bevor du weitermachst
-          </h2>
-
-          {/* Body */}
-          <p className="text-sm text-[#555] leading-relaxed mb-6 max-w-2xl">
-            Diese Website setzt <strong className="text-[#0A0A0A]">keine eigenen Cookies</strong>.
-            Wenn du auf einen Amazon-Affiliate-Link klickst, kann Amazon Cookies setzen,
-            um deinen Kauf unserer Empfehlung zuzuordnen — ohne Mehrkosten für dich.
-            Mit „Akzeptieren" stimmst du dem zu und bestätigst, unsere{' '}
-            <Link
-              href="/datenschutz"
-              className="text-[#FFE500] hover:text-[#FFE500] transition-colors underline underline-offset-2"
-            >
-              Datenschutzerklärung
-            </Link>{' '}
-            gelesen zu haben. Mit „Ablehnen" werden keine Tracking-Daten durch externe Dienste erhoben.
-          </p>
-
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <button
-              onClick={() => handleConsent('accepted')}
-              className="sm:w-auto text-sm font-bold bg-[#FFE500] text-[#0A0A0A] px-8 py-3 hover:bg-[#FFE500] transition-colors"
-            >
-              Akzeptieren
-            </button>
-            <button
-              onClick={() => handleConsent('declined')}
-              className="sm:w-auto text-sm font-bold border-2 border-[#0A0A0A] text-[#0A0A0A] px-8 py-3 hover:bg-[#F5F5F5] transition-colors"
-            >
-              Ablehnen
-            </button>
-            <Link
-              href="/datenschutz"
-              className="sm:ml-auto text-xs text-[#555] hover:text-[#0A0A0A] transition-colors self-center"
-            >
-              Mehr erfahren →
-            </Link>
-          </div>
-
+        {/* Buttons */}
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={() => handleConsent('declined')}
+            className="text-xs font-bold text-[#888] hover:text-white transition-colors px-4 py-2 border border-[#333] hover:border-white"
+          >
+            Ablehnen
+          </button>
+          <button
+            onClick={() => handleConsent('accepted')}
+            className="text-xs font-black uppercase tracking-widest px-6 py-2 transition-colors"
+            style={{ backgroundColor: '#FFE500', color: '#0A0A0A' }}
+          >
+            Akzeptieren
+          </button>
         </div>
+
       </div>
-    </>
+    </div>
   )
 }

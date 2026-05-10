@@ -32,8 +32,15 @@ export function CookieConsent() {
     <div
       role="dialog"
       aria-label="Cookie-Hinweis"
-      className="fixed bottom-0 left-0 right-0 z-[200] border-t-4 border-t-[#FFE500] border-x-0 border-b-0"
-      style={{ backgroundColor: '#0A0A0A', borderTop: '4px solid #FFE500' }}
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 200,
+        backgroundColor: '#0A0A0A',
+        borderTop: '4px solid #FFE500',
+      }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
 

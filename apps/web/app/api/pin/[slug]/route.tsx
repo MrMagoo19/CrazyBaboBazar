@@ -1,7 +1,27 @@
-import { ImageResponse } from 'next/og'
+import { ImageResponse } from '@vercel/og'
 import { NextRequest } from 'next/server'
 
 export const runtime = 'edge'
+
+async function toDataUrl(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; CrazyBaboBazar/1.0)' },
+    })
+    if (!res.ok) return null
+    const buffer = await res.arrayBuffer()
+    const bytes = new Uint8Array(buffer)
+    let binary = ''
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i])
+    }
+    const base64 = btoa(binary)
+    const ct = res.headers.get('content-type') || 'image/jpeg'
+    return `data:${ct};base64,${base64}`
+  } catch {
+    return null
+  }
+}
 
 export async function GET(
   _req: NextRequest,
@@ -28,6 +48,13 @@ export async function GET(
       return new Response('Not found', { status: 404 })
     }
 
+    const name = product.name as string
+    const tagline = product.tagline as string | null
+    const imageUrl = product.image_url as string | null
+
+    // Pre-fetch image as base64 so Satori doesn't need to fetch it
+    const imgDataUrl = imageUrl ? await toDataUrl(imageUrl) : null
+
     // Fetch font with fallback
     let fontData: ArrayBuffer | null = null
     try {
@@ -36,12 +63,8 @@ export async function GET(
       )
       if (fontRes.ok) fontData = await fontRes.arrayBuffer()
     } catch {
-      // continue without custom font
+      // use sans-serif fallback
     }
-
-    const name = product.name as string
-    const tagline = product.tagline as string | null
-    const imageUrl = product.image_url as string | null
 
     return new ImageResponse(
       (
@@ -68,12 +91,12 @@ export async function GET(
               borderBottom: '4px solid #0A0A0A',
             }}
           >
-            {imageUrl ? (
+            {imgDataUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={imageUrl}
+                src={imgDataUrl}
                 alt=""
-                style={{ maxWidth: '720px', maxHeight: '820px', objectFit: 'contain' }}
+                style={{ maxWidth: '700px', maxHeight: '800px' }}
               />
             ) : (
               <div style={{ fontSize: '80px', display: 'flex' }}>📦</div>
@@ -98,7 +121,6 @@ export async function GET(
                 fontSize: '12px',
                 fontWeight: 700,
                 letterSpacing: '0.15em',
-                textTransform: 'uppercase',
                 display: 'flex',
                 width: 'fit-content',
               }}
@@ -156,6 +178,6 @@ export async function GET(
     )
   } catch (err) {
     console.error('Pin generation error:', err)
-    return new Response('Error generating image', { status: 500 })
+    return new Response(`Error: ${err}`, { status: 500 })
   }
 }

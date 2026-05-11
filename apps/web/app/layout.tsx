@@ -74,8 +74,15 @@ export default function RootLayout({
               {/* Desktop Nav mit Dropdowns */}
               <NavMenus />
 
-              {/* Rechte Seite: Suche */}
+              {/* Rechte Seite: Entdecken + Suche */}
               <div className="flex items-center gap-3 shrink-0">
+                <Link
+                  href="/entdecken"
+                  className="hidden sm:flex items-center gap-1.5 text-xs font-black uppercase tracking-widest transition-colors font-[family-name:var(--font-mono)] px-3 py-1.5"
+                  style={{ backgroundColor: '#FFE500', color: '#0A0A0A' }}
+                >
+                  ♥ Entdecken
+                </Link>
                 <NavSearch />
               </div>
 

@@ -201,28 +201,6 @@ export default async function ProduktPage({ params }: Props) {
         </div>
       </section>
 
-      {/* ── SCHEMA.ORG ─────────────────────────────────────── */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'Product',
-            name: product.name,
-            description: product.description ?? '',
-            image: product.image_url ?? '',
-            offers: {
-              '@type': 'Offer',
-              availability: 'https://schema.org/InStock',
-              url: product.affiliate_url,
-              seller: {
-                '@type': 'Organization',
-                name: 'Amazon',
-              },
-            },
-          }),
-        }}
-      />
     </div>
   )
 }

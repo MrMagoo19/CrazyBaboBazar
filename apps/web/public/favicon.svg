@@ -1,12 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" fill="#E85000"/>
+  <rect width="32" height="32" fill="#FFE500"/>
   <text
     x="16"
-    y="23"
+    y="22"
     font-family="Arial Black, Arial, sans-serif"
     font-weight="900"
-    font-size="22"
+    font-size="16"
     text-anchor="middle"
-    fill="#1C1C1C"
-  >B</text>
+    fill="#0A0A0A"
+    letter-spacing="-1"
+  >CB</text>
 </svg>

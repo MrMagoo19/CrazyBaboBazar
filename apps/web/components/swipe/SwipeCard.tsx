@@ -22,7 +22,7 @@ type Props = {
   onSwipe: (product: Product, liked: boolean) => void
 }
 
-const SWIPE_THRESHOLD = 80
+const SWIPE_THRESHOLD = 55
 
 export function SwipeCard({ product, priceBand, onSwipe }: Props) {
   const x = useMotionValue(0)

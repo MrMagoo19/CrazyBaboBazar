@@ -6,6 +6,7 @@ import { createClient } from '@/utils/supabase/client'
 import { getPriceBand } from '@/lib/db-types'
 import { SwipeCard } from './SwipeCard'
 import { Heart, RotateCcw, Flame } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 
 type Product = {
@@ -40,6 +41,7 @@ export function SwipeDeck() {
   const [done, setDone] = useState(false)
   const [likes, setLikes] = useState(0)
   const [total, setTotal] = useState(0)
+  const [showLikeAnim, setShowLikeAnim] = useState(false)
 
   // persona weights: { babo: 3, queen: 1, ... }
   const personaWeights = useRef<Record<string, number>>({})
@@ -153,6 +155,13 @@ export function SwipeDeck() {
         (personaWeights.current[product.shop_persona] ?? 0) + 1
     }
 
+    // Like animation + haptic feedback
+    if (liked) {
+      setShowLikeAnim(true)
+      setTimeout(() => setShowLikeAnim(false), 700)
+      try { navigator.vibrate?.(40) } catch {}
+    }
+
     // Record in Supabase
     const sb = createClient()
     await sb.from('swipes').insert({
@@ -251,14 +260,35 @@ export function SwipeDeck() {
           </span>
         </div>
         <div className="flex items-center gap-1.5 text-sm font-[family-name:var(--font-mono)]">
-          <Heart size={14} className="text-[#FFE500]" fill="#FFE500" />
-          <span className="font-bold text-[#0A0A0A]">{likes}</span>
-          <span className="text-[#999]">/ {total}</span>
+          {total > 0 && (
+            <>
+              <Heart size={14} fill="#FFE500" color="#FFE500" />
+              <span className="font-bold text-[#0A0A0A]">{likes}</span>
+              <span className="text-[#999]">/ {total}</span>
+            </>
+          )}
         </div>
       </div>
 
       {/* Card area */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-6">
+        {/* Like animation overlay */}
+        <AnimatePresence>
+          {showLikeAnim && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.4 }}
+              transition={{ duration: 0.35 }}
+              style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}
+            >
+              <div style={{ backgroundColor: '#FFE500', borderRadius: '50%', width: '120px', height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '3px solid #0A0A0A' }}>
+                <Heart size={56} fill="#0A0A0A" color="#0A0A0A" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="relative w-full max-w-sm" style={{ height: '520px' }}>
           {/* Background card (peek) */}
           {behindCard && (

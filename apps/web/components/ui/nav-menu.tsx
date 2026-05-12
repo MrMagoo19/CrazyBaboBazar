@@ -314,7 +314,7 @@ function MobileSheet() {
             onClick={() => setOpen(false)}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', backgroundColor: '#FFE500', color: '#0A0A0A', padding: '12px', fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', textDecoration: 'none', marginBottom: '12px' }}
           >
-            ♥ Entdecken — Swipe Produkte
+            ♥ Swipe Area
           </Link>
           <div style={{ display: 'flex', gap: '16px' }}>
             <Link href="/impressum" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Impressum</Link>

@@ -83,7 +83,7 @@ export default function RootLayout({
                   aria-label="Produkte entdecken"
                 >
                   <span>♥</span>
-                  <span className="hidden sm:inline">Entdecken</span>
+                  <span className="hidden sm:inline">Swipe Area</span>
                 </Link>
                 <NavSearch />
               </div>

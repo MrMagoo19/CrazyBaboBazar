@@ -209,11 +209,17 @@ export function SwipeDeck() {
             </p>
             <div className="flex flex-col gap-3">
               <Link
-                href="/trending"
+                href="/entdecken/likes"
                 className="block text-center text-sm font-black uppercase tracking-widest py-3 px-6 transition-colors"
                 style={{ backgroundColor: '#0A0A0A', color: '#FFE500' }}
               >
-                Alle Produkte ansehen
+                ♥ Deine Likes ansehen
+              </Link>
+              <Link
+                href="/trending"
+                className="block text-center text-sm font-bold uppercase tracking-widest py-3 px-6 transition-colors border-2 border-[#0A0A0A] text-[#0A0A0A] hover:bg-[#0A0A0A] hover:text-white"
+              >
+                Alle Produkte
               </Link>
               <button
                 onClick={handleReset}

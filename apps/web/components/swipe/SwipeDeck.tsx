@@ -1,12 +1,11 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/utils/supabase/client'
 import { getPriceBand } from '@/lib/db-types'
 import { SwipeCard } from './SwipeCard'
 import { Heart, RotateCcw, Flame } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 
 type Product = {

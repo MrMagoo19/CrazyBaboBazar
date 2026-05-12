@@ -130,24 +130,28 @@ export default async function ProduktPage({ params }: Props) {
 
               <div className="text-[#555555] text-base leading-relaxed mb-8 space-y-3">
                 {(product.description ?? '').split('\n').map((line, i) => {
-                  const parts = line.split(/(\[([^\]]+)\]\(([^)]+)\))/)
+                  const segments: { text: string; url?: string }[] = []
+                  const re = /\[([^\]]+)\]\(([^)]+)\)/g
+                  let last = 0, m: RegExpExecArray | null
+                  while ((m = re.exec(line)) !== null) {
+                    if (m.index > last) segments.push({ text: line.slice(last, m.index) })
+                    segments.push({ text: m[1], url: m[2] })
+                    last = re.lastIndex
+                  }
+                  if (last < line.length) segments.push({ text: line.slice(last) })
                   return (
                     <p key={i}>
-                      {parts.map((part, j) => {
-                        const match = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/)
-                        if (match) {
-                          return (
-                            <a key={j} href={match[2]}
-                              className="text-[#0A0A0A] font-bold underline underline-offset-2 hover:text-[#555] transition-colors"
-                              target={match[2].startsWith('http') ? '_blank' : undefined}
-                              rel={match[2].startsWith('http') ? 'noopener noreferrer' : undefined}
-                            >
-                              {match[1]}
-                            </a>
-                          )
-                        }
-                        return part
-                      })}
+                      {segments.map((seg, j) =>
+                        seg.url ? (
+                          <a key={j} href={seg.url}
+                            className="text-[#0A0A0A] font-bold underline underline-offset-2 hover:text-[#555] transition-colors"
+                            target={seg.url.startsWith('http') ? '_blank' : undefined}
+                            rel={seg.url.startsWith('http') ? 'noopener noreferrer' : undefined}
+                          >{seg.text}</a>
+                        ) : (
+                          <span key={j}>{seg.text.replace(/\*\*/g, '')}</span>
+                        )
+                      )}
                     </p>
                   )
                 })}

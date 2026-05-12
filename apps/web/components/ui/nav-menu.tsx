@@ -308,9 +308,18 @@ function MobileSheet() {
             </Link>
           ))}
         </nav>
-        <div style={{ padding: '16px 24px', borderTop: '2px solid #0A0A0A', display: 'flex', gap: '16px' }}>
-          <Link href="/impressum" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Impressum</Link>
-          <Link href="/datenschutz" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Datenschutz</Link>
+        <div style={{ padding: '16px 24px', borderTop: '2px solid #0A0A0A' }}>
+          <Link
+            href="/entdecken"
+            onClick={() => setOpen(false)}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', backgroundColor: '#FFE500', color: '#0A0A0A', padding: '12px', fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', textDecoration: 'none', marginBottom: '12px' }}
+          >
+            ♥ Entdecken — Swipe Produkte
+          </Link>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <Link href="/impressum" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Impressum</Link>
+            <Link href="/datenschutz" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Datenschutz</Link>
+          </div>
         </div>
       </div>
     </>

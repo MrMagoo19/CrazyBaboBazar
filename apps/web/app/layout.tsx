@@ -78,10 +78,12 @@ export default function RootLayout({
               <div className="flex items-center gap-3 shrink-0">
                 <Link
                   href="/entdecken"
-                  className="hidden sm:flex items-center gap-1.5 text-xs font-black uppercase tracking-widest transition-colors font-[family-name:var(--font-mono)] px-3 py-1.5"
+                  className="flex items-center gap-1.5 text-xs font-black uppercase tracking-widest transition-colors font-[family-name:var(--font-mono)] px-3 py-1.5"
                   style={{ backgroundColor: '#FFE500', color: '#0A0A0A' }}
+                  aria-label="Produkte entdecken"
                 >
-                  ♥ Entdecken
+                  <span>♥</span>
+                  <span className="hidden sm:inline">Entdecken</span>
                 </Link>
                 <NavSearch />
               </div>

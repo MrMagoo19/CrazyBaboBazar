@@ -79,26 +79,42 @@ export function SwipeDeck() {
     setLoading(true)
     sessionId.current = getOrCreateSession()
 
-    // Load already-swiped slugs for this session from Supabase
     const sb = createClient()
+
+    // Load already-swiped slugs + liked status
     const { data: swipeData } = await sb
       .from('swipes')
       .select('product_slug, liked')
       .eq('session_id', sessionId.current)
 
-    if (swipeData) {
-      swipeData.forEach((s) => {
-        seenSlugs.current.add(s.product_slug)
-        if (s.liked) {
-          // We don't know the persona here, but that's ok for initial load
-        }
-      })
-      setLikes(swipeData.filter((s) => s.liked).length)
+    let hasPriorLikes = false
+
+    if (swipeData && swipeData.length > 0) {
+      swipeData.forEach((s) => seenSlugs.current.add(s.product_slug))
+      const likedSlugs = swipeData.filter((s) => s.liked).map((s) => s.product_slug)
+      setLikes(likedSlugs.length)
       setTotal(swipeData.length)
+
+      // Restore persona weights from previously liked products
+      if (likedSlugs.length > 0) {
+        hasPriorLikes = true
+        const { data: likedProducts } = await sb
+          .from('products')
+          .select('slug, shop_persona')
+          .in('slug', likedSlugs)
+
+        if (likedProducts) {
+          likedProducts.forEach((p) => {
+            if (p.shop_persona) {
+              personaWeights.current[p.shop_persona] =
+                (personaWeights.current[p.shop_persona] ?? 0) + 1
+            }
+          })
+        }
+      }
     }
 
-    const products = await fetchProducts(false)
-    // Shuffle
+    const products = await fetchProducts(hasPriorLikes)
     const shuffled = [...products].sort(() => Math.random() - 0.5)
     shuffled.forEach((p) => seenSlugs.current.add(p.slug))
     setCards(shuffled)

@@ -128,9 +128,30 @@ export default async function ProduktPage({ params }: Props) {
                 <p className="text-[#555] font-semibold text-base mb-4">{product.tagline}</p>
               )}
 
-              <p className="text-[#555555] text-base leading-relaxed mb-8">
-                {product.description ?? ''}
-              </p>
+              <div className="text-[#555555] text-base leading-relaxed mb-8 space-y-3">
+                {(product.description ?? '').split('\n').map((line, i) => {
+                  const parts = line.split(/(\[([^\]]+)\]\(([^)]+)\))/)
+                  return (
+                    <p key={i}>
+                      {parts.map((part, j) => {
+                        const match = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/)
+                        if (match) {
+                          return (
+                            <a key={j} href={match[2]}
+                              className="text-[#0A0A0A] font-bold underline underline-offset-2 hover:text-[#555] transition-colors"
+                              target={match[2].startsWith('http') ? '_blank' : undefined}
+                              rel={match[2].startsWith('http') ? 'noopener noreferrer' : undefined}
+                            >
+                              {match[1]}
+                            </a>
+                          )
+                        }
+                        return part
+                      })}
+                    </p>
+                  )
+                })}
+              </div>
 
               {/* CTA */}
               <div style={{ borderTop: '2px solid #E0E0E0', paddingTop: '2rem' }}>

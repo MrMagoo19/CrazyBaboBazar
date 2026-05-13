@@ -52,9 +52,11 @@ export function CookieConsent() {
           >
             Cookies
           </span>
-          Diese Website setzt keine eigenen Cookies. Amazon kann beim Klick auf Affiliate-Links eigene Cookies setzen.{' '}
+          Diese Website verwendet keine Tracking-Cookies. Wir nutzen{' '}
+          <span className="text-white font-medium">Vercel Analytics</span>{' '}
+          zur anonymen Besucherstatistik (ohne Cookies, DSGVO-konform). Amazon kann beim Klick auf Affiliate-Links eigene Cookies setzen.{' '}
           <Link href="/datenschutz" className="text-[#FFE500] underline underline-offset-2 hover:text-white transition-colors">
-            Mehr erfahren
+            Datenschutzerklärung
           </Link>
         </p>
 

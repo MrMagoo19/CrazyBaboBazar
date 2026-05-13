@@ -114,19 +114,41 @@ export default function DatenschutzPage() {
             </div>
 
             {/* 5 */}
-            <div className="border-l-2 border-[#E0E0E0] pl-6">
+            <div className="border-l-2 border-[#FFE500] pl-6">
               <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
-                5. Schriftarten (Google Fonts)
+                5. Webanalyse (Vercel Analytics)
               </h2>
+              <p className="text-sm leading-relaxed mb-3">
+                Diese Website nutzt Vercel Analytics, einen datenschutzfreundlichen Analysedienst von Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA.
+              </p>
+              <p className="text-sm leading-relaxed mb-3">
+                <strong className="text-[#0A0A0A]">Was erfasst wird:</strong> Seitenaufrufe, Herkunftsland, Gerätetyp und Referrer-URL — ausschließlich in aggregierter, anonymisierter Form. Es werden <strong className="text-[#0A0A0A]">keine Cookies gesetzt</strong>, keine IP-Adressen dauerhaft gespeichert und keine persönlichen Profile erstellt.
+              </p>
+              <p className="text-sm leading-relaxed mb-3">
+                <strong className="text-[#0A0A0A]">Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der anonymen Auswertung des Nutzerverhaltens zur Verbesserung des Angebots). Da keine personenbezogenen Daten verarbeitet werden, ist keine Einwilligung erforderlich.
+              </p>
               <p className="text-sm leading-relaxed">
-                Diese Website verwendet Google Fonts. Die Schriftarten werden beim ersten Aufruf vom Server des Hosting-Anbieters geladen — nicht von Google-Servern. Eine direkte Verbindung zu Google-Servern findet nicht statt, sodass keine Daten an Google übertragen werden.
+                Weitere Informationen:{' '}
+                <a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-[#0A0A0A]">
+                  vercel.com/docs/analytics/privacy-policy
+                </a>
               </p>
             </div>
 
             {/* 6 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
               <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
-                6. Ihre Rechte (Art. 15–22 DSGVO)
+                6. Schriftarten (Google Fonts)
+              </h2>
+              <p className="text-sm leading-relaxed">
+                Diese Website verwendet Google Fonts. Die Schriftarten werden beim ersten Aufruf vom Server des Hosting-Anbieters geladen — nicht von Google-Servern. Eine direkte Verbindung zu Google-Servern findet nicht statt, sodass keine Daten an Google übertragen werden.
+              </p>
+            </div>
+
+            {/* 7 */}
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
+                7. Ihre Rechte (Art. 15–22 DSGVO)
               </h2>
               <p className="text-sm leading-relaxed mb-3">
                 Sie haben gegenüber uns folgende Rechte hinsichtlich der Sie betreffenden personenbezogenen Daten:
@@ -151,10 +173,10 @@ export default function DatenschutzPage() {
               </p>
             </div>
 
-            {/* 7 */}
+            {/* 8 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
               <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
-                7. Beschwerderecht bei der Aufsichtsbehörde (Art. 77 DSGVO)
+                8. Beschwerderecht bei der Aufsichtsbehörde (Art. 77 DSGVO)
               </h2>
               <p className="text-sm leading-relaxed">
                 Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung Ihrer personenbezogenen Daten zu beschweren. Die zuständige Aufsichtsbehörde richtet sich nach Ihrem gewöhnlichen Aufenthaltsort, Ihrem Arbeitsplatz oder dem Ort des mutmaßlichen Verstoßes. Eine Liste der deutschen Aufsichtsbehörden finden Sie auf der Website des Bundesbeauftragten für den Datenschutz (bfdi.bund.de).

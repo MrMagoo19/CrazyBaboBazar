@@ -145,6 +145,7 @@ export default function RootLayout({
               <div>
                 <h3 className="text-xs font-black text-[#0A0A0A] uppercase tracking-widest mb-4 inline-block bg-[#FFE500] px-2 py-0.5">Rechtliches</h3>
                 <ul className="space-y-2">
+                  <li><Link href="/ueber-uns" className="text-sm text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors font-medium">Über uns</Link></li>
                   <li><Link href="/impressum" className="text-sm text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors font-medium">Impressum</Link></li>
                   <li><Link href="/datenschutz" className="text-sm text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors font-medium">Datenschutz</Link></li>
                 </ul>

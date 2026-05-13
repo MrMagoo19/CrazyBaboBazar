@@ -43,6 +43,11 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'de_DE',
     siteName: 'Crazy Babo Bazar',
+    images: [{ url: 'https://www.crazybabobazar.com/opengraph-image', width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['https://www.crazybabobazar.com/opengraph-image'],
   },
 }
 

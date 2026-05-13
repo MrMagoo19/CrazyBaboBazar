@@ -6,6 +6,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Geschenke für Frauen — Lifestyle, Küche & Beauty | Crazy Babo Bazar',
   description: 'Kuriose Küchengadgets, Beauty-Finds, Lifestyle-Produkte und persönliche Geschenke für Queens. Handverlesen mit Amazon-Links.',
+  openGraph: { images: [{ url: 'https://www.crazybabobazar.com/opengraph-image', width: 1200, height: 630 }] },
 }
 
 const SUBNAV = [

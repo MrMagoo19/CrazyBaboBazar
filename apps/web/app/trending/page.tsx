@@ -6,6 +6,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Trending Gadgets & Produkte 2026 | Crazy Babo Bazar',
   description: 'Die aktuell beliebtesten und kuriosesten Produkte auf Crazy Babo Bazar.',
+  openGraph: { images: [{ url: 'https://www.crazybabobazar.com/opengraph-image', width: 1200, height: 630 }] },
 }
 
 export default async function TrendingPage() {

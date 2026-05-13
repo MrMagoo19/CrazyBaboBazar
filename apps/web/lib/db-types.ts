@@ -27,6 +27,7 @@ export type DbProduct = {
   amazon_category: string | null
   brand: string | null
   video_url: string | null
+  editorial_note: string | null
   created_at: string | null
   shop_tags: string[] | null
 }

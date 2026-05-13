@@ -214,6 +214,22 @@ export default async function ProduktPage({ params }: Props) {
         </section>
       )}
 
+      {/* ── UNSER URTEIL ───────────────────────────────────── */}
+      {product.editorial_note && (
+        <section style={{ backgroundColor: '#FFFFFF', borderBottom: '2px solid #0A0A0A' }}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+            <div style={{ backgroundColor: '#FFE500', border: '2px solid #0A0A0A', padding: '24px 28px' }}>
+              <div className="font-[family-name:var(--font-mono)] font-black text-[10px] uppercase tracking-widest text-[#0A0A0A] mb-3">
+                Unser Urteil
+              </div>
+              <p className="text-[#0A0A0A] text-base leading-relaxed font-medium">
+                {product.editorial_note}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── DISCLAIMER ─────────────────────────────────────── */}
       <section style={{ backgroundColor: '#FFFFFF' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">

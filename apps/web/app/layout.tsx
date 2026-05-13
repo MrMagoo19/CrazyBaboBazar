@@ -3,6 +3,7 @@ import { Syne, DM_Sans, IBM_Plex_Mono } from 'next/font/google'
 import Link from 'next/link'
 import { CookieConsent } from '@/components/ui/cookie-consent'
 import { NavMenus, NavSearch } from '@/components/ui/nav-menu'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const syne = Syne({
@@ -92,6 +93,7 @@ export default function RootLayout({
         {/* Main */}
         <main className="flex-1">{children}</main>
 
+        <Analytics />
         <CookieConsent />
 
         {/* Footer */}

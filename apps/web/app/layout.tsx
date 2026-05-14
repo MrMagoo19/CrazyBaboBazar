@@ -131,6 +131,7 @@ export default function RootLayout({
                     { href: '/miniboss', label: 'Miniboss' },
                     { href: '/wellness', label: 'Wellness' },
                     { href: '/unter-20', label: 'Unter 20€' },
+                    { href: '/listen', label: 'Listen' },
                   ].map(link => (
                     <li key={link.href}>
                       <Link href={link.href} className="text-sm text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors font-medium">

@@ -1,5 +1,6 @@
 import { FilteredProducts } from '@/components/filtered-products'
-import { getPublishedProducts } from '@/lib/db'
+import { ListenGrid } from '@/components/listen-grid'
+import { getPublishedProducts, getAllLists } from '@/lib/db'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
@@ -17,14 +18,12 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const products = await getPublishedProducts()
+  const [products, lists] = await Promise.all([getPublishedProducts(), getAllLists()])
 
   return (
     <div className="min-h-screen bg-white">
-
-      {/* ── FILTER + PRODUCTS ──────────────────────────────── */}
       <FilteredProducts allProducts={products} />
-
+      <ListenGrid lists={lists} />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
-import type { DbCategory, DbProduct } from './db-types'
-export type { DbCategory, DbProduct }
+import type { DbCategory, DbProduct, DbList } from './db-types'
+export type { DbCategory, DbProduct, DbList }
 export { formatPrice } from './db-types'
 
 async function client() {
@@ -111,6 +111,40 @@ export async function getTrendingProducts(): Promise<DbProduct[]> {
     .order('created_at', { ascending: false })
     .limit(40)
   return data ?? []
+}
+
+export async function getAllLists(): Promise<DbList[]> {
+  const supabase = await client()
+  const { data } = await supabase
+    .from('lists')
+    .select('*')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+  return data ?? []
+}
+
+export async function getListBySlug(slug: string): Promise<DbList | null> {
+  const supabase = await client()
+  const { data } = await supabase
+    .from('lists')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_published', true)
+    .maybeSingle()
+  return data
+}
+
+export async function getProductsBySlugs(slugs: string[]): Promise<DbProduct[]> {
+  if (!slugs.length) return []
+  const supabase = await client()
+  const { data } = await supabase
+    .from('products')
+    .select('*, categories(*)')
+    .eq('is_published', true)
+    .in('slug', slugs)
+  if (!data) return []
+  // Preserve original slug order
+  return slugs.map(s => data.find(p => p.slug === s)).filter(Boolean) as DbProduct[]
 }
 
 export async function getProductsByMaxPrice(maxCents: number): Promise<DbProduct[]> {

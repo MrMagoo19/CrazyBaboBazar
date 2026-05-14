@@ -23,6 +23,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const products: SupabaseProduct[] = res.ok ? await res.json() : []
 
+  // Fetch published lists
+  const listsRes = await fetch(
+    'https://ydiihvzcxaaoqhmgoqvu.supabase.co/rest/v1/lists?select=slug,created_at&is_published=eq.true',
+    {
+      headers: {
+        apikey: 'sb_publishable_tmWc6BMWU00Nx6Z_YRy7Wg_x5chkWeM',
+        Authorization: 'Bearer sb_publishable_tmWc6BMWU00Nx6Z_YRy7Wg_x5chkWeM',
+      },
+      next: { revalidate: 3600 },
+    }
+  )
+  const lists: { slug: string; created_at: string }[] = listsRes.ok ? await listsRes.json() : []
+
+  const listEntries: MetadataRoute.Sitemap = [
+    { url: `${BASE_URL}/listen`, changeFrequency: 'weekly', priority: 0.8 },
+    ...lists.map(l => ({
+      url: `${BASE_URL}/listen/${l.slug}`,
+      lastModified: new Date(l.created_at),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
+  ]
+
   const productEntries: MetadataRoute.Sitemap = products.map((product) => ({
     url: `${BASE_URL}/produkt/${product.slug}`,
     lastModified: new Date(product.updated_at ?? product.created_at),
@@ -73,6 +96,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...personaPages,
     ...categoryPages,
+    ...listEntries,
     ...productEntries,
   ]
 }

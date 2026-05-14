@@ -32,6 +32,16 @@ export type DbProduct = {
   shop_tags: string[] | null
 }
 
+export type DbList = {
+  id: string
+  slug: string
+  title: string
+  intro: string | null
+  product_slugs: string[]
+  is_published: boolean
+  created_at: string
+}
+
 export function formatPrice(cents: number | null): string {
   if (!cents) return '—'
   return (cents / 100).toFixed(2).replace('.', ',')

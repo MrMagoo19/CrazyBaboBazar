@@ -258,14 +258,17 @@ export function SwipeDeck() {
             Entdecken
           </span>
         </div>
-        <div className="flex items-center gap-1.5 text-sm font-[family-name:var(--font-mono)]">
-          {total > 0 && (
-            <>
-              <Heart size={14} fill="#FFE500" color="#FFE500" />
-              <span className="font-bold text-[#0A0A0A]">{likes}</span>
-              <span className="text-[#999]">/ {total}</span>
-            </>
-          )}
+        <div className="flex items-center gap-2">
+          {likes > 0 ? (
+            <Link
+              href="/entdecken/likes"
+              className="flex items-center gap-1.5 font-[family-name:var(--font-mono)] text-[10px] font-black uppercase tracking-widest px-3 py-1.5 transition-colors"
+              style={{ backgroundColor: '#FFE500', color: '#0A0A0A' }}
+            >
+              <Heart size={11} fill="#0A0A0A" color="#0A0A0A" />
+              Babo-Liste ({likes})
+            </Link>
+          ) : null}
         </div>
       </div>
 

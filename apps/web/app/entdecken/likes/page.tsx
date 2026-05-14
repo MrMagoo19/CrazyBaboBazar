@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { getPriceBand } from '@/lib/db-types'
-import { Heart, RotateCcw, ArrowLeft } from 'lucide-react'
+import { Heart, RotateCcw, ArrowLeft, Share2, Check } from 'lucide-react'
 
 const SESSION_KEY = 'cbb-swipe-session'
 
@@ -18,20 +19,30 @@ type Product = {
   shop_persona: string | null
 }
 
-export default function LikesPage() {
+function LikesContent() {
+  const searchParams = useSearchParams()
+  const sharedSession = searchParams.get('session')
+
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [ownSessionId, setOwnSessionId] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  const isSharedView = !!sharedSession
 
   useEffect(() => {
     async function load() {
-      let sessionId: string | null = null
-      try { sessionId = localStorage.getItem(SESSION_KEY) } catch {}
+      // Determine which session to load
+      let sessionId: string | null = sharedSession
+      if (!sessionId) {
+        try { sessionId = localStorage.getItem(SESSION_KEY) } catch {}
+        if (sessionId) setOwnSessionId(sessionId)
+      }
 
       if (!sessionId) { setLoading(false); return }
 
       const sb = createClient()
 
-      // Get liked slugs for this session
       const { data: swipes } = await sb
         .from('swipes')
         .select('product_slug')
@@ -42,7 +53,6 @@ export default function LikesPage() {
 
       const slugs = swipes.map((s) => s.product_slug)
 
-      // Fetch those products
       const { data } = await sb
         .from('products')
         .select('slug, name, tagline, image_url, price_cents, shop_persona')
@@ -53,12 +63,29 @@ export default function LikesPage() {
       setLoading(false)
     }
     load()
-  }, [])
+  }, [sharedSession])
+
+  const handleShare = useCallback(async () => {
+    const sessionId = ownSessionId
+    if (!sessionId) return
+    const url = `${window.location.origin}/entdecken/likes?session=${sessionId}`
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Meine Babo-Liste', url })
+      } else {
+        await navigator.clipboard.writeText(url)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      }
+    } catch {}
+  }, [ownSessionId])
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-sm font-[family-name:var(--font-mono)] text-[#555] uppercase tracking-widest">Lade deine Likes…</p>
+        <p className="text-sm font-[family-name:var(--font-mono)] text-[#555] uppercase tracking-widest">
+          Lade Babo-Liste…
+        </p>
       </div>
     )
   }
@@ -75,7 +102,7 @@ export default function LikesPage() {
             <div className="flex items-center gap-2">
               <Heart size={16} fill="#FFE500" color="#FFE500" />
               <span className="font-[family-name:var(--font-mono)] font-black text-sm uppercase tracking-widest text-[#0A0A0A]">
-                Deine Likes
+                {isSharedView ? 'Babo-Liste' : 'Meine Babo-Liste'}
               </span>
               {products.length > 0 && (
                 <span
@@ -87,15 +114,49 @@ export default function LikesPage() {
               )}
             </div>
           </div>
-          <Link
-            href="/entdecken"
-            className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest font-[family-name:var(--font-mono)] transition-colors text-[#555] hover:text-[#0A0A0A]"
-          >
-            <RotateCcw size={12} />
-            Weiter swipen
-          </Link>
+
+          <div className="flex items-center gap-3">
+            {/* Share button — only on own list with products */}
+            {!isSharedView && products.length > 0 && (
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest font-[family-name:var(--font-mono)] transition-colors px-3 py-1.5"
+                style={{ backgroundColor: copied ? '#0A0A0A' : '#FFE500', color: copied ? '#FFE500' : '#0A0A0A' }}
+              >
+                {copied ? <Check size={11} /> : <Share2 size={11} />}
+                {copied ? 'Kopiert!' : 'Teilen'}
+              </button>
+            )}
+
+            {!isSharedView && (
+              <Link
+                href="/entdecken"
+                className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest font-[family-name:var(--font-mono)] transition-colors text-[#555] hover:text-[#0A0A0A]"
+              >
+                <RotateCcw size={12} />
+                Weiter swipen
+              </Link>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Shared view banner */}
+      {isSharedView && (
+        <div style={{ backgroundColor: '#FFE500', borderBottom: '2px solid #0A0A0A' }}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+            <p className="text-xs font-bold text-[#0A0A0A] font-[family-name:var(--font-mono)]">
+              Jemand hat dir diese Babo-Liste geteilt.
+            </p>
+            <Link
+              href="/entdecken"
+              className="text-[10px] font-black uppercase tracking-widest text-[#0A0A0A] font-[family-name:var(--font-mono)] underline"
+            >
+              Eigene Liste erstellen →
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -103,9 +164,11 @@ export default function LikesPage() {
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="text-5xl mb-4">💔</div>
             <h2 className="font-[family-name:var(--font-display)] font-black text-2xl text-[#0A0A0A] mb-2">
-              Noch keine Likes
+              {isSharedView ? 'Diese Liste ist leer' : 'Noch keine Likes'}
             </h2>
-            <p className="text-sm text-[#555] mb-6">Swipe erst ein paar Produkte nach rechts.</p>
+            <p className="text-sm text-[#555] mb-6">
+              {isSharedView ? 'Die geteilte Liste enthält keine Produkte.' : 'Swipe erst ein paar Produkte nach rechts.'}
+            </p>
             <Link
               href="/entdecken"
               className="text-sm font-black uppercase tracking-widest px-6 py-3 transition-colors font-[family-name:var(--font-mono)]"
@@ -122,7 +185,6 @@ export default function LikesPage() {
                 href={`/produkt/${product.slug}`}
                 className="group flex flex-col border-2 border-[#0A0A0A] hover:border-[#FFE500] transition-colors"
               >
-                {/* Image */}
                 <div className="relative aspect-square bg-[#F5F5F5] border-b-2 border-[#0A0A0A]">
                   {product.image_url ? (
                     <Image
@@ -136,8 +198,6 @@ export default function LikesPage() {
                     <div className="absolute inset-0 flex items-center justify-center text-5xl">📦</div>
                   )}
                 </div>
-
-                {/* Info */}
                 <div className="p-4 flex flex-col gap-2 flex-1">
                   {product.shop_persona && (
                     <span
@@ -166,5 +226,17 @@ export default function LikesPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function LikesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-sm font-[family-name:var(--font-mono)] text-[#555] uppercase tracking-widest">Lade…</p>
+      </div>
+    }>
+      <LikesContent />
+    </Suspense>
   )
 }

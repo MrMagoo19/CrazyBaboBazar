@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Syne, DM_Sans, IBM_Plex_Mono } from 'next/font/google'
 import Link from 'next/link'
+import { Analytics } from '@vercel/analytics/next'
 import { CookieConsent } from '@/components/ui/cookie-consent'
 import { NavMenus, NavSearch } from '@/components/ui/nav-menu'
 import { Analytics } from '@vercel/analytics/next'
@@ -100,6 +101,7 @@ export default function RootLayout({
 
         <Analytics />
         <CookieConsent />
+        <Analytics />
 
         {/* Footer */}
         <footer className="border-t-2 border-[#0A0A0A] mt-auto bg-white">

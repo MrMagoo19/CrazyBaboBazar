@@ -1,4 +1,5 @@
 import { getListBySlug, getProductsBySlugs, getAllLists } from '@/lib/db'
+// Note: getAllLists used only for "Weitere Listen" section, not generateStaticParams
 import { getPriceBand } from '@/lib/db-types'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
@@ -22,11 +23,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [{ url: `https://www.crazybabobazar.com/api/listen-og/${slug}`, width: 1200, height: 630 }],
     },
   }
-}
-
-export async function generateStaticParams() {
-  const lists = await getAllLists()
-  return lists.map(l => ({ slug: l.slug }))
 }
 
 export default async function ListDetailPage({ params }: Props) {

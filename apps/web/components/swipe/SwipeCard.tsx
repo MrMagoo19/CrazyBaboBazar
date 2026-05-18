@@ -29,8 +29,20 @@ export function SwipeCard({ product, priceBand, onSwipe }: Props) {
   const rotate = useTransform(x, [-200, 200], [-18, 18])
   const likeOpacity = useTransform(x, [20, 80], [0, 1])
   const skipOpacity = useTransform(x, [-80, -20], [1, 0])
+  const thresholdTriggered = useRef(false)
+
+  const handleDrag = (_: unknown, info: PanInfo) => {
+    const crossed = Math.abs(info.offset.x) > SWIPE_THRESHOLD
+    if (crossed && !thresholdTriggered.current) {
+      thresholdTriggered.current = true
+      try { navigator.vibrate?.(15) } catch {}
+    } else if (!crossed) {
+      thresholdTriggered.current = false
+    }
+  }
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
+    thresholdTriggered.current = false
     if (info.offset.x > SWIPE_THRESHOLD) {
       onSwipe(product, true)
     } else if (info.offset.x < -SWIPE_THRESHOLD) {
@@ -43,6 +55,7 @@ export function SwipeCard({ product, priceBand, onSwipe }: Props) {
       style={{ x, rotate, position: 'absolute', inset: 0, cursor: 'grab' }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
+      onDrag={handleDrag}
       dragElastic={0.8}
       onDragEnd={handleDragEnd}
       exit={{ x: x.get() > 0 ? 400 : -400, opacity: 0, transition: { duration: 0.25 } }}

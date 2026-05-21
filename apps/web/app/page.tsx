@@ -22,7 +22,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <FilteredProducts allProducts={products} />
+      <ListenGrid lists={lists} />
 
       {/* ── SWIPE CTA ─────────────────────────────────────── */}
       <section className="border-t-2 border-b-2 border-[#0A0A0A] bg-[#0A0A0A]">
@@ -51,7 +51,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <ListenGrid lists={lists} />
+      <FilteredProducts allProducts={products} />
     </div>
   )
 }

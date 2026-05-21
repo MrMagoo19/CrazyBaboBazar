@@ -113,6 +113,38 @@ export async function getTrendingProducts(): Promise<DbProduct[]> {
   return data ?? []
 }
 
+export async function getRelatedProducts(
+  currentSlug: string,
+  persona: string | null,
+  mainCategory: string | null
+): Promise<DbProduct[]> {
+  if (!persona) return []
+  const supabase = await client()
+  let query = supabase
+    .from('products')
+    .select('*, categories(*)')
+    .eq('is_published', true)
+    .eq('shop_persona', persona)
+    .neq('slug', currentSlug)
+    .limit(4)
+  if (mainCategory) query = query.eq('shop_main_category', mainCategory)
+  const { data } = await query
+  // If less than 4 results with same category, fill up from same persona only
+  if ((data?.length ?? 0) < 4 && mainCategory) {
+    const { data: fallback } = await supabase
+      .from('products')
+      .select('*, categories(*)')
+      .eq('is_published', true)
+      .eq('shop_persona', persona)
+      .neq('slug', currentSlug)
+      .limit(4)
+    const existing = new Set((data ?? []).map(p => p.slug))
+    const extra = (fallback ?? []).filter(p => !existing.has(p.slug))
+    return [...(data ?? []), ...extra].slice(0, 4)
+  }
+  return data ?? []
+}
+
 export async function getAllLists(): Promise<DbList[]> {
   const supabase = await client()
   const { data } = await supabase

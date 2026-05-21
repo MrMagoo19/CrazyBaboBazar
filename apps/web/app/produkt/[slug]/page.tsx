@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { getProductBySlug } from '@/lib/db'
+import { getProductBySlug, getRelatedProducts } from '@/lib/db'
 import { getPriceBand } from '@/lib/db-types'
 import { ShareButton } from '@/components/ui/share-button'
 import type { Metadata } from 'next'
@@ -35,6 +35,8 @@ export default async function ProduktPage({ params }: Props) {
   const { slug } = await params
   const product = await getProductBySlug(slug)
   if (!product) notFound()
+
+  const related = await getRelatedProducts(slug, product.shop_persona, product.shop_main_category)
 
   const catEmoji = product.categories?.emoji ?? '📦'
 
@@ -225,6 +227,45 @@ export default async function ProduktPage({ params }: Props) {
               <p className="text-[#0A0A0A] text-base leading-relaxed font-medium">
                 {product.editorial_note}
               </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── ÄHNLICHE PRODUKTE ──────────────────────────────── */}
+      {related.length > 0 && (
+        <section style={{ backgroundColor: '#F8F8F8', borderTop: '2px solid #0A0A0A', borderBottom: '2px solid #0A0A0A' }}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+            <h2 className="font-[family-name:var(--font-display)] font-black text-xl text-[#0A0A0A] mb-6">
+              Könnte dich auch interessieren
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {related.map((p) => (
+                <Link
+                  key={p.slug}
+                  href={`/produkt/${p.slug}`}
+                  className="group flex flex-col border-2 border-[#0A0A0A] bg-white hover:bg-[#FFE500] transition-colors"
+                >
+                  <div className="aspect-square bg-[#F5F5F5] border-b-2 border-[#0A0A0A] relative overflow-hidden">
+                    {p.image_url ? (
+                      <Image src={p.image_url} alt={p.name} fill className="object-contain p-4" unoptimized />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-4xl">📦</div>
+                    )}
+                  </div>
+                  <div className="p-3 flex flex-col gap-1.5 flex-1">
+                    <p className="font-[family-name:var(--font-display)] font-black text-xs text-[#0A0A0A] leading-tight line-clamp-2">
+                      {p.name}
+                    </p>
+                    <span
+                      className="text-[9px] font-bold font-[family-name:var(--font-mono)] mt-auto w-fit"
+                      style={{ backgroundColor: '#FFE500', color: '#0A0A0A', padding: '1px 6px' }}
+                    >
+                      {getPriceBand(p.price_cents)}
+                    </span>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
         </section>

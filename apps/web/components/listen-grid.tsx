@@ -32,7 +32,7 @@ export function ListenGrid({ lists }: Props) {
 
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {lists.slice(0, 6).map((list) => (
+          {lists.slice(0, 3).map((list) => (
             <Link
               key={list.slug}
               href={`/listen/${list.slug}`}

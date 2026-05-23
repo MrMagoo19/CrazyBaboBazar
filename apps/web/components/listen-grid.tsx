@@ -21,6 +21,9 @@ export function ListenGrid({ lists }: Props) {
             <h2 className="font-[family-name:var(--font-display)] font-black text-3xl text-[#0A0A0A] leading-tight" style={{ letterSpacing: '-0.02em' }}>
               Themen-Listen
             </h2>
+            <p className="text-sm text-[#555] mt-2 max-w-md">
+              Wer ewig scrollt, findet auch nix. Wir haben das übernommen.
+            </p>
           </div>
           <Link
             href="/listen"

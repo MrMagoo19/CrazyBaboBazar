@@ -187,7 +187,35 @@ export async function getProductsByMaxPrice(maxCents: number): Promise<DbProduct
     .eq('is_published', true)
     .lt('price_cents', maxCents)
   if (!data) return []
-  // Seed changes every hour → fresh order per hour, stable within one request cycle
+  const seed = Math.floor(Date.now() / 3_600_000)
+  const featured = seededShuffle(data.filter(p => p.is_featured), seed)
+  const rest = seededShuffle(data.filter(p => !p.is_featured), seed + 1)
+  return [...featured, ...rest]
+}
+
+export async function getProductsAbovePrice(minCents: number): Promise<DbProduct[]> {
+  const supabase = await client()
+  const { data } = await supabase
+    .from('products')
+    .select('*, categories(*)')
+    .eq('is_published', true)
+    .gte('price_cents', minCents)
+  if (!data) return []
+  const seed = Math.floor(Date.now() / 3_600_000)
+  const featured = seededShuffle(data.filter(p => p.is_featured), seed)
+  const rest = seededShuffle(data.filter(p => !p.is_featured), seed + 1)
+  return [...featured, ...rest]
+}
+
+export async function getProductsByTag(tag: string): Promise<DbProduct[]> {
+  const supabase = await client()
+  const { data } = await supabase
+    .from('products')
+    .select('*, categories(*)')
+    .eq('is_published', true)
+    .eq('shop_main_category', tag)
+    .order('is_featured', { ascending: false })
+  if (!data) return []
   const seed = Math.floor(Date.now() / 3_600_000)
   const featured = seededShuffle(data.filter(p => p.is_featured), seed)
   const rest = seededShuffle(data.filter(p => !p.is_featured), seed + 1)

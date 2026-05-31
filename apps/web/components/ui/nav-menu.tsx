@@ -4,65 +4,39 @@ import * as React from "react"
 import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
-  Flame, Crown, Sparkles, Rocket, Equal, Search as SearchIcon, X,
-  BriefcaseBusiness, UtensilsCrossed, PartyPopper, Zap, Star, Leaf,
+  Search as SearchIcon, X, Equal, ChevronDown,
+  Gamepad2, Laptop, UtensilsCrossed, Sparkles, TreePine, Flower2, Baby, Dumbbell, Home,
 } from "lucide-react"
 import { createClient } from "@/utils/supabase/client"
 
-// ── Types ──────────────────────────────────────────────────────────────────
-type MenuName = "trending" | "babos" | "queens" | "miniboss" | "wellness" | null
-
-interface SubItem { label: string; href: string; icon: React.ElementType; desc: string }
-interface NavItem { key: MenuName; label: string; icon: React.ElementType; sub: SubItem[] }
-
-const NAV: NavItem[] = [
-  {
-    key: "trending", label: "Trending", icon: Flame, sub: [
-      { label: "Alle Trends",    href: "/trending",   icon: Flame,       desc: "Was gerade abgeht" },
-      { label: "Unter 20€",      href: "/unter-20",   icon: Zap,         desc: "Günstig & gut" },
-      { label: "Unter 50€",      href: "/unter-50",   icon: Zap,         desc: "Gutes Preis-Leistungs-Verhältnis" },
-    ],
-  },
-  {
-    key: "babos", label: "Babos", icon: Zap, sub: [
-      { label: "Alle Babos",     href: "/babos",             icon: Zap,               desc: "Komplette Babo-Welt" },
-      { label: "Gaming",         href: "/babos/gaming",      icon: Rocket,            desc: "Tabletop, Retro & Collectibles" },
-      { label: "Tech & DIY",     href: "/babos/tech",        icon: Zap,               desc: "Gadgets & Schreibtisch-Setup" },
-      { label: "Lifestyle",      href: "/babos/lifestyle",   icon: PartyPopper,       desc: "Party, Bar & Fun" },
-      { label: "Outdoor",        href: "/babos/outdoor",     icon: BriefcaseBusiness, desc: "Survival & Camping" },
-    ],
-  },
-  {
-    key: "queens", label: "Queens", icon: Crown, sub: [
-      { label: "Alle Queens",    href: "/queens",             icon: Crown,            desc: "Komplette Queen-Welt" },
-      { label: "Küche",          href: "/queens/kueche",      icon: UtensilsCrossed,  desc: "Gadgets & Kurioses" },
-      { label: "Lifestyle",      href: "/queens/lifestyle",   icon: Sparkles,         desc: "Deko, Fandom & Mode" },
-      { label: "Beauty",         href: "/queens/beauty",      icon: Sparkles,         desc: "Pflege & Kosmetik" },
-      { label: "Geschenke",      href: "/queens/geschenke",   icon: PartyPopper,      desc: "Lehrer & Personalisiertes" },
-    ],
-  },
-  {
-    key: "miniboss", label: "Miniboss", icon: Star, sub: [
-      { label: "Alle Miniboss",  href: "/miniboss",           icon: Star,             desc: "Komplette Miniboss-Welt" },
-      { label: "Spielzeug",      href: "/miniboss/spielzeug", icon: Sparkles,         desc: "STEM, Lernen & Tiere" },
-      { label: "Gaming",         href: "/miniboss/gaming",    icon: Rocket,           desc: "Spardosen & Collectibles" },
-      { label: "Spaß",           href: "/miniboss/spass",     icon: PartyPopper,      desc: "Party & Outdoor-Fun" },
-    ],
-  },
-  {
-    key: "wellness", label: "Wellness", icon: Leaf, sub: [
-      { label: "Alle Wellness",  href: "/wellness",           icon: Leaf,             desc: "Komplette Wellness-Welt" },
-      { label: "Fitness & Sport",href: "/wellness/fitness",   icon: Zap,              desc: "Training & Recovery" },
-      { label: "Beauty & Pflege",href: "/wellness/beauty",    icon: Sparkles,         desc: "Hautpflege & Komfort" },
-      { label: "Outdoor",        href: "/wellness/outdoor",   icon: BriefcaseBusiness,desc: "Zelte, Solar & Rucksack" },
-    ],
-  },
+// ── Price nav ─────────────────────────────────────────────────────────────────
+const PRICE_LINKS = [
+  { label: "Alle",      href: "/trending" },
+  { label: "Unter 20€", href: "/unter-20" },
+  { label: "Unter 50€", href: "/unter-50" },
+  { label: "Unter 100€",href: "/unter-100" },
+  { label: "Unter 200€",href: "/unter-200" },
+  { label: "Über 200€", href: "/ueber-200" },
 ]
 
-const ALL_CATS = NAV.flatMap(n => n.sub)
+// ── Themen dropdown ───────────────────────────────────────────────────────────
+type ThemaItem = { label: string; href: string; icon: React.ElementType; desc: string }
 
-// ── Search Modal ───────────────────────────────────────────────────────────
+const THEMEN: ThemaItem[] = [
+  { label: "Gaming",         href: "/thema/gaming",    icon: Gamepad2,       desc: "Tabletop, Retro & Collectibles" },
+  { label: "Tech & Setup",   href: "/thema/tech",      icon: Laptop,         desc: "Gadgets & Schreibtisch" },
+  { label: "Küche",          href: "/thema/kueche",    icon: UtensilsCrossed,desc: "Küchengeräte & Kulinarisches" },
+  { label: "Lifestyle",      href: "/thema/lifestyle", icon: Sparkles,       desc: "Party, Bar & Fun" },
+  { label: "Outdoor",        href: "/thema/outdoor",   icon: TreePine,       desc: "Camping & Survival" },
+  { label: "Beauty & Pflege",href: "/thema/beauty",    icon: Flower2,        desc: "Pflege & Wellness" },
+  { label: "Spielzeug",      href: "/thema/spielzeug", icon: Baby,           desc: "STEM & Kinderspaß" },
+  { label: "Fitness",        href: "/thema/fitness",   icon: Dumbbell,       desc: "Training & Recovery" },
+  { label: "Haushalt",       href: "/thema/haushalt",  icon: Home,           desc: "Smarte Alltagshelfer" },
+]
+
+// ── Search Modal ──────────────────────────────────────────────────────────────
 type ProductResult = { slug: string; name: string; tagline: string | null; image_url: string | null }
 
 export function NavSearch() {
@@ -173,107 +147,121 @@ export function NavSearch() {
   )
 }
 
-// ── Desktop Nav ────────────────────────────────────────────────────────────
+// ── Desktop Nav ───────────────────────────────────────────────────────────────
 export function DesktopNav() {
-  const [activeMenu, setActiveMenu] = useState<MenuName>(null)
+  const [themenOpen, setThemenOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pathname = usePathname()
 
   useEffect(() => { setMounted(true) }, [])
 
-  const openMenu = (key: MenuName) => {
+  const openThemen = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current)
-    setActiveMenu(key)
+    setThemenOpen(true)
   }
-
   const scheduleClose = () => {
-    closeTimer.current = setTimeout(() => setActiveMenu(null), 300)
-  }
-
-  const toggleMenu = (key: MenuName) => {
-    setActiveMenu(prev => prev === key ? null : key)
+    closeTimer.current = setTimeout(() => setThemenOpen(false), 300)
   }
 
   useEffect(() => {
-    const handler = () => setActiveMenu(null)
+    const handler = () => setThemenOpen(false)
     document.addEventListener("click", handler)
     return () => document.removeEventListener("click", handler)
   }, [])
 
-  const dropdown = activeMenu && (() => {
-    const item = NAV.find(n => n.key === activeMenu)
-    if (!item) return null
-    return (
-      <div
-        onMouseEnter={() => openMenu(activeMenu)}
-        onMouseLeave={scheduleClose}
-        style={{ position: "fixed", left: 0, right: 0, top: 64, zIndex: 9000, backgroundColor: '#FFE500', borderBottom: '2px solid #0A0A0A' }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex items-center gap-2 mb-4">
-            <item.icon size={13} style={{ color: '#0A0A0A' }} />
-            <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#0A0A0A' }}>{item.label}</span>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-            {item.sub.map(sub => (
-              <Link
-                key={sub.href}
-                href={sub.href}
-                onClick={() => setActiveMenu(null)}
-                className="flex flex-col gap-1 px-3 py-3 transition-all duration-150"
-                style={{ border: '2px solid #0A0A0A', backgroundColor: '#FFFFFF' }}
-                onMouseEnter={e => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.backgroundColor = '#0A0A0A'
-                  el.querySelectorAll('[data-label]').forEach(n => ((n as HTMLElement).style.color = '#FFE500'))
-                  el.querySelectorAll('[data-desc]').forEach(n => ((n as HTMLElement).style.color = '#888'))
-                  el.querySelectorAll('svg').forEach(n => ((n as unknown as HTMLElement).style.color = '#FFE500'))
-                }}
-                onMouseLeave={e => {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.backgroundColor = '#FFFFFF'
-                  el.querySelectorAll('[data-label]').forEach(n => ((n as HTMLElement).style.color = '#0A0A0A'))
-                  el.querySelectorAll('[data-desc]').forEach(n => ((n as HTMLElement).style.color = '#555555'))
-                  el.querySelectorAll('svg').forEach(n => ((n as unknown as HTMLElement).style.color = '#0A0A0A'))
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <sub.icon size={13} className="shrink-0" style={{ color: '#0A0A0A', transition: 'color 0.15s' }} />
-                  <span data-label className="text-sm font-bold" style={{ color: '#0A0A0A' }}>
-                    {sub.label}
-                  </span>
-                </div>
-                <span data-desc className="text-[11px] pl-5" style={{ color: '#555555' }}>{sub.desc}</span>
-              </Link>
-            ))}
-          </div>
+  const dropdown = themenOpen && (
+    <div
+      onMouseEnter={openThemen}
+      onMouseLeave={scheduleClose}
+      style={{ position: "fixed", left: 0, right: 0, top: 64, zIndex: 9000, backgroundColor: '#FFE500', borderBottom: '2px solid #0A0A0A' }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#0A0A0A]">Themen</span>
+        </div>
+        <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+          {THEMEN.map(item => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setThemenOpen(false)}
+              className="flex flex-col gap-1 px-3 py-3 transition-all duration-150"
+              style={{ border: '2px solid #0A0A0A', backgroundColor: '#FFFFFF' }}
+              onMouseEnter={e => {
+                const el = e.currentTarget as HTMLElement
+                el.style.backgroundColor = '#0A0A0A'
+                el.querySelectorAll('[data-label]').forEach(n => ((n as HTMLElement).style.color = '#FFE500'))
+                el.querySelectorAll('[data-desc]').forEach(n => ((n as HTMLElement).style.color = '#888'))
+                el.querySelectorAll('svg').forEach(n => ((n as unknown as HTMLElement).style.color = '#FFE500'))
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget as HTMLElement
+                el.style.backgroundColor = '#FFFFFF'
+                el.querySelectorAll('[data-label]').forEach(n => ((n as HTMLElement).style.color = '#0A0A0A'))
+                el.querySelectorAll('[data-desc]').forEach(n => ((n as HTMLElement).style.color = '#555555'))
+                el.querySelectorAll('svg').forEach(n => ((n as unknown as HTMLElement).style.color = '#0A0A0A'))
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <item.icon size={13} className="shrink-0" style={{ color: '#0A0A0A', transition: 'color 0.15s' }} />
+                <span data-label className="text-sm font-bold" style={{ color: '#0A0A0A' }}>
+                  {item.label}
+                </span>
+              </div>
+              <span data-desc className="text-[11px] pl-5" style={{ color: '#555555' }}>{item.desc}</span>
+            </Link>
+          ))}
         </div>
       </div>
-    )
-  })()
+    </div>
+  )
 
   return (
     <div className="hidden md:block" onClick={e => e.stopPropagation()}>
-      <nav className="flex items-center">
-        {NAV.map(item => (
-          <div key={item.key} onMouseEnter={() => openMenu(item.key)} onMouseLeave={scheduleClose}>
-            <button
-              onClick={() => toggleMenu(item.key)}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-black uppercase tracking-wide transition-colors
-                ${activeMenu === item.key ? "text-[#FFE500]" : "text-white hover:text-[#FFE500]"}`}
-            >
-              <item.icon size={13} />
-              {item.label}
-            </button>
-          </div>
+      <nav className="flex items-center gap-0">
+        {/* Price-first links */}
+        {PRICE_LINKS.map(link => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={`px-3 py-2 text-xs font-black uppercase tracking-wide transition-colors whitespace-nowrap font-[family-name:var(--font-mono)] ${
+              pathname === link.href ? 'text-[#FFE500]' : 'text-white hover:text-[#FFE500]'
+            }`}
+          >
+            {link.label}
+          </Link>
         ))}
+
+        {/* Themen dropdown trigger */}
+        <div onMouseEnter={openThemen} onMouseLeave={scheduleClose}>
+          <button
+            onClick={e => { e.stopPropagation(); setThemenOpen(o => !o) }}
+            className={`flex items-center gap-1 px-3 py-2 text-xs font-black uppercase tracking-wide transition-colors font-[family-name:var(--font-mono)] ${
+              themenOpen ? 'text-[#FFE500]' : 'text-white hover:text-[#FFE500]'
+            }`}
+          >
+            Themen
+            <ChevronDown size={11} className={`transition-transform duration-150 ${themenOpen ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+
+        {/* Listen */}
+        <Link
+          href="/listen"
+          className={`px-3 py-2 text-xs font-black uppercase tracking-wide transition-colors font-[family-name:var(--font-mono)] ${
+            pathname?.startsWith('/listen') ? 'text-[#FFE500]' : 'text-white hover:text-[#FFE500]'
+          }`}
+        >
+          Listen
+        </Link>
       </nav>
       {mounted && createPortal(dropdown, document.body)}
     </div>
   )
 }
 
-// ── Mobile Menu ────────────────────────────────────────────────────────────
+// ── Mobile Menu ───────────────────────────────────────────────────────────────
 function MobileSheet() {
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -293,20 +281,44 @@ function MobileSheet() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '2px solid #0A0A0A', backgroundColor: '#FFFFFF' }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: '#FFE500', color: '#0A0A0A', padding: '2px 8px' }}>
-            Kategorien
+            Menü
           </span>
           <button onClick={() => setOpen(false)} style={{ color: '#0A0A0A', padding: '4px', background: 'none', border: 'none', cursor: 'pointer' }}>
             <X size={18} />
           </button>
         </div>
         <nav style={{ flex: 1, padding: '8px 0' }}>
-          {ALL_CATS.map(cat => (
-            <Link key={cat.href} href={cat.href} onClick={() => setOpen(false)}
-              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 24px', fontSize: '14px', fontWeight: 500, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0' }}>
-              <cat.icon size={14} />
-              {cat.label}
+          {/* Preis section */}
+          <div style={{ padding: '8px 24px 4px', fontSize: '9px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#999', fontFamily: 'var(--font-mono)' }}>
+            Preis
+          </div>
+          {PRICE_LINKS.map(link => (
+            <Link key={link.href} href={link.href} onClick={() => setOpen(false)}
+              style={{ display: 'flex', alignItems: 'center', padding: '10px 24px', fontSize: '14px', fontWeight: 700, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0', fontFamily: 'var(--font-mono)' }}>
+              {link.label}
             </Link>
           ))}
+
+          {/* Themen section */}
+          <div style={{ padding: '12px 24px 4px', fontSize: '9px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#999', fontFamily: 'var(--font-mono)', borderTop: '2px solid #0A0A0A', marginTop: '8px' }}>
+            Themen
+          </div>
+          {THEMEN.map(item => (
+            <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 24px', fontSize: '14px', fontWeight: 500, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0' }}>
+              <item.icon size={14} />
+              {item.label}
+            </Link>
+          ))}
+
+          {/* Listen */}
+          <div style={{ padding: '12px 24px 4px', fontSize: '9px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#999', fontFamily: 'var(--font-mono)', borderTop: '2px solid #0A0A0A', marginTop: '8px' }}>
+            Kuratiert
+          </div>
+          <Link href="/listen" onClick={() => setOpen(false)}
+            style={{ display: 'flex', alignItems: 'center', padding: '10px 24px', fontSize: '14px', fontWeight: 700, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0', fontFamily: 'var(--font-mono)' }}>
+            Listen & Guides
+          </Link>
         </nav>
         <div style={{ padding: '16px 24px', borderTop: '2px solid #0A0A0A' }}>
           <Link
@@ -339,7 +351,7 @@ function MobileSheet() {
   )
 }
 
-// ── Export ─────────────────────────────────────────────────────────────────
+// ── Export ────────────────────────────────────────────────────────────────────
 export function NavMenus() {
   return (
     <>

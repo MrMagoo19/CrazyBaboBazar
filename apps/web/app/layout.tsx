@@ -121,17 +121,17 @@ export default function RootLayout({
                 </p>
               </div>
 
-              {/* Kategorien */}
+              {/* Themen */}
               <div>
-                <h3 className="text-xs font-black text-[#0A0A0A] uppercase tracking-widest mb-4 inline-block bg-[#FFE500] px-2 py-0.5">Kategorien</h3>
+                <h3 className="text-xs font-black text-[#0A0A0A] uppercase tracking-widest mb-4 inline-block bg-[#FFE500] px-2 py-0.5">Themen</h3>
                 <ul className="space-y-2">
                   {[
-                    { href: '/babos', label: 'Babos' },
-                    { href: '/queens', label: 'Queens' },
-                    { href: '/miniboss', label: 'Miniboss' },
-                    { href: '/wellness', label: 'Wellness' },
-                    { href: '/unter-20', label: 'Unter 20€' },
-                    { href: '/listen', label: 'Listen' },
+                    { href: '/thema/gaming',    label: 'Gaming' },
+                    { href: '/thema/tech',       label: 'Tech & Setup' },
+                    { href: '/thema/kueche',     label: 'Küche' },
+                    { href: '/thema/lifestyle',  label: 'Lifestyle' },
+                    { href: '/thema/outdoor',    label: 'Outdoor' },
+                    { href: '/listen',           label: 'Listen & Guides' },
                   ].map(link => (
                     <li key={link.href}>
                       <Link href={link.href} className="text-sm text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors font-medium">

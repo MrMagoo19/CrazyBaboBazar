@@ -17,6 +17,7 @@ export type DbProduct = {
   currency: string
   affiliate_url: string
   image_url: string | null
+  image_urls: string[] | null
   is_published: boolean
   is_featured: boolean
   category_id: string | null
@@ -37,6 +38,7 @@ export type DbList = {
   slug: string
   title: string
   intro: string | null
+  body: string | null
   product_slugs: string[]
   is_published: boolean
   created_at: string

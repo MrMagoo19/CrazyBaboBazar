@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { getProductBySlug, getRelatedProducts } from '@/lib/db'
 import { getPriceBand } from '@/lib/db-types'
 import { ShareButton } from '@/components/ui/share-button'
+import { ImageSlider } from '@/components/ui/image-slider'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
@@ -43,7 +44,8 @@ export default async function ProduktPage({ params }: Props) {
   // Prefer new persona-based routing, fall back to old categories
   const persona = product.shop_persona
   const mainCat = product.shop_main_category
-  const catSlug = persona && mainCat ? `${persona}s/${mainCat}` : `kategorie/${product.categories?.slug ?? ''}`
+  const personaRoute: Record<string, string> = { babo: 'babos', queen: 'queens', miniboss: 'miniboss', wellness: 'wellness' }
+  const catSlug = persona && mainCat ? `${personaRoute[persona] ?? persona}/${mainCat}` : `kategorie/${product.categories?.slug ?? ''}`
   const catName = persona && mainCat
     ? `${persona.charAt(0).toUpperCase() + persona.slice(1)} · ${mainCat}`
     : (product.categories?.name ?? '')
@@ -69,37 +71,45 @@ export default async function ProduktPage({ params }: Props) {
       <section style={{ borderBottom: '2px solid #0A0A0A', backgroundColor: '#FFFFFF' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
           <div className="flex flex-col lg:flex-row">
-            {/* Image */}
-            <div
-              style={{
-                backgroundColor: '#FFFFFF',
-                border: '2px solid #0A0A0A',
-                aspectRatio: '1 / 1',
-                position: 'relative',
-                overflow: 'hidden',
-                flexShrink: 0,
-              }}
-              className="w-full lg:w-1/2"
-            >
-              {product.image_url ? (
-                <Image
-                  src={product.image_url}
-                  alt={product.name}
-                  fill
-                  className="object-contain p-8"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              ) : (
-                <span className="text-[160px] opacity-20 select-none absolute inset-0 flex items-center justify-center">{catEmoji}</span>
-              )}
-              {product.is_featured && (
-                <div className="absolute top-6 left-6">
-                  <span className="bg-[#FFE500] text-[#0A0A0A] text-xs font-black px-3 py-1 uppercase tracking-wide">
-                    Featured
-                  </span>
-                </div>
-              )}
-            </div>
+            {/* Image / Slider */}
+            {product.image_urls && product.image_urls.length > 1 ? (
+              <ImageSlider
+                images={product.image_urls}
+                name={product.name}
+                isFeatured={product.is_featured}
+              />
+            ) : (
+              <div
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  border: '2px solid #0A0A0A',
+                  aspectRatio: '1 / 1',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                }}
+                className="w-full lg:w-1/2"
+              >
+                {product.image_url ? (
+                  <Image
+                    src={product.image_url}
+                    alt={product.name}
+                    fill
+                    className="object-contain p-8"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                ) : (
+                  <span className="text-[160px] opacity-20 select-none absolute inset-0 flex items-center justify-center">{catEmoji}</span>
+                )}
+                {product.is_featured && (
+                  <div className="absolute top-6 left-6">
+                    <span className="bg-[#FFE500] text-[#0A0A0A] text-xs font-black px-3 py-1 uppercase tracking-wide">
+                      Featured
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Info */}
             <div

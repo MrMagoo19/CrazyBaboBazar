@@ -47,7 +47,7 @@ INSERT INTO products (
     'https://m.media-amazon.com/images/I/61HO1BnG4dL._AC_SL1500_.jpg'
   ],
   true, false,
-  'babo', 'haushalt', 'gadget',
+  'queen', 'wellness', 'gadget',
   ARRAY['haushalt', 'gadget', 'geschenk']
 ),
 

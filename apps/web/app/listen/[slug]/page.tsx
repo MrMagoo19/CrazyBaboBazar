@@ -169,7 +169,7 @@ export default async function ListDetailPage({ params }: Props) {
               </p>
             </div>
             <a
-              href="https://ydiihvzcxaaoqhmgoqvu.supabase.co/storage/v1/object/public/downloads/Baue_deinen_eigenen_Jarvis_mit_Claude_Ebook_v1.2.pdf"
+              href="/api/download/ebook"
               download="Jarvis-mit-Claude-Ebook.pdf"
               className="shrink-0 font-bold text-sm px-6 py-3 border-2 border-[#FFE500] bg-[#FFE500] text-[#0A0A0A] hover:bg-transparent hover:text-[#FFE500] transition-colors"
             >

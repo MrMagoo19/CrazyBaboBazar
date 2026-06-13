@@ -111,7 +111,7 @@ export default function JarvisEbookPage() {
               </p>
 
               <a
-                href="https://ydiihvzcxaaoqhmgoqvu.supabase.co/storage/v1/object/public/downloads/Baue_deinen_eigenen_Jarvis_mit_Claude_Ebook_v1.2.pdf"
+                href="/api/download/ebook"
                 download="Jarvis-mit-Claude-Ebook.pdf"
                 className="inline-block font-bold text-base px-8 py-4 transition-all duration-200 mb-4 bg-[#FFE500] text-[#0A0A0A] border-2 border-[#FFE500] hover:bg-transparent hover:text-[#FFE500]"
               >

@@ -111,8 +111,8 @@ export default function JarvisEbookPage() {
               </p>
 
               <a
-                href="/jarvis-ebook.pdf"
-                download="Jarvis-mit-Claude-Ebook.pdf"
+                href="https://ydiihvzcxaaoqhmgoqvu.supabase.co/storage/v1/object/public/downloads/Baue_deinen_eigenen_Jarvis_mit_Claude_Ebook_v1.2.docx"
+                download="Jarvis-mit-Claude-Ebook.docx"
                 className="inline-block font-bold text-base px-8 py-4 transition-all duration-200 mb-4"
                 style={{ backgroundColor: '#FFE500', color: '#0A0A0A', border: '2px solid #FFE500' }}
                 onMouseEnter={e => {

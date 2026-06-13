@@ -80,7 +80,11 @@ export default async function ListDetailPage({ params }: Props) {
             {list.title}
           </h1>
           {list.intro && (
-            <p className="text-[#AAA] text-base leading-relaxed max-w-2xl">{list.intro}</p>
+            <div className="text-[#AAA] text-base leading-relaxed max-w-2xl space-y-4">
+              {list.intro.split('\n\n').map((para, i) => (
+                <p key={i}>{para}</p>
+              ))}
+            </div>
           )}
         </div>
       </section>
@@ -145,6 +149,24 @@ export default async function ListDetailPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* Article body */}
+      {list.body && (
+        <section className="border-t-2 border-[#0A0A0A] bg-white">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-14">
+            {list.body.split('\n\n').map((block, i) => {
+              if (block.startsWith('## ')) {
+                return (
+                  <h2 key={i} className="font-[family-name:var(--font-display)] font-black text-xl sm:text-2xl text-[#0A0A0A] mt-12 mb-4 leading-tight">
+                    {block.slice(3)}
+                  </h2>
+                )
+              }
+              return <p key={i} className="text-[#444] text-base leading-relaxed mb-4">{block}</p>
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Other lists */}
       {otherLists.length > 0 && (

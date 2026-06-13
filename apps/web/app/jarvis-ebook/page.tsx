@@ -113,18 +113,9 @@ export default function JarvisEbookPage() {
               <a
                 href="https://ydiihvzcxaaoqhmgoqvu.supabase.co/storage/v1/object/public/downloads/Baue_deinen_eigenen_Jarvis_mit_Claude_Ebook_v1.2.docx"
                 download="Jarvis-mit-Claude-Ebook.docx"
-                className="inline-block font-bold text-base px-8 py-4 transition-all duration-200 mb-4"
-                style={{ backgroundColor: '#FFE500', color: '#0A0A0A', border: '2px solid #FFE500' }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'transparent'
-                  ;(e.currentTarget as HTMLAnchorElement).style.color = '#FFE500'
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#FFE500'
-                  ;(e.currentTarget as HTMLAnchorElement).style.color = '#0A0A0A'
-                }}
+                className="inline-block font-bold text-base px-8 py-4 transition-all duration-200 mb-4 bg-[#FFE500] text-[#0A0A0A] border-2 border-[#FFE500] hover:bg-transparent hover:text-[#FFE500]"
               >
-                ↓ E-Book kostenlos downloaden (PDF)
+                ↓ E-Book kostenlos downloaden
               </a>
 
               <p className="text-[#555] text-xs mt-3">

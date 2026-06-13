@@ -8,7 +8,7 @@ VALUES
 (
   'flipper-zero',
   'Flipper Zero',
-  'Das Schweizer Taschenmesser für Hacker & Tüftler',
+  'Das Schweizer Taschenmesser für Maker & Tüftler',
   E'NFC-Tags lesen, IR-Fernbedienungen emulieren, RFID klonen, Funksignale analysieren – der Flipper Zero kann alles davon gleichzeitig. Das kleine orange Gerät in Delfin-Form ist das Lieblingsspielzeug von Pentestern, Sicherheitsforschern und allen, die verstehen wollen wie die Welt um sie herum wirklich funktioniert.\n\nOpen-Source, hackbar, mit einer riesigen Community. Einmal in der Hand, nie wieder wegelegen.',
   21900, 'EUR',
   'https://www.amazon.de/dp/B0BFXKSFNT?tag=geeklist-21&linkCode=ogi&th=1',

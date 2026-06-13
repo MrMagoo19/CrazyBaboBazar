@@ -38,7 +38,7 @@ export default async function HomePage() {
               Nicht wissen was du willst?
             </h2>
             <p className="text-[#AAA] text-sm max-w-md">
-              Swipe dich durch 250+ Produkte — rechts für Interesse, links für weiter. Je mehr du likest, desto besser wird die Auswahl.
+              Swipe dich durch 350+ Produkte — rechts für Interesse, links für weiter. Je mehr du likest, desto besser wird die Auswahl.
             </p>
           </div>
           <a

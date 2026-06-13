@@ -150,6 +150,35 @@ export default async function ListDetailPage({ params }: Props) {
         </div>
       </section>
 
+      {/* Geeklist: JARVIS Ebook CTA */}
+      {slug === 'geeklist' && (
+        <section style={{ backgroundColor: '#0A0A0A', borderTop: '2px solid #FFE500', borderBottom: '2px solid #FFE500' }}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div>
+              <div
+                className="font-[family-name:var(--font-mono)] font-black text-[10px] uppercase tracking-widest mb-2 inline-block"
+                style={{ backgroundColor: '#FFE500', color: '#0A0A0A', padding: '2px 8px' }}
+              >
+                Gratis E-Book
+              </div>
+              <h3 className="font-[family-name:var(--font-display)] font-black text-xl text-white leading-tight">
+                Baue deinen eigenen JARVIS mit Claude
+              </h3>
+              <p className="text-[#AAA] text-sm mt-1 max-w-md">
+                28 Seiten. Lauffähiger Code. Stimme, Briefings & Gedächtnis — kein Account, kein Kauf.
+              </p>
+            </div>
+            <a
+              href="https://ydiihvzcxaaoqhmgoqvu.supabase.co/storage/v1/object/public/downloads/Baue_deinen_eigenen_Jarvis_mit_Claude_Ebook_v1.2.docx"
+              download="Jarvis-mit-Claude-Ebook.docx"
+              className="shrink-0 font-bold text-sm px-6 py-3 border-2 border-[#FFE500] bg-[#FFE500] text-[#0A0A0A] hover:bg-transparent hover:text-[#FFE500] transition-colors"
+            >
+              ↓ Kostenlos downloaden
+            </a>
+          </div>
+        </section>
+      )}
+
       {/* Article body */}
       {list.body && (
         <section className="border-t-2 border-[#0A0A0A] bg-white">

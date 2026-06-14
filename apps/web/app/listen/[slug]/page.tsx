@@ -47,12 +47,23 @@ export default async function ListDetailPage({ params }: Props) {
     })),
   }
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Start', item: 'https://www.crazybabobazar.com' },
+      { '@type': 'ListItem', position: 2, name: 'Listen', item: 'https://www.crazybabobazar.com/listen' },
+      { '@type': 'ListItem', position: 3, name: list.title, item: `https://www.crazybabobazar.com/listen/${list.slug}` },
+    ],
+  }
+
   const otherLists = allLists.filter(l => l.slug !== slug).slice(0, 3)
 
   return (
     <div>
       {/* Schema.org */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
       {/* Breadcrumb */}
       <div className="border-b-2 border-[#0A0A0A]">

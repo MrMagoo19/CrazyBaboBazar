@@ -6,8 +6,8 @@ import type { Metadata } from 'next'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Produkte unter 100€ | Crazy Babo Bazar',
-  description: 'Kuriose und kaufstarke Produkte für unter 100 Euro — direkt auf Amazon.',
+  title: 'Geschenke unter 100 Euro — Gadgets & Technik | Crazy Babo Bazar',
+  description: 'Gadgets und Geschenke unter 100 Euro, die man sich selten selbst kauft — aber sofort haben will. Handverlesen mit direktem Amazon-Link.',
 }
 
 export default async function Unter100Page() {
@@ -19,13 +19,24 @@ export default async function Unter100Page() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <div className="flex items-center gap-3 mb-2">
             <Zap size={20} className="text-[#0A0A0A]" />
-            <span style={{ background: '#FFE500', color: '#0A0A0A', padding: '2px 8px', fontSize: '10px', fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Preis</span>
+            <span style={{ background: '#FFE500', color: '#0A0A0A', padding: '2px 8px', fontSize: '10px', fontWeight: 900, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Preisfilter</span>
           </div>
           <h1 className="font-[family-name:var(--font-display)] font-extrabold text-3xl md:text-4xl text-[#0A0A0A]">
-            Unter 100€
+            Geschenke unter 100€
           </h1>
           <p className="text-[#555] text-sm mt-2">
             {products.length} Produkte für unter 100&nbsp;Euro
+          </p>
+        </div>
+      </div>
+
+      <div className="border-b-2 border-[#0A0A0A] bg-[#F8F8F8]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-3">
+          <p className="text-[#333] text-sm leading-relaxed">
+            Mit bis zu 100 Euro Budget öffnet sich die Türe zu den wirklich interessanten Gadgets — Produkte, die man sich selten selbst kauft, aber sofort haben will wenn man sie sieht. Diese Auswahl zeigt alles was unter 100 Euro auf Amazon zu haben ist und tatsächlich begeistert.
+          </p>
+          <p className="text-[#333] text-sm leading-relaxed">
+            Von hochwertigen Tech-Gadgets über Premium-Küchenhelfer bis zu Gaming-Ausrüstung: 100 Euro ist der Sweetspot für Geschenke die in Erinnerung bleiben. Besonders geeignet für besondere Anlässe, runde Geburtstage oder als Upgrade-Geschenk für Technik-Enthusiasten. Keine gesponserten Platzierungen, nur echte Picks.
           </p>
         </div>
       </div>

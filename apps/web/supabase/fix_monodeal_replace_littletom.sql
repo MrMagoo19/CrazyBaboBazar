@@ -18,8 +18,8 @@ VALUES (
   3999,
   'EUR',
   'https://www.amazon.de/dp/B0CNS6BGR7?tag=geeklist-21',
-  '',
-  ARRAY[]::text[],
+  'https://m.media-amazon.com/images/I/71wSkldF5bL._AC_SL1500_.jpg',
+  ARRAY['https://m.media-amazon.com/images/I/71wSkldF5bL._AC_SL1500_.jpg'],
   true,
   false,
   'miniboss',
@@ -37,4 +37,6 @@ ON CONFLICT (slug) DO UPDATE SET
   shop_main_category = EXCLUDED.shop_main_category,
   shop_sub_category = EXCLUDED.shop_sub_category,
   shop_tags         = EXCLUDED.shop_tags,
-  is_published      = EXCLUDED.is_published;
+  is_published      = EXCLUDED.is_published,
+  image_url         = EXCLUDED.image_url,
+  image_urls        = EXCLUDED.image_urls;

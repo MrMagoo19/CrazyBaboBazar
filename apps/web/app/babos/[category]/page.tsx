@@ -10,15 +10,17 @@ const SUBNAV = [
   { label: 'Tech & DIY', href: '/babos/tech' },
   { label: 'Lifestyle', href: '/babos/lifestyle' },
   { label: 'Outdoor', href: '/babos/outdoor' },
+  { label: "Babo's Irrenhaus", href: '/babos/irrenhaus' },
 ]
 
-const VALID = ['gaming', 'tech', 'lifestyle', 'outdoor']
+const VALID = ['gaming', 'tech', 'lifestyle', 'outdoor', 'irrenhaus']
 
 const LABELS: Record<string, string> = {
   gaming: 'Gaming',
   tech: 'Tech & DIY',
   lifestyle: 'Lifestyle',
   outdoor: 'Outdoor & Survival',
+  irrenhaus: "Babo's Irrenhaus",
 }
 
 const INTROS: Record<string, string> = {
@@ -26,6 +28,7 @@ const INTROS: Record<string, string> = {
   tech: 'ESP32, LED-Streifen, Schreibtisch-Setup und DIY-Bausätze — für Tüftler und Tech-Enthusiasten.',
   lifestyle: 'Bier brauen, Fliegenjäger, Kochbücher und Party-Gadgets — für den Babo mit Stil.',
   outdoor: 'Survival-Kits, Campingausrüstung, Feuerstahl und Zelte — für Abenteuer in der Natur.',
+  irrenhaus: 'Fisch-Schlappen. Kronkorken-Pistolen. Blobfish-Hausschuhe. Produkte die niemand braucht — und alle wollen.',
 }
 
 type Props = { params: Promise<{ category: string }> }

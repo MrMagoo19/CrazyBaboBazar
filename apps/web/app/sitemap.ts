@@ -1,25 +1,33 @@
 import type { MetadataRoute } from 'next'
 
 const BASE_URL = 'https://www.crazybabobazar.com'
-const SUPABASE_URL = 'https://ydiihvzcxaaoqhmgoqvu.supabase.co/rest/v1'
-const SUPABASE_KEY = 'sb_publishable_tmWc6BMWU00Nx6Z_YRy7Wg_x5chkWeM'
 
-const headers = {
-  apikey: SUPABASE_KEY,
-  Authorization: `Bearer ${SUPABASE_KEY}`,
+function getSupabaseConfig() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  if (!url || !key) throw new Error('Supabase env vars missing (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)')
+  return {
+    restUrl: `${url}/rest/v1`,
+    fetchOpts: {
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+      },
+      next: { revalidate: 3600 },
+    },
+  }
 }
-
-const fetchOpts = { headers, next: { revalidate: 3600 } }
 
 type SupabaseProduct = { slug: string; updated_at: string | null; created_at: string }
 type PersonaRow = { shop_persona: string; shop_main_category: string }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const { restUrl, fetchOpts } = getSupabaseConfig()
   const [productsRes, listsRes, personaRes] = await Promise.all([
-    fetch(`${SUPABASE_URL}/products?select=slug,updated_at,created_at&is_published=eq.true`, fetchOpts),
-    fetch(`${SUPABASE_URL}/lists?select=slug,created_at&is_published=eq.true`, fetchOpts),
+    fetch(`${restUrl}/products?select=slug,updated_at,created_at&is_published=eq.true`, fetchOpts),
+    fetch(`${restUrl}/lists?select=slug,created_at&is_published=eq.true`, fetchOpts),
     fetch(
-      `${SUPABASE_URL}/products?select=shop_persona,shop_main_category&is_published=eq.true&shop_persona=not.is.null&shop_main_category=not.is.null`,
+      `${restUrl}/products?select=shop_persona,shop_main_category&is_published=eq.true&shop_persona=not.is.null&shop_main_category=not.is.null`,
       fetchOpts
     ),
   ])

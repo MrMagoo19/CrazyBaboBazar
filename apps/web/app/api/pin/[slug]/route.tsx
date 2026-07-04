@@ -9,14 +9,20 @@ export async function GET(
 ) {
   const { slug } = await params
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  if (!supabaseUrl || !supabaseKey) {
+    return new Response('Supabase env vars missing', { status: 500 })
+  }
+
   try {
     // 1. Fetch product
     const res = await fetch(
-      `https://ydiihvzcxaaoqhmgoqvu.supabase.co/rest/v1/products?select=name,tagline,image_url&slug=eq.${encodeURIComponent(slug)}&is_published=eq.true`,
+      `${supabaseUrl}/rest/v1/products?select=name,tagline,image_url&slug=eq.${encodeURIComponent(slug)}&is_published=eq.true`,
       {
         headers: {
-          apikey: 'sb_publishable_tmWc6BMWU00Nx6Z_YRy7Wg_x5chkWeM',
-          Authorization: 'Bearer sb_publishable_tmWc6BMWU00Nx6Z_YRy7Wg_x5chkWeM',
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
         },
         cache: 'no-store',
       }

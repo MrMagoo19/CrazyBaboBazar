@@ -59,11 +59,13 @@ export function SwipeDeck() {
       }
     }
 
+    // Fetch a larger batch so filtering seen slugs doesn't exhaust the set
     let query = sb
       .from('products')
       .select('slug, name, tagline, image_url, price_cents, shop_persona, shop_main_category')
       .eq('is_published', true)
-      .limit(20)
+      .order('created_at', { ascending: Math.random() > 0.5 })
+      .limit(40)
 
     if (personaFilter) {
       query = query.eq('shop_persona', personaFilter)
@@ -72,8 +74,9 @@ export function SwipeDeck() {
     const { data } = await query
     if (!data) return []
 
-    // Filter out already seen
-    return data.filter((p) => !seenSlugs.current.has(p.slug))
+    // Shuffle and filter out already seen
+    const shuffled = [...data].sort(() => Math.random() - 0.5)
+    return shuffled.filter((p) => !seenSlugs.current.has(p.slug))
   }, [])
 
   const loadInitial = useCallback(async () => {

@@ -10,7 +10,6 @@ const PERSONA_COLOR: Record<string, string> = {
   babo:     '#FFE500',
   queen:    '#FF6B9D',
   miniboss: '#3BFFDC',
-  wellness: '#B8FF3B',
 }
 const DEFAULT_COLOR = '#FFE500'
 

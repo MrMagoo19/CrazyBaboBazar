@@ -2,7 +2,7 @@
 -- update_images_batch24_25.sql
 -- Bilder für batch24 + batch25 Produkte
 -- Erstellt: 2026-06-20
--- STATUS: 3 von 9 gefunden — 6 noch offen (mit TODO markiert)
+-- STATUS: 6 von 9 gefunden — 3 noch offen (Kronkorken-Pistole, Boxsack, Multitool)
 -- =============================================================================
 
 -- ✅ Coddies Fisch-Schlappen (via coddies.com)
@@ -32,11 +32,20 @@ WHERE slug = 'divoom-minitoo-retro-pc-lautsprecher-pixel';
 -- TODO: IKAAR Multitool Kreditkarte (B07TG1YTG4) — Bild noch ausstehend
 -- UPDATE products SET image_url = '...', image_urls = ARRAY['...'] WHERE slug = 'ikaar-multitool-kreditkarte-11in1-edelstahl';
 
--- TODO: Baby Mop Strampler (B0FY3D8VJY) — Bild noch ausstehend
--- UPDATE products SET image_url = '...', image_urls = ARRAY['...'] WHERE slug = 'baby-mop-strampler-krabbeln-putzen';
+-- ✅ Baby Mop Strampler (via Amazon CDN)
+UPDATE products SET
+  image_url  = 'https://m.media-amazon.com/images/I/61eSDn+yc6L._AC_SX679_.jpg',
+  image_urls = ARRAY['https://m.media-amazon.com/images/I/61eSDn+yc6L._AC_SX679_.jpg']
+WHERE slug = 'baby-mop-strampler-krabbeln-putzen';
 
--- TODO: Pomodoro Timer Cube (B0DZ5SNRKD) — Bild noch ausstehend
--- UPDATE products SET image_url = '...', image_urls = ARRAY['...'] WHERE slug = 'farerkass-pomodoro-timer-cube-countdown';
+-- ✅ Pomodoro Timer Cube (via Amazon CDN)
+UPDATE products SET
+  image_url  = 'https://m.media-amazon.com/images/I/61MYYMQvzDL._AC_SL1500_.jpg',
+  image_urls = ARRAY['https://m.media-amazon.com/images/I/61MYYMQvzDL._AC_SL1500_.jpg']
+WHERE slug = 'farerkass-pomodoro-timer-cube-countdown';
 
--- TODO: YUNZII QL75 Tastatur (B0FFN19KR9) — Bild noch ausstehend
--- UPDATE products SET image_url = '...', image_urls = ARRAY['...'] WHERE slug = 'yunzii-ql75-retro-schreibmaschinen-tastatur';
+-- ✅ YUNZII QL75 Tastatur (via Amazon CDN)
+UPDATE products SET
+  image_url  = 'https://m.media-amazon.com/images/I/81p7yy-k2HL._AC_SL1500_.jpg',
+  image_urls = ARRAY['https://m.media-amazon.com/images/I/81p7yy-k2HL._AC_SL1500_.jpg']
+WHERE slug = 'yunzii-ql75-retro-schreibmaschinen-tastatur';

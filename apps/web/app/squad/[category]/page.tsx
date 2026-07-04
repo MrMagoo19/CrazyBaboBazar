@@ -4,5 +4,5 @@ type Props = { params: Promise<{ category: string }> }
 
 export default async function SquadCategoryPage({ params }: Props) {
   const { category } = await params
-  redirect(`/wellness/${category}`)
+  redirect(`/babos/${category}`)
 }

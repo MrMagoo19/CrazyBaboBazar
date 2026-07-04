@@ -3,6 +3,8 @@ import { PersonaPage } from '@/components/persona-page'
 import { Sparkles } from 'lucide-react'
 import type { Metadata } from 'next'
 
+export const revalidate = 3600
+
 export const metadata: Metadata = {
   title: 'Geschenke für Frauen — Lifestyle, Küche & Beauty | Crazy Babo Bazar',
   description: 'Kuriose Küchengadgets, Beauty-Finds, Lifestyle-Produkte und persönliche Geschenke für Queens. Handverlesen mit Amazon-Links.',

@@ -3,6 +3,8 @@ import { ProductGrid } from '@/components/product-grid'
 import { Flame } from 'lucide-react'
 import type { Metadata } from 'next'
 
+export const revalidate = 3600
+
 export const metadata: Metadata = {
   title: 'Trending Gadgets & Produkte 2026 — was gerade abgeht | Crazy Babo Bazar',
   description: 'Die aktuell beliebtesten Gadgets und kuriosesten Produkte bei Crazy Babo Bazar — handverlesen, mit direktem Amazon-Link.',

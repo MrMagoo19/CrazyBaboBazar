@@ -1,14 +1,19 @@
 import { getListBySlug, getProductsBySlugs, getAllLists } from '@/lib/db'
-// Note: getAllLists used only for "Weitere Listen" section, not generateStaticParams
 import { getPriceBand } from '@/lib/db-types'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
+export const dynamicParams = true
 
 type Props = { params: Promise<{ slug: string }> }
+
+export async function generateStaticParams() {
+  const lists = await getAllLists()
+  return lists.map((l) => ({ slug: l.slug }))
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params

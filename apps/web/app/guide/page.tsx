@@ -2,7 +2,7 @@ import { getPublishedProducts } from '@/lib/db'
 import { GuideFinder } from '@/components/guide-finder'
 import type { Metadata } from 'next'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: 'Produkt-Finder — Crazy Babo Bazar',

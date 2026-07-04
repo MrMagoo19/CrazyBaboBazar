@@ -1,17 +1,23 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { getProductBySlug, getRelatedProducts } from '@/lib/db'
+import { getProductBySlug, getRelatedProducts, getPublishedProducts } from '@/lib/db'
 import { getPriceBand } from '@/lib/db-types'
 import { ShareButton } from '@/components/ui/share-button'
 import { ImageSlider } from '@/components/ui/image-slider'
 import type { Metadata } from 'next'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
+export const dynamicParams = true
 
 const SITE_URL = 'https://www.crazybabobazar.com'
 
 type Props = { params: Promise<{ slug: string }> }
+
+export async function generateStaticParams() {
+  const products = await getPublishedProducts()
+  return products.map((p) => ({ slug: p.slug }))
+}
 
 function toMetaDescription(description: string | null | undefined, tagline: string | null | undefined): string {
   const raw = (description && description.trim()) || (tagline && tagline.trim()) || ''

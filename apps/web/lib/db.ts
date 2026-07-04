@@ -1,16 +1,22 @@
-import { createClient } from '@/utils/supabase/server'
-import { cookies } from 'next/headers'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { DbCategory, DbProduct, DbList } from './db-types'
 export type { DbCategory, DbProduct, DbList }
 export { formatPrice } from './db-types'
 
-async function client() {
-  const cookieStore = await cookies()
-  return createClient(cookieStore)
+// Cookieless anon-key client for public reads. Not tied to the request lifecycle,
+// so pages using only these functions can be statically prerendered / ISR-cached.
+let _publicClient: SupabaseClient | null = null
+function publicClient(): SupabaseClient {
+  if (_publicClient) return _publicClient
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  if (!url || !key) throw new Error('Supabase env vars missing (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)')
+  _publicClient = createClient(url, key, { auth: { persistSession: false } })
+  return _publicClient
 }
 
 export async function getCategories(): Promise<DbCategory[]> {
-  const supabase = await client()
+  const supabase = publicClient()
   const { data } = await supabase
     .from('categories')
     .select('*')
@@ -19,7 +25,7 @@ export async function getCategories(): Promise<DbCategory[]> {
 }
 
 export async function getCategoryBySlug(slug: string): Promise<DbCategory | null> {
-  const supabase = await client()
+  const supabase = publicClient()
   const { data } = await supabase
     .from('categories')
     .select('*')
@@ -40,7 +46,7 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 }
 
 export async function getPublishedProducts(): Promise<DbProduct[]> {
-  const supabase = await client()
+  const supabase = publicClient()
   const { data } = await supabase
     .from('products')
     .select('*, categories(*)')
@@ -54,7 +60,7 @@ export async function getPublishedProducts(): Promise<DbProduct[]> {
 }
 
 export async function getProductsByCategory(categorySlug: string): Promise<DbProduct[]> {
-  const supabase = await client()
+  const supabase = publicClient()
   const { data } = await supabase
     .from('products')
     .select('*, categories!inner(*)')
@@ -64,7 +70,7 @@ export async function getProductsByCategory(categorySlug: string): Promise<DbPro
 }
 
 export async function getProductBySlug(slug: string): Promise<DbProduct | null> {
-  const supabase = await client()
+  const supabase = publicClient()
   const { data } = await supabase
     .from('products')
     .select('*, categories(*)')
@@ -77,7 +83,7 @@ export async function getProductsByPersona(
   persona: string,
   mainCategory?: string
 ): Promise<DbProduct[]> {
-  const supabase = await client()
+  const supabase = publicClient()
 
   if (mainCategory) {
     // Category page: primary match OR tagged → multi-category
@@ -102,7 +108,7 @@ export async function getProductsByPersona(
 }
 
 export async function getTrendingProducts(): Promise<DbProduct[]> {
-  const supabase = await client()
+  const supabase = publicClient()
   const { data } = await supabase
     .from('products')
     .select('*, categories(*)')
@@ -119,7 +125,7 @@ export async function getRelatedProducts(
   mainCategory: string | null
 ): Promise<DbProduct[]> {
   if (!persona) return []
-  const supabase = await client()
+  const supabase = publicClient()
   let query = supabase
     .from('products')
     .select('*, categories(*)')
@@ -146,7 +152,7 @@ export async function getRelatedProducts(
 }
 
 export async function getAllLists(): Promise<DbList[]> {
-  const supabase = await client()
+  const supabase = publicClient()
   const { data } = await supabase
     .from('lists')
     .select('*')
@@ -156,7 +162,7 @@ export async function getAllLists(): Promise<DbList[]> {
 }
 
 export async function getListBySlug(slug: string): Promise<DbList | null> {
-  const supabase = await client()
+  const supabase = publicClient()
   const { data } = await supabase
     .from('lists')
     .select('*')
@@ -168,7 +174,7 @@ export async function getListBySlug(slug: string): Promise<DbList | null> {
 
 export async function getProductsBySlugs(slugs: string[]): Promise<DbProduct[]> {
   if (!slugs.length) return []
-  const supabase = await client()
+  const supabase = publicClient()
   const { data } = await supabase
     .from('products')
     .select('*, categories(*)')
@@ -180,7 +186,7 @@ export async function getProductsBySlugs(slugs: string[]): Promise<DbProduct[]> 
 }
 
 export async function getProductsByMaxPrice(maxCents: number): Promise<DbProduct[]> {
-  const supabase = await client()
+  const supabase = publicClient()
   const { data } = await supabase
     .from('products')
     .select('*, categories(*)')
@@ -194,7 +200,7 @@ export async function getProductsByMaxPrice(maxCents: number): Promise<DbProduct
 }
 
 export async function getProductsAbovePrice(minCents: number): Promise<DbProduct[]> {
-  const supabase = await client()
+  const supabase = publicClient()
   const { data } = await supabase
     .from('products')
     .select('*, categories(*)')
@@ -208,7 +214,7 @@ export async function getProductsAbovePrice(minCents: number): Promise<DbProduct
 }
 
 export async function getProductsByTag(tag: string): Promise<DbProduct[]> {
-  const supabase = await client()
+  const supabase = publicClient()
   const { data } = await supabase
     .from('products')
     .select('*, categories(*)')

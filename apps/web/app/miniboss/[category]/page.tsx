@@ -4,6 +4,8 @@ import { Rocket } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
+export const revalidate = 3600
+
 const SUBNAV = [
   { label: 'Alle', href: '/miniboss' },
   { label: 'Spielzeug', href: '/miniboss/spielzeug' },
@@ -26,6 +28,10 @@ const INTROS: Record<string, string> = {
 }
 
 type Props = { params: Promise<{ category: string }> }
+
+export function generateStaticParams() {
+  return VALID.map((category) => ({ category }))
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params

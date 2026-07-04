@@ -3,7 +3,7 @@ import { ListenGrid } from '@/components/listen-grid'
 import { getPublishedProducts, getAllLists } from '@/lib/db'
 import type { Metadata } from 'next'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: 'Crazy Babo Bazar — Kuriose Produkte für schlaue Käufer',

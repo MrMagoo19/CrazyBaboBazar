@@ -3,7 +3,7 @@ import { ProductGrid } from '@/components/product-grid'
 import { Zap } from 'lucide-react'
 import type { Metadata } from 'next'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: 'Premium Gadgets über 200 Euro — keine Kompromisse | Crazy Babo Bazar',

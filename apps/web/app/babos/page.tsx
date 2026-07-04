@@ -3,6 +3,8 @@ import { PersonaPage } from '@/components/persona-page'
 import { Crown } from 'lucide-react'
 import type { Metadata } from 'next'
 
+export const revalidate = 3600
+
 export const metadata: Metadata = {
   title: 'Geschenke für Männer — Gaming, Tech & Gadgets | Crazy Babo Bazar',
   description: 'Handverlesene Gadgets, Gaming-Zubehör, Tech-Spielzeug und Outdoor-Equipment für echte Babos. Kurios, kaufstark, direkt auf Amazon.',

@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 const TAG_CONFIG: Record<string, { label: string; desc: string; emoji: string; metaTitle: string; metaDesc: string; intro: string[] }> = {
   gaming: {
@@ -96,6 +96,10 @@ const SUBNAV = Object.entries(TAG_CONFIG).map(([key, { label }]) => ({
 }))
 
 type Props = { params: Promise<{ tag: string }> }
+
+export function generateStaticParams() {
+  return Object.keys(TAG_CONFIG).map((tag) => ({ tag }))
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tag } = await params

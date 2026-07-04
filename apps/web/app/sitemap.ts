@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { guides } from '@/lib/guides'
 
 const BASE_URL = 'https://www.crazybabobazar.com'
 
@@ -85,5 +86,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }))
 
-  return [...staticPages, ...dynamicCategoryPages, ...listEntries, ...productEntries]
+  const guideEntries: MetadataRoute.Sitemap = guides.map((g) => ({
+    url: `${BASE_URL}/guide/${g.slug}`,
+    lastModified: new Date(g.updatedAt ?? g.publishedAt),
+    changeFrequency: 'monthly' as const,
+    priority: 0.9,
+  }))
+
+  return [...staticPages, ...dynamicCategoryPages, ...listEntries, ...guideEntries, ...productEntries]
 }

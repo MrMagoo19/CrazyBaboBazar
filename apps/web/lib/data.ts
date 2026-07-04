@@ -21,15 +21,8 @@ export type Product = {
   image: string
 }
 
-export type Guide = {
-  slug: string
-  title: string
-  subtitle: string
-  readTime: string
-  category: string
-  intro: string
-  sections: { heading: string; body: string }[]
-}
+// Guide type + array moved to lib/guides.ts (see lib/guides/*.ts for
+// the individual long-form articles).
 
 export const categories: Category[] = [
   {
@@ -408,51 +401,6 @@ export const products: Product[] = [
   },
 ]
 
-export const guides: Guide[] = [
-  {
-    slug: 'beste-buero-gadgets-2024',
-    title: 'Die 10 besten Büro-Gadgets',
-    subtitle: 'Mehr Produktivität oder wenigstens bessere Ausreden.',
-    readTime: '5 min',
-    category: 'Büro-Gadgets',
-    intro:
-      'Ob Homeoffice-Held oder Open-Space-Überlebender — mit dem richtigen Zubehör wird jeder Arbeitstag ein bisschen erträglicher.',
-    sections: [
-      {
-        heading: '1. Der unterschätzte Mini-Staubsauger',
-        body: 'Klingt banal, verändert alles. Wer einmal mit dem Desktop-Staubsauger die Tastatur gereinigt hat, will nie wieder ohne.',
-      },
-      {
-        heading: '2. Kaffee-Warmhalter — nicht verhandelbar',
-        body: 'Kalter Kaffee macht schlechte Entscheidungen. Ein guter USB-Warmhalter kostet weniger als ein Mittagessen.',
-      },
-      {
-        heading: '3. Ergonomische Mauspad-Kombis',
-        body: 'Handgelenk dankt es. Chef merkt nichts. Win-win.',
-      },
-    ],
-  },
-  {
-    slug: 'geschenke-maenner-die-alles-haben',
-    title: 'Geschenke für Männer, die alles haben',
-    subtitle: 'Spoiler: haben sie nicht. Hier sind die Lücken.',
-    readTime: '7 min',
-    category: 'Geschenke für Männer',
-    intro:
-      'Jedes Jahr dasselbe Drama. Jedes Jahr "er hat doch schon alles." Wir haben uns durch hunderte Produkte gewühlt.',
-    sections: [
-      {
-        heading: 'Der Pocket-Projektor: Kino in der Hosentasche',
-        body: 'Für den Mann, der Filme mag aber Netflix-Abo "zu teuer" findet. Ein Projektor macht ihn zum Regisseur seines Wohnzimmerkinos.',
-      },
-      {
-        heading: 'Das Multitool: Klassiker neu gedacht',
-        body: 'Nein, wir meinen nicht den Schraubenzieher-Set von 2003. Die neuen Modelle haben Bits, Karten-Format und passen in jede Hosentasche.',
-      },
-    ],
-  },
-]
-
 export function getCategoryBySlug(slug: string): Category | undefined {
   return categories.find((c) => c.slug === slug)
 }
@@ -463,8 +411,4 @@ export function getProductBySlug(slug: string): Product | undefined {
 
 export function getProductsByCategory(categorySlug: string): Product[] {
   return products.filter((p) => p.categorySlug === categorySlug)
-}
-
-export function getGuideBySlug(slug: string): Guide | undefined {
-  return guides.find((g) => g.slug === slug)
 }

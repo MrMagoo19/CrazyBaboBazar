@@ -132,7 +132,8 @@ export default function RootLayout({
                     { href: '/thema/kueche',     label: 'Küche' },
                     { href: '/thema/lifestyle',  label: 'Lifestyle' },
                     { href: '/thema/outdoor',    label: 'Outdoor' },
-                    { href: '/listen',           label: 'Listen & Guides' },
+                    { href: '/listen',           label: 'Listen' },
+                    { href: '/guide',            label: 'Guides' },
                   ].map(link => (
                     <li key={link.href}>
                       <Link href={link.href} className="text-sm text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors font-medium">

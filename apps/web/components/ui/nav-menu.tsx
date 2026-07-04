@@ -209,6 +209,7 @@ export function DesktopNav() {
 
   const isThemenActive = pathname?.startsWith('/thema')
   const isListenActive = pathname?.startsWith('/listen')
+  const isGuideActive = pathname?.startsWith('/guide')
   const isPreisActive = ['/trending', '/unter-20', '/unter-50', '/unter-100', '/unter-200', '/ueber-200'].includes(pathname ?? '')
 
   const dropdown = open && (
@@ -254,6 +255,16 @@ export function DesktopNav() {
           }`}
         >
           Listen
+        </Link>
+
+        {/* Guides */}
+        <Link
+          href="/guide"
+          className={`px-4 py-2 text-xs font-black uppercase tracking-wide transition-colors font-[family-name:var(--font-mono)] ${
+            isGuideActive ? 'text-[#FFE500]' : 'text-white hover:text-[#FFE500]'
+          }`}
+        >
+          Guides
         </Link>
 
         {/* Preis */}
@@ -335,7 +346,11 @@ function MobileSheet() {
           {sectionLabel("Kuratiert", true)}
           <Link href="/listen" onClick={() => setOpen(false)}
             style={{ display: 'flex', alignItems: 'center', padding: '10px 24px', fontSize: '14px', fontWeight: 700, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0', fontFamily: 'var(--font-mono)' }}>
-            Listen & Guides
+            Listen
+          </Link>
+          <Link href="/guide" onClick={() => setOpen(false)}
+            style={{ display: 'flex', alignItems: 'center', padding: '10px 24px', fontSize: '14px', fontWeight: 700, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0', fontFamily: 'var(--font-mono)' }}>
+            Guides
           </Link>
         </nav>
 

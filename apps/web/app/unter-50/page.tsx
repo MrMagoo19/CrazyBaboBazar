@@ -6,6 +6,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Geschenke unter 50 Euro — Gadgets & Geschenkideen | Crazy Babo Bazar',
   description: 'Die besten Geschenke unter 50 Euro — weit weg vom Parfüm-Set aus der Drogerie. Kuratierte Gadgets, Tech und Lifestyle-Produkte mit Amazon-Link.',
+  alternates: { canonical: '/unter-50' },
 }
 
 export default async function Unter50Page() {

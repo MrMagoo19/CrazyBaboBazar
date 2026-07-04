@@ -17,9 +17,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${list.title} — Crazy Babo Bazar`,
     description: list.intro ?? `${list.product_slugs.length} handverlesene Produkte: ${list.title}`,
+    alternates: { canonical: `/listen/${slug}` },
     openGraph: {
       title: `${list.title} — Crazy Babo Bazar`,
       description: list.intro ?? '',
+      url: `https://www.crazybabobazar.com/listen/${slug}`,
       images: [{ url: `https://www.crazybabobazar.com/api/listen-og/${slug}`, width: 1200, height: 630 }],
     },
   }

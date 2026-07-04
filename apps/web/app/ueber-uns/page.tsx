@@ -4,6 +4,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'Über CrazyBabo Bazar — Wer steckt hinter dem Bazar?',
   description: 'CrazyBabo Bazar ist kein generischer Affiliate-Shop. Wir sind ein handverlesenes Empfehlungsportal für kuriose, lustige und kaufstarke Produkte im DACH-Raum.',
+  alternates: { canonical: '/ueber-uns' },
   openGraph: { images: [{ url: 'https://www.crazybabobazar.com/opengraph-image', width: 1200, height: 630 }] },
 }
 
@@ -30,7 +31,6 @@ const personas = [
   { slug: '/babos', label: 'Babos', desc: 'Gadgets, Gaming & Tech für echte Kerle', emoji: '⚡' },
   { slug: '/queens', label: 'Queens', desc: 'Küche, Beauty & Lifestyle mit Stil', emoji: '👑' },
   { slug: '/miniboss', label: 'Miniboss', desc: 'Spielzeug & Spaß für kleine Chefs', emoji: '⭐' },
-  { slug: '/wellness', label: 'Wellness', desc: 'Fitness, Pflege & Outdoor', emoji: '🌿' },
 ]
 
 export default function UeberUnsPage() {

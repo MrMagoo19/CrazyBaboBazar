@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Geschenke unter 100 Euro — Gadgets & Technik | Crazy Babo Bazar',
   description: 'Gadgets und Geschenke unter 100 Euro, die man sich selten selbst kauft — aber sofort haben will. Handverlesen mit direktem Amazon-Link.',
+  alternates: { canonical: '/unter-100' },
 }
 
 export default async function Unter100Page() {

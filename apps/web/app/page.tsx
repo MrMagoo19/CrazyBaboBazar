@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Crazy Babo Bazar — Kuriose Produkte für schlaue Käufer',
   description: 'Entdecke über 200 handverlesene Gadgets, Spielzeug, Beauty-Produkte und Outdoor-Equipment. Täglich neue Empfehlungen mit direkten Amazon-Links.',
+  alternates: { canonical: '/' },
   openGraph: {
     title: 'Crazy Babo Bazar — Kuriose Produkte für schlaue Käufer',
     description: 'Über 200 handverlesene Produkte. Täglich neue Empfehlungen.',

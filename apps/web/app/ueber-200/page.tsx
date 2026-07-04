@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Premium Gadgets über 200 Euro — keine Kompromisse | Crazy Babo Bazar',
   description: 'Premium-Gadgets und Ausrüstung über 200 Euro — für alle, die wissen was sie wollen. HHKB, Sena, Laser-Engraver und mehr. Mit direktem Amazon-Link.',
+  alternates: { canonical: '/ueber-200' },
 }
 
 export default async function Ueber200Page() {

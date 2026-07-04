@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Kuratierte Listen — Crazy Babo Bazar',
   description: 'Handverlesene Produktlisten nach Thema: Geschenke für Nerds, beste Gaming-Gadgets, Küchen-Hacks und mehr. Direkt auf Amazon verlinkt.',
+  alternates: { canonical: '/listen' },
   openGraph: {
     images: [{ url: 'https://www.crazybabobazar.com/opengraph-image', width: 1200, height: 630 }],
   },

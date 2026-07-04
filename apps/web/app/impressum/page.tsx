@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Impressum — Crazy Babo Bazar',
   description: 'Angaben gemäß § 5 TMG',
+  alternates: { canonical: '/impressum' },
 }
 
 export default function ImpressumPage() {

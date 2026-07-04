@@ -9,25 +9,45 @@ import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
 
+const SITE_URL = 'https://www.crazybabobazar.com'
+
 type Props = { params: Promise<{ slug: string }> }
+
+function toMetaDescription(description: string | null | undefined, tagline: string | null | undefined): string {
+  const raw = (description && description.trim()) || (tagline && tagline.trim()) || ''
+  if (!raw) return ''
+  const clean = raw
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/\*\*/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (clean.length <= 160) return clean
+  return clean.slice(0, 157).trimEnd() + '…'
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const product = await getProductBySlug(slug)
   if (!product) return {}
+  const metaDescription = toMetaDescription(product.description, product.tagline)
   return {
     title: `${product.name} — Crazy Babo Bazar`,
-    description: product.tagline ?? product.description ?? '',
+    description: metaDescription,
+    alternates: {
+      canonical: `${SITE_URL}/produkt/${slug}`,
+    },
     openGraph: {
       title: `${product.name} — Crazy Babo Bazar`,
-      description: product.tagline ?? product.description ?? '',
-      images: [{ url: `https://www.crazybabobazar.com/api/pin/${slug}`, width: 1000, height: 1500 }],
+      description: metaDescription,
+      url: `${SITE_URL}/produkt/${slug}`,
+      images: [{ url: `${SITE_URL}/api/pin/${slug}`, width: 1000, height: 1500 }],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title: `${product.name} — Crazy Babo Bazar`,
-      images: [`https://www.crazybabobazar.com/api/pin/${slug}`],
+      description: metaDescription,
+      images: [`${SITE_URL}/api/pin/${slug}`],
     },
   }
 }
@@ -44,14 +64,57 @@ export default async function ProduktPage({ params }: Props) {
   // Prefer new persona-based routing, fall back to old categories
   const persona = product.shop_persona
   const mainCat = product.shop_main_category
-  const personaRoute: Record<string, string> = { babo: 'babos', queen: 'queens', miniboss: 'miniboss', wellness: 'wellness' }
+  const personaRoute: Record<string, string> = { babo: 'babos', queen: 'queens', miniboss: 'miniboss' }
   const catSlug = persona && mainCat ? `${personaRoute[persona] ?? persona}/${mainCat}` : `kategorie/${product.categories?.slug ?? ''}`
   const catName = persona && mainCat
     ? `${persona.charAt(0).toUpperCase() + persona.slice(1)} · ${mainCat}`
     : (product.categories?.name ?? '')
 
+  const schemaDescription = toMetaDescription(product.description, product.tagline)
+  const productUrl = `${SITE_URL}/produkt/${slug}`
+  const productImages = (product.image_urls && product.image_urls.length > 0
+    ? product.image_urls
+    : product.image_url ? [product.image_url] : []
+  )
+
+  const productSchema: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: schemaDescription,
+    url: productUrl,
+    ...(productImages.length > 0 ? { image: productImages } : {}),
+    brand: { '@type': 'Brand', name: 'Crazy Babo Bazar' },
+    ...(product.price_cents
+      ? {
+          offers: {
+            '@type': 'Offer',
+            url: product.affiliate_url,
+            priceCurrency: 'EUR',
+            price: (product.price_cents / 100).toFixed(2),
+            availability: 'https://schema.org/InStock',
+          },
+        }
+      : {}),
+  }
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Start', item: SITE_URL },
+      ...(catName && catSlug
+        ? [{ '@type': 'ListItem', position: 2, name: catName, item: `${SITE_URL}/${catSlug}` }]
+        : []),
+      { '@type': 'ListItem', position: catName ? 3 : 2, name: product.name, item: productUrl },
+    ],
+  }
+
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+
       {/* ── BREADCRUMB ─────────────────────────────────────── */}
       <div className="border-b-2 border-[#0A0A0A]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">

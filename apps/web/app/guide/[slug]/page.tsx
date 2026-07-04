@@ -16,6 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${guide.title} — Crazy Babo Bazar`,
     description: guide.subtitle,
+    alternates: { canonical: `/guide/${slug}` },
   }
 }
 

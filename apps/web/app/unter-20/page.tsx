@@ -6,6 +6,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Geschenke unter 20 Euro — Wichtelgeschenke & Mitbringsel | Crazy Babo Bazar',
   description: 'Kuriose und witzige Geschenke unter 20 Euro — ideal für Wichteln, spontane Mitbringsel und Geburtstage. Handverlesen mit direktem Amazon-Link.',
+  alternates: { canonical: '/unter-20' },
 }
 
 export default async function Unter20Page() {

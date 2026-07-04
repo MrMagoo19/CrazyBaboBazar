@@ -29,7 +29,11 @@ type Props = { params: Promise<{ category: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params
-  return { title: `Geschenke für Kinder — ${LABELS[category] ?? category} | Crazy Babo Bazar` }
+  return {
+    title: `Geschenke für Kinder — ${LABELS[category] ?? category} | Crazy Babo Bazar`,
+    description: INTROS[category] ?? LABELS[category] ?? 'Handverlesene Produkte für den Miniboss.',
+    alternates: { canonical: `/miniboss/${category}` },
+  }
 }
 
 export default async function MinibossCategoryPage({ params }: Props) {

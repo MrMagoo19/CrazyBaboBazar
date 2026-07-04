@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Produkt-Finder — Crazy Babo Bazar',
   description: 'Finde das perfekte Produkt. Filter nach Preis, Beliebtheit oder lass dich überraschen.',
+  alternates: { canonical: '/guide' },
 }
 
 export default async function GuidePage() {

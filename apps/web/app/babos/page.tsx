@@ -6,6 +6,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Geschenke für Männer — Gaming, Tech & Gadgets | Crazy Babo Bazar',
   description: 'Handverlesene Gadgets, Gaming-Zubehör, Tech-Spielzeug und Outdoor-Equipment für echte Babos. Kurios, kaufstark, direkt auf Amazon.',
+  alternates: { canonical: '/babos' },
   openGraph: { images: [{ url: 'https://www.crazybabobazar.com/opengraph-image', width: 1200, height: 630 }] },
 }
 

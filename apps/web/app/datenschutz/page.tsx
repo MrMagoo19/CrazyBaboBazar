@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Datenschutz — Crazy Babo Bazar',
   description: 'Datenschutzerklärung von Crazy Babo Bazar gemäß DSGVO',
+  alternates: { canonical: '/datenschutz' },
 }
 
 export default function DatenschutzPage() {

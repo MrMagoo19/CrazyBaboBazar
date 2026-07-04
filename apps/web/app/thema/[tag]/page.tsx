@@ -100,13 +100,15 @@ type Props = { params: Promise<{ tag: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tag } = await params
   const config = TAG_CONFIG[tag]
-  if (!config) return { title: 'Nicht gefunden' }
+  if (!config) return { title: 'Nicht gefunden', robots: { index: false, follow: false } }
   return {
     title: config.metaTitle,
     description: config.metaDesc,
+    alternates: { canonical: `/thema/${tag}` },
     openGraph: {
       title: config.metaTitle,
       description: config.metaDesc,
+      url: `https://www.crazybabobazar.com/thema/${tag}`,
     },
   }
 }

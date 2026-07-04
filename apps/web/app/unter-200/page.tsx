@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Geschenke unter 200 Euro — Premium Gadgets & Technik | Crazy Babo Bazar',
   description: 'Besondere Geschenke unter 200 Euro für Partner, beste Freunde oder sich selbst. Premium-Gadgets und Ausrüstung mit direktem Amazon-Link.',
+  alternates: { canonical: '/unter-200' },
 }
 
 export default async function Unter200Page() {

@@ -28,7 +28,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${list.title} — Crazy Babo Bazar`,
       description: list.intro ?? '',
       url: `https://www.crazybabobazar.com/listen/${slug}`,
-      images: [{ url: `https://www.crazybabobazar.com/api/listen-og/${slug}`, width: 1200, height: 630 }],
+      // Global OG image (app/opengraph-image) — replaces the never-built
+      // /api/listen-og route, which returned 404 for every list page.
+      images: [{ url: 'https://www.crazybabobazar.com/opengraph-image', width: 1200, height: 630 }],
     },
   }
 }

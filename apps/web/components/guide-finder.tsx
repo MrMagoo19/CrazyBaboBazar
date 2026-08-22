@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { DbProduct } from '@/lib/db-types'
-import { formatPrice } from '@/lib/db-types'
+import { getPriceBand } from '@/lib/db-types'
 import { ExternalLink, Shuffle, TrendingUp, Clock, Zap, SlidersHorizontal, ArrowRight } from 'lucide-react'
 
 type Tab = 'neueste' | 'beliebt' | 'unter20' | 'preisspanne' | 'zufall'
@@ -177,8 +177,7 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                     </p>
                     <div className="flex items-center justify-between pt-3 border-t border-[#E0E0E0] mt-auto">
                       <span className="font-[family-name:var(--font-body)] font-semibold text-base text-[#0A0A0A]">
-                        {formatPrice(product.price_cents)}
-                        <span className="text-[#555] text-[10px] font-normal ml-1">€</span>
+                        {getPriceBand(product.price_cents)}
                       </span>
                       <a
                         href={product.affiliate_url}

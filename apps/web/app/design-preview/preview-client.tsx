@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { DbProduct } from '@/lib/db-types'
-import { formatPrice } from '@/lib/db-types'
+import { getPriceBand } from '@/lib/db-types'
 import { ExternalLink, ArrowRight, Flame, TrendingUp, Zap, Shuffle, SlidersHorizontal } from 'lucide-react'
 
 // ── Design Tokens ────────────────────────────────────────────────
@@ -229,8 +229,7 @@ export function PreviewClient({ products }: { products: DbProduct[] }) {
                     fontSize: isBrutal ? '1.15rem' : '1rem',
                     letterSpacing: '-0.02em',
                   }}>
-                    {formatPrice(product.price_cents)}
-                    <span style={{ fontSize: '10px', fontWeight: 400, marginLeft: '3px', color: t.subText }}>€</span>
+                    {getPriceBand(product.price_cents)}
                   </span>
                   <span className="flex items-center gap-1 font-bold"
                         style={{ fontSize: isBrutal ? '10px' : '12px', color: t.accent,

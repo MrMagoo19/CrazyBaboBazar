@@ -109,17 +109,10 @@ export default async function ProduktPage({ params }: Props) {
     ...(product.brand && product.brand.trim()
       ? { brand: { '@type': 'Brand', name: product.brand.trim() } }
       : {}),
-    ...(product.price_cents
-      ? {
-          offers: {
-            '@type': 'Offer',
-            url: product.affiliate_url,
-            priceCurrency: 'EUR',
-            price: (product.price_cents / 100).toFixed(2),
-            availability: 'https://schema.org/InStock',
-          },
-        }
-      : {}),
+    // No `offers` node: the only price source is manually-maintained `price_cents`
+    // (no PA-API, no timestamp), so an exact price + availability here would be a
+    // stale, non-compliant claim. The Product snippet stays valid without offers.
+    // Re-add offers with a live price + priceValidUntil once PA-API is available.
   }
 
   const breadcrumbSchema = {

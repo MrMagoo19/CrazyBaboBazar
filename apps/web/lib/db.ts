@@ -172,6 +172,21 @@ export async function getListBySlug(slug: string): Promise<DbList | null> {
   return data
 }
 
+// Published lists that actually contain this product (real relation via product_slugs).
+// Used for the "Enthalten in Listen & Guides" back-link block on product pages.
+export async function getListsForProduct(
+  productSlug: string
+): Promise<Pick<DbList, 'slug' | 'title'>[]> {
+  const supabase = publicClient()
+  const { data } = await supabase
+    .from('lists')
+    .select('slug, title, product_slugs')
+    .eq('is_published', true)
+    .contains('product_slugs', [productSlug])
+    .order('created_at', { ascending: false })
+  return (data ?? []).map((l) => ({ slug: l.slug, title: l.title }))
+}
+
 export async function getProductsBySlugs(slugs: string[]): Promise<DbProduct[]> {
   if (!slugs.length) return []
   const supabase = publicClient()

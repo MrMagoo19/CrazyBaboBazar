@@ -192,7 +192,7 @@ export function PreviewClient({ products }: { products: DbProduct[] }) {
 
                 {/* Hover: Amazon CTA */}
                 <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                  <a href={product.affiliate_url} target="_blank" rel="noopener noreferrer sponsored"
+                  <a href={product.affiliate_url} target="_blank" rel="sponsored nofollow noopener noreferrer"
                      style={{ background: t.accent, color: theme === 'warm' ? '#fff' : '#1C1C1C' }}
                      className="flex items-center gap-1.5 text-[10px] font-extrabold px-3 py-1.5">
                     Amazon <ExternalLink size={10} />

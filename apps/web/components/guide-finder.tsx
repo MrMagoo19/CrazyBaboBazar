@@ -183,7 +183,7 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                       <a
                         href={product.affiliate_url}
                         target="_blank"
-                        rel="noopener noreferrer sponsored"
+                        rel="sponsored nofollow noopener noreferrer"
                         className="flex items-center gap-1.5 bg-[#FFE500] text-[#0A0A0A] text-[10px] font-extrabold px-3 py-1.5 hover:bg-[#FFE500] transition-colors"
                       >
                         Amazon <ExternalLink size={10} />

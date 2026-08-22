@@ -1,5 +1,6 @@
 import { getListBySlug, getProductsBySlugs, getAllLists } from '@/lib/db'
 import { getPriceBand } from '@/lib/db-types'
+import { isKnownPersona } from '@/lib/persona'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
@@ -141,7 +142,7 @@ export default async function ListDetailPage({ params }: Props) {
                 </div>
 
                 <div className="p-4 flex flex-col gap-2 flex-1">
-                  {product.shop_persona && (
+                  {isKnownPersona(product.shop_persona) && (
                     <span
                       className="text-[9px] font-black uppercase tracking-widest font-[family-name:var(--font-mono)] w-fit"
                       style={{ backgroundColor: '#0A0A0A', color: '#FFE500', padding: '2px 6px' }}

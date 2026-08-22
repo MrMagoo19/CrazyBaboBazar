@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { DbProduct } from '@/lib/db-types'
 import { getPriceBand } from '@/lib/db-types'
+import { isKnownPersona } from '@/lib/persona'
 import { ExternalLink } from 'lucide-react'
 
 const PERSONA_COLOR: Record<string, string> = {
@@ -79,7 +80,7 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
                   <a
                     href={product.affiliate_url}
                     target="_blank"
-                    rel="noopener noreferrer sponsored"
+                    rel="sponsored nofollow noopener noreferrer"
                     onClick={e => e.stopPropagation()}
                     className="flex items-center gap-1.5 text-[10px] font-black px-3 py-1.5 uppercase tracking-wider"
                     style={{ background: accent, color: onAccent, border: '2px solid #0A0A0A' }}
@@ -124,7 +125,7 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
                     padding: '3px 8px',
                   }}
                 >
-                  {product.shop_persona ?? 'CBB'}
+                  {isKnownPersona(product.shop_persona) ? product.shop_persona : 'CBB'}
                   {product.shop_main_category ? ` · ${product.shop_main_category}` : ''}
                 </span>
 

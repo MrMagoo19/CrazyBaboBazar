@@ -40,3 +40,11 @@ export const guides: Guide[] = [
 export function getGuideBySlug(slug: string): Guide | undefined {
   return guides.find((g) => g.slug === slug)
 }
+
+// Guides that actually reference this product (real relation via section productSlugs).
+// Used for the "Enthalten in Listen & Guides" back-link block on product pages.
+export function getGuidesForProduct(productSlug: string): Pick<Guide, 'slug' | 'title'>[] {
+  return guides
+    .filter((g) => g.sections.some((s) => s.productSlugs?.includes(productSlug)))
+    .map((g) => ({ slug: g.slug, title: g.title }))
+}

@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { getProductBySlug, getRelatedProducts, getPublishedProducts } from '@/lib/db'
+import { getProductBySlug, getRelatedProducts, getPublishedProducts, getListsForProduct } from '@/lib/db'
+import { getGuidesForProduct } from '@/lib/guides'
+import { isKnownPersona, PERSONA_ROUTES, personaLabel } from '@/lib/persona'
 import { getPriceBand } from '@/lib/db-types'
 import { ShareButton } from '@/components/ui/share-button'
 import { ImageSlider } from '@/components/ui/image-slider'
@@ -63,18 +65,30 @@ export default async function ProduktPage({ params }: Props) {
   const product = await getProductBySlug(slug)
   if (!product) notFound()
 
-  const related = await getRelatedProducts(slug, product.shop_persona, product.shop_main_category)
+  const [related, inLists, inGuides] = await Promise.all([
+    getRelatedProducts(slug, product.shop_persona, product.shop_main_category),
+    getListsForProduct(slug),
+    Promise.resolve(getGuidesForProduct(slug)),
+  ])
 
   const catEmoji = product.categories?.emoji ?? '📦'
 
-  // Prefer new persona-based routing, fall back to old categories
+  // Category/breadcrumb target — only ever point at routes that actually exist.
+  // Known persona + main category → persona hub. Otherwise fall back to the
+  // (redirecting, never-404) /kategorie route if a category exists; else render
+  // no category link at all. An invalid persona (e.g. "unknown") never builds a
+  // persona URL and is never shown as a persona label.
   const persona = product.shop_persona
   const mainCat = product.shop_main_category
-  const personaRoute: Record<string, string> = { babo: 'babos', queen: 'queens', miniboss: 'miniboss' }
-  const catSlug = persona && mainCat ? `${personaRoute[persona] ?? persona}/${mainCat}` : `kategorie/${product.categories?.slug ?? ''}`
-  const catName = persona && mainCat
-    ? `${persona.charAt(0).toUpperCase() + persona.slice(1)} · ${mainCat}`
-    : (product.categories?.name ?? '')
+  let catHref: string | null = null
+  let catName: string | null = null
+  if (isKnownPersona(persona) && mainCat) {
+    catHref = `/${PERSONA_ROUTES[persona]}/${mainCat}`
+    catName = `${personaLabel(persona)} · ${mainCat}`
+  } else if (product.categories?.slug) {
+    catHref = `/kategorie/${product.categories.slug}`
+    catName = product.categories.name ?? product.categories.slug
+  }
 
   const schemaDescription = toMetaDescription(product.description, product.tagline)
   const productUrl = `${SITE_URL}/produkt/${slug}`
@@ -90,7 +104,11 @@ export default async function ProduktPage({ params }: Props) {
     description: schemaDescription,
     url: productUrl,
     ...(productImages.length > 0 ? { image: productImages } : {}),
-    brand: { '@type': 'Brand', name: 'Crazy Babo Bazar' },
+    // Only emit a real manufacturer brand. No brand → omit the property entirely
+    // (never fall back to the site name; that would misattribute the product).
+    ...(product.brand && product.brand.trim()
+      ? { brand: { '@type': 'Brand', name: product.brand.trim() } }
+      : {}),
     ...(product.price_cents
       ? {
           offers: {
@@ -109,10 +127,10 @@ export default async function ProduktPage({ params }: Props) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Start', item: SITE_URL },
-      ...(catName && catSlug
-        ? [{ '@type': 'ListItem', position: 2, name: catName, item: `${SITE_URL}/${catSlug}` }]
+      ...(catHref && catName
+        ? [{ '@type': 'ListItem', position: 2, name: catName, item: `${SITE_URL}${catHref}` }]
         : []),
-      { '@type': 'ListItem', position: catName ? 3 : 2, name: product.name, item: productUrl },
+      { '@type': 'ListItem', position: catHref ? 3 : 2, name: product.name, item: productUrl },
     ],
   }
 
@@ -126,10 +144,14 @@ export default async function ProduktPage({ params }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center gap-2 text-xs text-[#555555]">
             <Link href="/" className="hover:text-[#0A0A0A] hover:underline transition-colors">Start</Link>
-            <span>→</span>
-            <Link href={`/${catSlug}`} className="hover:text-[#0A0A0A] hover:underline transition-colors">
-              {catName}
-            </Link>
+            {catHref && catName && (
+              <>
+                <span>→</span>
+                <Link href={catHref} className="hover:text-[#0A0A0A] hover:underline transition-colors">
+                  {catName}
+                </Link>
+              </>
+            )}
             <span>→</span>
             <span className="text-[#0A0A0A] truncate max-w-[200px]">{product.name}</span>
           </div>
@@ -193,13 +215,15 @@ export default async function ProduktPage({ params }: Props) {
               }}
               className="lg:border-t-0 lg:border-l-2 lg:border-l-[#0A0A0A] lg:p-12"
             >
-              <Link
-                href={`/${catSlug}`}
-                className="font-[family-name:var(--font-mono)] font-bold text-[11px] uppercase tracking-widest mb-4 bg-[#FFE500] text-[#0A0A0A] px-2 py-1"
-                style={{ alignSelf: 'flex-start' }}
-              >
-                ← {catName}
-              </Link>
+              {catHref && catName && (
+                <Link
+                  href={catHref}
+                  className="font-[family-name:var(--font-mono)] font-bold text-[11px] uppercase tracking-widest mb-4 bg-[#FFE500] text-[#0A0A0A] px-2 py-1"
+                  style={{ alignSelf: 'flex-start' }}
+                >
+                  ← {catName}
+                </Link>
+              )}
 
               <h1 className="font-[family-name:var(--font-display)] font-black text-2xl sm:text-3xl leading-tight mb-3 text-[#0A0A0A]">
                 {product.name}
@@ -257,7 +281,7 @@ export default async function ProduktPage({ params }: Props) {
                 <a
                   href={product.affiliate_url}
                   target="_blank"
-                  rel="noopener noreferrer sponsored"
+                  rel="sponsored nofollow noopener noreferrer"
                   className="block w-full text-center bg-[#0A0A0A] text-white py-4 font-bold text-base hover:bg-[#FFE500] hover:text-[#0A0A0A] transition-all duration-200 mb-3"
                 >
                   Preis auf Amazon prüfen →
@@ -308,6 +332,41 @@ export default async function ProduktPage({ params }: Props) {
               </p>
             </div>
           </div>
+        </section>
+      )}
+
+      {/* ── ENTHALTEN IN LISTEN & GUIDES ───────────────────── */}
+      {(inLists.length > 0 || inGuides.length > 0) && (
+        <section className="border-b-2 border-[#0A0A0A] bg-white">
+          <nav aria-label="Enthalten in Listen und Guides" className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+            <h2 className="font-[family-name:var(--font-mono)] font-black text-[10px] uppercase tracking-widest text-[#555] mb-4">
+              Enthalten in Listen &amp; Guides
+            </h2>
+            <ul className="flex flex-wrap gap-2">
+              {inLists.map((l) => (
+                <li key={`list-${l.slug}`}>
+                  <Link
+                    href={`/listen/${l.slug}`}
+                    className="inline-flex items-center gap-2 border-2 border-[#0A0A0A] bg-white hover:bg-[#FFE500] transition-colors px-3 py-1.5 text-xs font-bold text-[#0A0A0A]"
+                  >
+                    <span className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-widest text-[#555]">Liste</span>
+                    <span>{l.title}</span>
+                  </Link>
+                </li>
+              ))}
+              {inGuides.map((g) => (
+                <li key={`guide-${g.slug}`}>
+                  <Link
+                    href={`/guide/${g.slug}`}
+                    className="inline-flex items-center gap-2 border-2 border-[#0A0A0A] bg-white hover:bg-[#FFE500] transition-colors px-3 py-1.5 text-xs font-bold text-[#0A0A0A]"
+                  >
+                    <span className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-widest text-[#555]">Guide</span>
+                    <span>{g.title}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </section>
       )}
 

@@ -22,20 +22,86 @@ function getSupabaseConfig() {
 type SupabaseProduct = { slug: string; updated_at: string | null; created_at: string }
 type PersonaRow = { shop_persona: string; shop_main_category: string }
 
+type SupabaseFetchOpts = ReturnType<typeof getSupabaseConfig>['fetchOpts']
+
+class SitemapDataError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'SitemapDataError'
+  }
+}
+
+const FETCH_ATTEMPTS = 3
+const BACKOFF_MS = 500
+
+/**
+ * Holt eine Supabase-REST-Query fuer die Sitemap.
+ *
+ * Frueher fiel jeder Aufruf bei `!res.ok` still auf `[]` zurueck. Ein rotierter
+ * Key (401), ein Supabase-500 oder ein RLS-Fehler haette damit eine Sitemap aus
+ * nur den statischen URLs erzeugt — mit HTTP 200. Google haette das als
+ * Entfernung aller Produktseiten gelesen.
+ *
+ * Jetzt: bis zu drei Versuche, danach ein harter Fehler. Beim Build bricht das
+ * `next build` ab (das vorherige Deployment bleibt live), bei einer ISR-
+ * Revalidierung zur Laufzeit behaelt Next die letzte erfolgreiche Sitemap im
+ * Cache und liefert sie weiter aus. In keinem Fall entsteht eine gekuerzte
+ * Sitemap mit Status 200.
+ *
+ * Geloggt werden ausschliesslich Label und Fehlergrund — niemals die URL oder
+ * `opts`, da diese den apikey- und Authorization-Header tragen.
+ */
+async function fetchJson<T>(url: string, opts: SupabaseFetchOpts, label: string): Promise<T> {
+  let lastReason = 'unbekannter Fehler'
+
+  for (let attempt = 1; attempt <= FETCH_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(url, opts)
+      if (res.ok) return (await res.json()) as T
+      lastReason = `HTTP ${res.status} ${res.statusText}`.trim()
+    } catch (err) {
+      // Netzwerkfehler, DNS-Fehler, Timeout: derselbe Wiederholungspfad.
+      lastReason = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
+    }
+
+    console.error(`[sitemap] ${label}: Versuch ${attempt}/${FETCH_ATTEMPTS} fehlgeschlagen (${lastReason})`)
+
+    if (attempt < FETCH_ATTEMPTS) {
+      await new Promise((resolve) => setTimeout(resolve, attempt * BACKOFF_MS))
+    }
+  }
+
+  throw new SitemapDataError(`${label}: nach ${FETCH_ATTEMPTS} Versuchen fehlgeschlagen (${lastReason})`)
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { restUrl, fetchOpts } = getSupabaseConfig()
-  const [productsRes, listsRes, personaRes] = await Promise.all([
-    fetch(`${restUrl}/products?select=slug,updated_at,created_at&is_published=eq.true`, fetchOpts),
-    fetch(`${restUrl}/lists?select=slug,created_at&is_published=eq.true`, fetchOpts),
-    fetch(
+  const [products, lists, personaRows] = await Promise.all([
+    fetchJson<SupabaseProduct[]>(
+      `${restUrl}/products?select=slug,updated_at,created_at&is_published=eq.true`,
+      fetchOpts,
+      'products'
+    ),
+    fetchJson<{ slug: string; created_at: string }[]>(
+      `${restUrl}/lists?select=slug,created_at&is_published=eq.true`,
+      fetchOpts,
+      'lists'
+    ),
+    fetchJson<PersonaRow[]>(
       `${restUrl}/products?select=shop_persona,shop_main_category&is_published=eq.true&shop_persona=not.is.null&shop_main_category=not.is.null`,
-      fetchOpts
+      fetchOpts,
+      'persona-rows'
     ),
   ])
 
-  const products: SupabaseProduct[] = productsRes.ok ? await productsRes.json() : []
-  const lists: { slug: string; created_at: string }[] = listsRes.ok ? await listsRes.json() : []
-  const personaRows: PersonaRow[] = personaRes.ok ? await personaRes.json() : []
+  // Ein erfolgreicher Request mit leerem Ergebnis ist genauso gefaehrlich wie ein
+  // Fehlschlag: ohne Produkte bliebe nur die Handvoll statischer URLs uebrig.
+  // Keine Ersatzdaten erzeugen — abbrechen und die letzte gute Sitemap stehen
+  // lassen.
+  if (products.length === 0) {
+    console.error('[sitemap] products: Request erfolgreich, aber 0 Zeilen — Sitemap wird nicht erzeugt')
+    throw new SitemapDataError('products: 0 veroeffentlichte Produkte')
+  }
 
   // Dynamische Persona-Unterseiten aus DB ableiten
   const personaSubPages = new Set<string>()

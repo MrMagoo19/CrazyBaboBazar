@@ -1,0 +1,15 @@
+# Root-.gitignore — bewusst minimal.
+#
+# Sie schuetzt genau zwei lokale Dateien vor einem versehentlichen `git add -A`.
+# Alles andere bleibt versionierbar; insbesondere .vscode/tasks.json und
+# scripts/ werden hier NICHT ignoriert.
+
+# MCP-Serverkonfiguration dieses Arbeitsplatzes. Die Datei ist zur Laufzeit
+# beschreibbar und ist der vorgesehene Ort fuer Server-Endpunkte und deren
+# Zugangsdaten (aktuell ein Supabase-HTTP-Endpunkt inkl. Projektverweis).
+# Sie gehoert nicht in die Historie: fuer Build und CI wird sie nicht gebraucht,
+# und was spaeter hineingeschrieben wird, waere sonst mitcommittet.
+/.mcp.json
+
+# Lokale Editor-Workspace-Dateien (enthalten Maschinenpfade dieses Rechners).
+*.code-workspace

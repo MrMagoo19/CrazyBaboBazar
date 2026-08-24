@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CLAUDE WORKER",
+      "type": "shell",
+      "command": "/bin/bash",
+      "args": [
+        "${workspaceFolder}/scripts/claude-worker-terminal.sh"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": false,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false,
+        "close": false
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    }
+  ]
+}

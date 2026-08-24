@@ -205,7 +205,7 @@ lass den Output an der Stelle allgemein statt etwas zu behaupten.
 
 - Produktname:
 - ASIN:
-- Persona: (babo | queen | miniboss | wellness)
+- Persona: (babo | queen | miniboss)
 - Kategorie:
 - Preisband: (z. B. Unter 20€)
 - Rohfakten (2–4 Stichpunkte):
@@ -253,3 +253,6 @@ KEIN Amazon-Produktfoto, Format 2:3 für Pinterest)
   minimalistische Vektor-Elemente statt Fotorealismus.
 - Keine exakten Preise im Text — nur das Preisband, wenn überhaupt.
 - Persona steuert die Tonfarbe, nicht den Grad des Wits.
+
+# Obsidian
+Money WiKi niemals deployen auf Git Hub

@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { createPortal } from "react-dom"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
@@ -43,30 +44,41 @@ export function NavSearch() {
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<ProductResult[]>([])
   const [loading, setLoading] = useState(false)
-  const [mounted, setMounted] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => { setMounted(true) }, [])
+  // Zurücksetzen gehört zum Öffnen/Schließen, nicht in einen Effekt.
+  const resetSearch = useCallback(() => {
+    setQuery("")
+    setResults([])
+    setLoading(false)
+  }, [])
+  const openSearch = useCallback(() => { resetSearch(); setOpen(true) }, [resetSearch])
+  const closeSearch = useCallback(() => { resetSearch(); setOpen(false) }, [resetSearch])
+  const toggleSearch = useCallback(() => { resetSearch(); setOpen(o => !o) }, [resetSearch])
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); setOpen(o => !o) }
-      if (e.key === "Escape") setOpen(false)
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); toggleSearch() }
+      if (e.key === "Escape") closeSearch()
     }
     document.addEventListener("keydown", down)
     return () => document.removeEventListener("keydown", down)
-  }, [])
+  }, [toggleSearch, closeSearch])
 
+  // Reine DOM-Synchronisation: Fokus setzen, sobald das Modal offen ist.
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 50)
-    else { setQuery(""); setResults([]) }
+    if (!open) return
+    const focusTimer = setTimeout(() => inputRef.current?.focus(), 50)
+    return () => clearTimeout(focusTimer)
   }, [open])
 
   useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current)
-    if (query.trim().length < 2) { setResults([]); return }
-    debounceRef.current = setTimeout(async () => {
+    if (!open) return
+    if (query.trim().length < 2) return
+    // Antworten zu einer alten Suchanfrage dürfen die Treffer nicht mehr
+    // überschreiben, sobald sich die Eingabe ändert oder das Modal zugeht.
+    let active = true
+    const debounce = setTimeout(async () => {
       setLoading(true)
       const sb = createClient()
       const { data } = await sb
@@ -75,14 +87,19 @@ export function NavSearch() {
         .eq("is_published", true)
         .or(`name.ilike.%${query}%,description.ilike.%${query}%,tagline.ilike.%${query}%,brand.ilike.%${query}%`)
         .limit(8)
+      if (!active) return
       setResults(data ?? [])
       setLoading(false)
     }, 250)
-  }, [query])
+    return () => {
+      active = false
+      clearTimeout(debounce)
+    }
+  }, [query, open])
 
   const modal = open && (
     <>
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" style={{ zIndex: 9998 }} onClick={() => setOpen(false)} />
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" style={{ zIndex: 9998 }} onClick={closeSearch} />
       <div style={{ position: 'fixed', top: '72px', left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '520px', padding: '0 1rem', zIndex: 9999 }}>
         <div className="bg-white border-2 border-[#0A0A0A] border-t-4 border-t-[#FFE500]" style={{ boxShadow: '5px 5px 0px #0A0A0A' }}>
           <div className="flex items-center gap-3 px-4 py-3 border-b-2 border-[#0A0A0A]">
@@ -90,11 +107,17 @@ export function NavSearch() {
             <input
               ref={inputRef}
               value={query}
-              onChange={e => setQuery(e.target.value)}
+              onChange={e => {
+                const value = e.target.value
+                setQuery(value)
+                // Unter 2 Zeichen wird nicht gesucht — alte Treffer und den
+                // Ladezustand sofort verwerfen.
+                if (value.trim().length < 2) { setResults([]); setLoading(false) }
+              }}
               placeholder="Produkt suchen… z.B. Massagepistole, Gaming, Küche"
               className="flex-1 bg-transparent text-sm text-[#0A0A0A] placeholder:text-[#999] outline-none font-[family-name:var(--font-body)]"
             />
-            <button onClick={() => setOpen(false)} className="text-[#555] hover:text-[#0A0A0A] transition-colors">
+            <button onClick={closeSearch} className="text-[#555] hover:text-[#0A0A0A] transition-colors">
               <X size={14} />
             </button>
           </div>
@@ -104,17 +127,17 @@ export function NavSearch() {
             ) : loading ? (
               <p className="px-4 py-4 text-center text-xs text-[#999] font-[family-name:var(--font-mono)]">Suche…</p>
             ) : results.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm text-[#555]">Nichts gefunden für „{query}"</p>
+              <p className="px-4 py-6 text-center text-sm text-[#555]">Nichts gefunden für „{query}“</p>
             ) : results.map(item => (
               <Link
                 key={item.slug}
                 href={`/produkt/${item.slug}`}
-                onClick={() => setOpen(false)}
+                onClick={closeSearch}
                 className="flex items-center gap-3 px-3 py-2.5 hover:bg-[#FFE500] transition-colors group border-b border-[#E0E0E0] last:border-0"
               >
                 <div className="w-10 h-10 bg-[#F5F5F5] border border-[#E0E0E0] shrink-0 flex items-center justify-center overflow-hidden">
                   {item.image_url
-                    ? <img src={item.image_url} alt="" className="w-full h-full object-contain p-1" />
+                    ? <Image src={item.image_url} alt="" width={40} height={40} className="w-full h-full object-contain p-1" />
                     : <span className="text-xl">📦</span>
                   }
                 </div>
@@ -133,14 +156,16 @@ export function NavSearch() {
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        onClick={openSearch}
         className="flex items-center gap-1.5 text-white hover:text-[#FFE500] transition-colors font-[family-name:var(--font-mono)] text-xs font-bold"
         aria-label="Suche öffnen"
       >
         <SearchIcon size={16} />
         <span className="hidden lg:inline">⌘K</span>
       </button>
-      {mounted && createPortal(modal, document.body)}
+      {/* Portal erst rendern, wenn es Inhalt gibt — beim SSR ist `open` immer
+          false, `document` wird also nie auf dem Server angefasst. */}
+      {modal && createPortal(modal, document.body)}
     </>
   )
 }
@@ -187,11 +212,8 @@ type OpenMenu = "themen" | "preis" | null
 
 export function DesktopNav() {
   const [open, setOpen] = useState<OpenMenu>(null)
-  const [mounted, setMounted] = useState(false)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pathname = usePathname()
-
-  useEffect(() => { setMounted(true) }, [])
 
   const openMenu = (key: OpenMenu) => {
     if (closeTimer.current) clearTimeout(closeTimer.current)
@@ -281,7 +303,8 @@ export function DesktopNav() {
         </div>
 
       </nav>
-      {mounted && createPortal(dropdown, document.body)}
+      {/* Siehe NavSearch: Portal nur rendern, wenn ein Menü offen ist. */}
+      {dropdown && createPortal(dropdown, document.body)}
     </div>
   )
 }
@@ -289,8 +312,6 @@ export function DesktopNav() {
 // ── Mobile Menu ───────────────────────────────────────────────────────────────
 function MobileSheet() {
   const [open, setOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
 
   const sectionLabel = (text: string, topBorder = false) => (
     <div style={{
@@ -377,7 +398,8 @@ function MobileSheet() {
       <button className="md:hidden text-white hover:text-[#FFE500] transition-colors" aria-label="Menü öffnen" onClick={() => setOpen(true)}>
         <Equal size={20} />
       </button>
-      {mounted && createPortal(menu, document.body)}
+      {/* Siehe NavSearch: Portal nur rendern, wenn das Sheet offen ist. */}
+      {menu && createPortal(menu, document.body)}
     </>
   )
 }

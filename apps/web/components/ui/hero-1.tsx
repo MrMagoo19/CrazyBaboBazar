@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Menu, X } from 'lucide-react'
 
@@ -26,6 +27,9 @@ interface HeroLandingProps {
     src: string
     alt: string
     companyName: string
+    /** Intrinsische Maße der Logo-Datei — nötig für next/image, Default 32×32. */
+    width?: number
+    height?: number
   }
   navigation?: NavigationItem[]
   loginText?: string
@@ -49,6 +53,8 @@ const defaultProps: Partial<HeroLandingProps> = {
     src: 'https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600',
     alt: 'Company Logo',
     companyName: 'Your Company',
+    width: 32,
+    height: 32,
   },
   navigation: [
     { name: 'Product', href: '#' },
@@ -86,6 +92,18 @@ export function HeroLanding(props: HeroLandingProps) {
   } = { ...defaultProps, ...props }
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  // Ein Element, zwei Einsatzorte (Header + Mobile-Dialog) — JSX-Elemente sind
+  // unveränderliche Beschreibungen und dürfen mehrfach gerendert werden.
+  const logoImage = logo ? (
+    <Image
+      alt={logo.alt}
+      src={logo.src}
+      width={logo.width ?? 32}
+      height={logo.height ?? 32}
+      className="h-6 sm:h-8 w-auto"
+    />
+  ) : null
 
   const getTitleSizeClasses = () => {
     switch (titleSize) {
@@ -160,7 +178,7 @@ export function HeroLanding(props: HeroLandingProps) {
           <div className="flex lg:flex-1">
             <a href="#" className="-m-1.5 p-1.5">
               <span className="sr-only">{logo?.companyName}</span>
-              <img alt={logo?.alt} src={logo?.src} className="h-6 sm:h-8 w-auto" />
+              {logoImage}
             </a>
           </div>
           <div className="flex lg:hidden">
@@ -203,7 +221,7 @@ export function HeroLanding(props: HeroLandingProps) {
             <div className="flex items-center justify-between">
               <a href="#" className="-m-1.5 p-1.5">
                 <span className="sr-only">{logo?.companyName}</span>
-                <img alt={logo?.alt} src={logo?.src} className="h-6 sm:h-8 w-auto" />
+                {logoImage}
               </a>
               <button
                 type="button"

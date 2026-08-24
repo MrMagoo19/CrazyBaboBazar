@@ -21,6 +21,13 @@ type Product = {
 const SESSION_KEY = 'cbb-swipe-session'
 const REFILL_THRESHOLD = 4
 
+/** Ergebnis des Initial-Ladens — wird erst nach dem await in State übernommen. */
+type InitialDeck = {
+  likes: number
+  total: number
+  cards: Product[]
+}
+
 function getOrCreateSession(): string {
   try {
     let id = localStorage.getItem(SESSION_KEY)
@@ -79,8 +86,10 @@ export function SwipeDeck() {
     return shuffled.filter((p) => !seenSlugs.current.has(p.slug))
   }, [])
 
-  const loadInitial = useCallback(async () => {
-    setLoading(true)
+  // Reines Laden: liefert den Startzustand zurück, statt ihn selbst zu setzen.
+  // So bleibt der Effekt unten eine reine Synchronisation mit einem externen
+  // System — State wird ausschließlich im async Callback aktualisiert.
+  const loadInitialDeck = useCallback(async (): Promise<InitialDeck> => {
     sessionId.current = getOrCreateSession()
 
     const sb = createClient()
@@ -92,12 +101,14 @@ export function SwipeDeck() {
       .eq('session_id', sessionId.current)
 
     let hasPriorLikes = false
+    let likes = 0
+    let total = 0
 
     if (swipeData && swipeData.length > 0) {
       swipeData.forEach((s) => seenSlugs.current.add(s.product_slug))
       const likedSlugs = swipeData.filter((s) => s.liked).map((s) => s.product_slug)
-      setLikes(likedSlugs.length)
-      setTotal(swipeData.length)
+      likes = likedSlugs.length
+      total = swipeData.length
 
       // Restore persona weights from previously liked products
       if (likedSlugs.length > 0) {
@@ -121,13 +132,26 @@ export function SwipeDeck() {
     const products = await fetchProducts(hasPriorLikes)
     const shuffled = [...products].sort(() => Math.random() - 0.5)
     shuffled.forEach((p) => seenSlugs.current.add(p.slug))
-    setCards(shuffled)
-    setLoading(false)
+
+    return { likes, total, cards: shuffled }
   }, [fetchProducts])
 
+  const applyInitialDeck = useCallback((deck: InitialDeck) => {
+    setLikes(deck.likes)
+    setTotal(deck.total)
+    setCards(deck.cards)
+    setLoading(false)
+  }, [])
+
   useEffect(() => {
-    loadInitial()
-  }, [loadInitial])
+    let active = true
+    loadInitialDeck().then((deck) => {
+      if (active) applyInitialDeck(deck)
+    })
+    return () => {
+      active = false
+    }
+  }, [loadInitialDeck, applyInitialDeck])
 
   const refillIfNeeded = useCallback(async () => {
     if (cards.length <= REFILL_THRESHOLD) {
@@ -181,7 +205,7 @@ export function SwipeDeck() {
     refillIfNeeded()
   }, [refillIfNeeded])
 
-  const handleReset = useCallback(async () => {
+  const handleReset = useCallback(() => {
     // Clear session
     try { localStorage.removeItem(SESSION_KEY) } catch {}
     seenSlugs.current = new Set()
@@ -189,9 +213,11 @@ export function SwipeDeck() {
     sessionId.current = getOrCreateSession()
     setLikes(0)
     setTotal(0)
+    setCards([])
     setDone(false)
-    loadInitial()
-  }, [loadInitial])
+    setLoading(true)
+    loadInitialDeck().then(applyInitialDeck)
+  }, [loadInitialDeck, applyInitialDeck])
 
   if (loading) {
     return (

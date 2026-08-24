@@ -28,7 +28,10 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 
 export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) {
   const [active, setActive] = useState<Filter>('neu')
-  const [shuffleSeed, setShuffleSeed] = useState(() => Math.floor(Math.random() * 100000))
+  // Deterministischer Startwert: Der Seed darf beim Rendern nicht zufällig sein,
+  // sonst weichen Server- und Client-Reihenfolge voneinander ab. Jeder Klick auf
+  // "Zufällig" zählt ihn hoch und mischt damit neu.
+  const [shuffleSeed, setShuffleSeed] = useState(0)
   const [minPrice, setMinPrice] = useState('')
   const [maxPrice, setMaxPrice] = useState('')
 
@@ -56,7 +59,7 @@ export function FilteredProducts({ allProducts }: { allProducts: DbProduct[] }) 
   }, [active, allProducts, shuffleSeed, minPrice, maxPrice])
 
   function handleFilter(key: Filter) {
-    if (key === 'zufaellig') setShuffleSeed(Math.floor(Math.random() * 100000))
+    if (key === 'zufaellig') setShuffleSeed(s => s + 1)
     setActive(key)
   }
 

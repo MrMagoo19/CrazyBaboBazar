@@ -11,7 +11,11 @@ export const createClient = (request: NextRequest) => {
     },
   });
 
-  const supabase = createServerClient(
+  // Der Client wird nur wegen seiner Cookie-Verdrahtung erzeugt: Sobald hier
+  // eine Auth-Abfrage ergänzt wird, schreibt `setAll` die aktualisierten
+  // Session-Cookies in `supabaseResponse`. Bis dahin gibt es keine Referenz,
+  // die gehalten werden müsste.
+  createServerClient(
     supabaseUrl!,
     supabaseKey!,
     {

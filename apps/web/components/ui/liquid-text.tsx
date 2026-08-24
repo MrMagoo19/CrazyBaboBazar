@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
@@ -64,7 +63,7 @@ const useMorphingText = (texts: string[]) => {
   }, []);
 
   useEffect(() => {
-    let animationFrameId: number;
+    let animationFrameId = 0;
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);

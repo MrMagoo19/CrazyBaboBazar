@@ -1,32 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 import Link from 'next/link'
+import { createConsentStore, type ConsentSnapshot } from '@/lib/consent-store'
 
-const STORAGE_KEY = 'cbb-cookie-consent-v1'
-
-type ConsentState = 'accepted' | 'declined'
+const { subscribe, getSnapshot, getServerSnapshot, setConsent } =
+  createConsentStore('cbb-cookie-consent-v1')
 
 export function CookieConsent() {
-  const [visible, setVisible] = useState(false)
+  const consent = useSyncExternalStore<ConsentSnapshot>(subscribe, getSnapshot, getServerSnapshot)
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (!stored) setVisible(true)
-    } catch {
-      setVisible(true)
-    }
-  }, [])
-
-  const handleConsent = (value: ConsentState) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, value)
-    } catch {}
-    setVisible(false)
-  }
-
-  if (!visible) return null
+  // Noch keine Entscheidung gespeichert → Hinweis zeigen.
+  // 'unknown' (SSR/Hydration) rendert ebenfalls nichts.
+  if (consent !== null) return null
 
   return (
     <div
@@ -63,13 +49,13 @@ export function CookieConsent() {
         {/* Buttons */}
         <div className="flex items-center gap-3 shrink-0">
           <button
-            onClick={() => handleConsent('declined')}
+            onClick={() => setConsent('declined')}
             className="text-xs font-bold text-[#888] hover:text-white transition-colors px-4 py-2 border border-[#333] hover:border-white"
           >
             Ablehnen
           </button>
           <button
-            onClick={() => handleConsent('accepted')}
+            onClick={() => setConsent('accepted')}
             className="text-xs font-black uppercase tracking-widest px-6 py-2 transition-colors"
             style={{ backgroundColor: '#FFE500', color: '#0A0A0A' }}
           >

@@ -37,7 +37,7 @@ export default async function Unter50Page() {
             50 Euro ist die goldene Mitte: Genug Budget für etwas Besonderes, nicht so viel dass es zum Stress wird. Diese Kategorie zeigt Geschenke unter 50 Euro, die wirklich erinnerungswürdig sind — weit weg vom Parfüm-Set aus dem Drogerieregal.
           </p>
           <p className="text-[#333] text-sm leading-relaxed">
-            Ob Geburtstag, Weihnachten, Valentinstag oder spontanes "ich hab an dich gedacht": In dieser Preisklasse findest du Gadgets, Gaming-Produkte, Küchenhelfer und Lifestyle-Artikel, die beim Auspacken für echte Reaktionen sorgen. Handverlesen, ohne Einheitsbrei — jedes Produkt direkt auf Amazon verfügbar.
+            Ob Geburtstag, Weihnachten, Valentinstag oder spontanes „ich hab an dich gedacht“: In dieser Preisklasse findest du Gadgets, Gaming-Produkte, Küchenhelfer und Lifestyle-Artikel, die beim Auspacken für echte Reaktionen sorgen. Handverlesen, ohne Einheitsbrei — jedes Produkt direkt auf Amazon verfügbar.
           </p>
         </div>
       </div>

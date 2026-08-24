@@ -54,8 +54,8 @@ async function main() {
       if (err) { console.log('✗ ' + err.message); failed++ }
       else { console.log('✓ ' + newDesc.length + 'c'); updated++ }
       await new Promise(r => setTimeout(r, 150))
-    } catch (e: any) {
-      console.log('✗ ' + e.message)
+    } catch (e) {
+      console.log('✗ ' + (e instanceof Error ? e.message : String(e)))
       failed++
     }
   }

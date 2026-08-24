@@ -37,7 +37,7 @@ async function main() {
       })
       console.log(error ? `  ✗ ${error.message}` : `  ✓ ${description.length}c`)
       await new Promise(r => setTimeout(r, 200))
-    } catch(e: any) { console.log(`  ✗ ${e.message}`) }
+    } catch (e) { console.log(`  ✗ ${e instanceof Error ? e.message : String(e)}`) }
   }
 }
 

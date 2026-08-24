@@ -48,11 +48,16 @@ export function SwipeDeck() {
   const [likes, setLikes] = useState(0)
   const [total, setTotal] = useState(0)
   const [showLikeAnim, setShowLikeAnim] = useState(false)
+  const [resetFailed, setResetFailed] = useState(false)
 
   // persona weights: { babo: 3, queen: 1, ... }
   const personaWeights = useRef<Record<string, number>>({})
   const seenSlugs = useRef<Set<string>>(new Set())
   const sessionId = useRef<string>('')
+  // Imperativer Guard: verhindert, dass mehrere Resets parallel laufen und sich
+  // ihre Decks gegenseitig überschreiben. Ref statt State, damit der Wert schon
+  // im selben Tick gilt — vor der ersten Mutation.
+  const resetInFlight = useRef(false)
 
   const fetchProducts = useCallback(async (weighted = false) => {
     const sb = createClient()
@@ -205,18 +210,40 @@ export function SwipeDeck() {
     refillIfNeeded()
   }, [refillIfNeeded])
 
-  const handleReset = useCallback(() => {
-    // Clear session
-    try { localStorage.removeItem(SESSION_KEY) } catch {}
-    seenSlugs.current = new Set()
-    personaWeights.current = {}
-    sessionId.current = getOrCreateSession()
-    setLikes(0)
-    setTotal(0)
-    setCards([])
-    setDone(false)
-    setLoading(true)
-    loadInitialDeck().then(applyInitialDeck)
+  const handleReset = useCallback(async () => {
+    if (resetInFlight.current) return
+    resetInFlight.current = true
+
+    try {
+      // Clear session
+      try { localStorage.removeItem(SESSION_KEY) } catch {}
+      seenSlugs.current = new Set()
+      personaWeights.current = {}
+      sessionId.current = getOrCreateSession()
+      setResetFailed(false)
+      setLikes(0)
+      setTotal(0)
+      setCards([])
+      setDone(false)
+      setLoading(true)
+
+      // Erst awaiten, dann anwenden: ein fehlgeschlagener Load darf keinen
+      // halben Deck-Zustand hinterlassen.
+      const deck = await loadInitialDeck()
+      // Supabase-Fehler kommen meist als `data: null` zurück, nicht als throw.
+      // Eine frische Reset-Session muss veröffentlichte Karten liefern — ein
+      // leeres Deck ist deshalb ein Ladefehler und kein gültiges Ergebnis.
+      if (deck.cards.length === 0) {
+        throw new Error('Reset load returned an empty deck')
+      }
+      applyInitialDeck(deck)
+    } catch {
+      // Ohne diesen Ausstieg bliebe die Seite dauerhaft im Ladezustand hängen.
+      setLoading(false)
+      setResetFailed(true)
+    } finally {
+      resetInFlight.current = false
+    }
   }, [loadInitialDeck, applyInitialDeck])
 
   if (loading) {
@@ -225,6 +252,40 @@ export function SwipeDeck() {
         <div className="text-center">
           <div className="text-4xl mb-4">🃏</div>
           <p className="text-sm font-[family-name:var(--font-mono)] text-[#555] uppercase tracking-widest">Lade Produkte…</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (resetFailed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white px-4">
+        <div className="text-center max-w-sm">
+          <div role="alert" style={{ backgroundColor: '#FFE500', border: '3px solid #0A0A0A', padding: '48px 40px' }}>
+            <div className="text-5xl mb-4">🃏</div>
+            <h2 className="font-[family-name:var(--font-display)] font-black text-3xl text-[#0A0A0A] mb-2">
+              Deck klemmt
+            </h2>
+            <p className="text-sm text-[#333] mb-6">
+              Die Produkte kamen nicht durch. Passiert. Nochmal?
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => { void handleReset() }}
+                className="flex items-center justify-center gap-2 text-center text-sm font-black uppercase tracking-widest py-3 px-6 transition-colors"
+                style={{ backgroundColor: '#0A0A0A', color: '#FFE500' }}
+              >
+                <RotateCcw size={14} />
+                Nochmal versuchen
+              </button>
+              <Link
+                href="/trending"
+                className="block text-center text-sm font-bold uppercase tracking-widest py-3 px-6 transition-colors border-2 border-[#0A0A0A] text-[#0A0A0A] hover:bg-[#0A0A0A] hover:text-white"
+              >
+                Alle Produkte
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -259,7 +320,7 @@ export function SwipeDeck() {
                 Alle Produkte
               </Link>
               <button
-                onClick={handleReset}
+                onClick={() => { void handleReset() }}
                 className="flex items-center justify-center gap-2 text-sm font-bold text-[#555] hover:text-[#0A0A0A] transition-colors"
               >
                 <RotateCcw size={14} />

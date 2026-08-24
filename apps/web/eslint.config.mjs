@@ -9,6 +9,9 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    // Pilot builds write generated output to a separate distDir (siehe
+    // next.config.ts, CBB_TARGET_ENV=pilot) — genauso ignorieren wie .next.
+    ".next-pilot/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

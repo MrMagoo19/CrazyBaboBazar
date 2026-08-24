@@ -4,8 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:pilot": "node --env-file=.env.pilot.local scripts/run-pilot.mjs dev",
     "build": "next build",
+    "build:pilot": "node --env-file=.env.pilot.local scripts/run-pilot.mjs build",
+    "pilot:check": "node --env-file=.env.pilot.local scripts/run-pilot.mjs check",
     "start": "next start",
+    "start:pilot": "node --env-file=.env.pilot.local scripts/run-pilot.mjs start",
     "lint": "eslint"
   },
   "dependencies": {

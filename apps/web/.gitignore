@@ -15,7 +15,11 @@
 
 # next.js
 /.next/
+/.next-pilot/
 /out/
+
+# local installer artifact
+/google-chrome-stable_current_amd64.deb
 
 # production
 /build

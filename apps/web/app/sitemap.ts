@@ -3,6 +3,12 @@ import { guides } from '@/lib/guides'
 
 const BASE_URL = 'https://www.crazybabobazar.com'
 
+// Revalidierung der Sitemap-Route explizit setzen. Ohne dieses Export haengt das
+// Intervall nur indirekt am `next: { revalidate: 3600 }` der verschachtelten
+// Supabase-Fetches — eine Implementierungsdetail-Kopplung, die beim kleinsten
+// Umbau der Fetch-Optionen stillschweigend kippt.
+export const revalidate = 3600
+
 function getSupabaseConfig() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY

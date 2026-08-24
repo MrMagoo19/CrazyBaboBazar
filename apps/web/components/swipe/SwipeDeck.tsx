@@ -28,6 +28,16 @@ type InitialDeck = {
   cards: Product[]
 }
 
+/**
+ * Ein Deck ist unbrauchbar, wenn weder Karten noch frühere Swipes vorliegen.
+ * Das ist der typische Supabase-Fehlerfall (`data: null` statt throw) und kein
+ * gültiger Endzustand. `cards.length === 0` bei `total > 0` ist dagegen gültig:
+ * Die Nutzerin hat den Katalog durchgeswiped und bekommt den Done-Screen.
+ */
+function isUsableDeck(deck: InitialDeck): boolean {
+  return deck.cards.length > 0 || deck.total > 0
+}
+
 function getOrCreateSession(): string {
   try {
     let id = localStorage.getItem(SESSION_KEY)
@@ -48,16 +58,17 @@ export function SwipeDeck() {
   const [likes, setLikes] = useState(0)
   const [total, setTotal] = useState(0)
   const [showLikeAnim, setShowLikeAnim] = useState(false)
-  const [resetFailed, setResetFailed] = useState(false)
+  const [loadFailed, setLoadFailed] = useState(false)
 
   // persona weights: { babo: 3, queen: 1, ... }
   const personaWeights = useRef<Record<string, number>>({})
   const seenSlugs = useRef<Set<string>>(new Set())
   const sessionId = useRef<string>('')
-  // Imperativer Guard: verhindert, dass mehrere Resets parallel laufen und sich
-  // ihre Decks gegenseitig überschreiben. Ref statt State, damit der Wert schon
-  // im selben Tick gilt — vor der ersten Mutation.
-  const resetInFlight = useRef(false)
+  // Imperativer Guard für alle manuell ausgelösten Deck-Ladevorgänge (Hard
+  // Reset und Retry). Verhindert, dass zwei davon parallel laufen und sich ihre
+  // Decks gegenseitig überschreiben. Ref statt State, damit der Wert schon im
+  // selben Tick gilt — vor der ersten Mutation.
+  const deckLoadInFlight = useRef(false)
 
   const fetchProducts = useCallback(async (weighted = false) => {
     const sb = createClient()
@@ -150,9 +161,23 @@ export function SwipeDeck() {
 
   useEffect(() => {
     let active = true
-    loadInitialDeck().then((deck) => {
-      if (active) applyInitialDeck(deck)
-    })
+    loadInitialDeck()
+      .then((deck) => {
+        if (!active) return
+        if (isUsableDeck(deck)) {
+          applyInitialDeck(deck)
+          return
+        }
+        // Ohne Karten und ohne frühere Swipes ist nichts anzuzeigen — sonst
+        // bliebe die Seite dauerhaft im Ladezustand hängen.
+        setLoading(false)
+        setLoadFailed(true)
+      })
+      .catch(() => {
+        if (!active) return
+        setLoading(false)
+        setLoadFailed(true)
+      })
     return () => {
       active = false
     }
@@ -210,9 +235,37 @@ export function SwipeDeck() {
     refillIfNeeded()
   }, [refillIfNeeded])
 
+  // Retry nach einem fehlgeschlagenen Laden: lädt dieselbe Session neu, ohne
+  // SESSION_KEY zu löschen. Likes und Swipes der Nutzerin bleiben also erhalten.
+  const handleRetryLoad = useCallback(async () => {
+    if (deckLoadInFlight.current) return
+    deckLoadInFlight.current = true
+
+    try {
+      // Sauberer In-Memory-Start: ein abgebrochener Versuch darf seine bereits
+      // gezählten Persona-Gewichte nicht ein zweites Mal addieren. Die Session
+      // selbst bleibt bestehen — loadInitialDeck baut beides aus Supabase neu auf.
+      seenSlugs.current = new Set()
+      personaWeights.current = {}
+      setLoadFailed(false)
+      setLoading(true)
+
+      const deck = await loadInitialDeck()
+      if (!isUsableDeck(deck)) {
+        throw new Error('Retry load returned an unusable deck')
+      }
+      applyInitialDeck(deck)
+    } catch {
+      setLoading(false)
+      setLoadFailed(true)
+    } finally {
+      deckLoadInFlight.current = false
+    }
+  }, [loadInitialDeck, applyInitialDeck])
+
   const handleReset = useCallback(async () => {
-    if (resetInFlight.current) return
-    resetInFlight.current = true
+    if (deckLoadInFlight.current) return
+    deckLoadInFlight.current = true
 
     try {
       // Clear session
@@ -220,7 +273,7 @@ export function SwipeDeck() {
       seenSlugs.current = new Set()
       personaWeights.current = {}
       sessionId.current = getOrCreateSession()
-      setResetFailed(false)
+      setLoadFailed(false)
       setLikes(0)
       setTotal(0)
       setCards([])
@@ -240,9 +293,9 @@ export function SwipeDeck() {
     } catch {
       // Ohne diesen Ausstieg bliebe die Seite dauerhaft im Ladezustand hängen.
       setLoading(false)
-      setResetFailed(true)
+      setLoadFailed(true)
     } finally {
-      resetInFlight.current = false
+      deckLoadInFlight.current = false
     }
   }, [loadInitialDeck, applyInitialDeck])
 
@@ -257,7 +310,7 @@ export function SwipeDeck() {
     )
   }
 
-  if (resetFailed) {
+  if (loadFailed) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <div className="text-center max-w-sm">
@@ -271,7 +324,7 @@ export function SwipeDeck() {
             </p>
             <div className="flex flex-col gap-3">
               <button
-                onClick={() => { void handleReset() }}
+                onClick={() => { void handleRetryLoad() }}
                 className="flex items-center justify-center gap-2 text-center text-sm font-black uppercase tracking-widest py-3 px-6 transition-colors"
                 style={{ backgroundColor: '#0A0A0A', color: '#FFE500' }}
               >

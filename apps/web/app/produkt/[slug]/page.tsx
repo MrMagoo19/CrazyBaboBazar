@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { getProductBySlug, getRelatedProducts, getPublishedProducts, getListsForProduct } from '@/lib/db'
 import { getGuidesForProduct } from '@/lib/guides'
-import { isKnownPersona, PERSONA_ROUTES, personaLabel } from '@/lib/persona'
+import { resolveProductCategoryLink } from '@/lib/taxonomy'
 import { getPriceBand } from '@/lib/db-types'
 import { ShareButton } from '@/components/ui/share-button'
 import { ImageSlider } from '@/components/ui/image-slider'
@@ -106,21 +106,19 @@ export default async function ProduktPage({ params }: Props) {
   const catEmoji = product.categories?.emoji ?? '📦'
 
   // Category/breadcrumb target — only ever point at routes that actually exist.
-  // Known persona + main category → persona hub. Otherwise fall back to the
-  // (redirecting, never-404) /kategorie route if a category exists; else render
-  // no category link at all. An invalid persona (e.g. "unknown") never builds a
-  // persona URL and is never shown as a persona label.
-  const persona = product.shop_persona
-  const mainCat = product.shop_main_category
-  let catHref: string | null = null
-  let catName: string | null = null
-  if (isKnownPersona(persona) && mainCat) {
-    catHref = `/${PERSONA_ROUTES[persona]}/${mainCat}`
-    catName = `${personaLabel(persona)} · ${mainCat}`
-  } else if (product.categories?.slug) {
-    catHref = `/kategorie/${product.categories.slug}`
-    catName = product.categories.name ?? product.categories.slug
-  }
+  // Die Aufloesung liegt in `lib/taxonomy.ts`, damit Breadcrumb und Sitemap
+  // dieselbe Route-Matrix benutzen: Eine bekannte Persona allein reicht nicht,
+  // das Paar Persona+`shop_main_category` muss eine echte Seite haben. Sonst
+  // greift die (immer weiterleitende, nie 404) /kategorie-Route, und wenn auch
+  // die fehlt, wird gar kein Kategorie-Link gerendert.
+  const categoryLink = resolveProductCategoryLink({
+    persona: product.shop_persona,
+    mainCategory: product.shop_main_category,
+    categorySlug: product.categories?.slug,
+    categoryName: product.categories?.name,
+  })
+  const catHref = categoryLink?.href ?? null
+  const catName = categoryLink?.name ?? null
 
   const schemaDescription = toMetaDescription(product.description, product.tagline)
   const productUrl = `${SITE_URL}/produkt/${slug}`

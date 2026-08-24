@@ -1,6 +1,7 @@
 import { getProductsByPersona } from '@/lib/db'
 import { PersonaPage } from '@/components/persona-page'
 import { Sparkles } from 'lucide-react'
+import { personaHubSubnav } from '@/lib/taxonomy'
 import type { Metadata } from 'next'
 
 export const revalidate = 3600
@@ -12,13 +13,7 @@ export const metadata: Metadata = {
   openGraph: { images: [{ url: 'https://www.crazybabobazar.com/opengraph-image', width: 1200, height: 630 }] },
 }
 
-const SUBNAV = [
-  { label: 'Alle', href: '/queens' },
-  { label: 'Küche', href: '/queens/kueche' },
-  { label: 'Lifestyle', href: '/queens/lifestyle' },
-  { label: 'Beauty', href: '/queens/beauty' },
-  { label: 'Geschenke', href: '/queens/geschenke' },
-]
+const SUBNAV = personaHubSubnav('queen')
 
 export default async function QueensPage() {
   const products = await getProductsByPersona('queen')

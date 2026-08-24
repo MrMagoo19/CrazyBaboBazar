@@ -1,6 +1,7 @@
 import { getProductsByPersona } from '@/lib/db'
 import { PersonaPage } from '@/components/persona-page'
 import { Crown } from 'lucide-react'
+import { personaHubSubnav } from '@/lib/taxonomy'
 import type { Metadata } from 'next'
 
 export const revalidate = 3600
@@ -12,13 +13,10 @@ export const metadata: Metadata = {
   openGraph: { images: [{ url: 'https://www.crazybabobazar.com/opengraph-image', width: 1200, height: 630 }] },
 }
 
-const SUBNAV = [
-  { label: 'Alle', href: '/babos' },
-  { label: 'Gaming', href: '/babos/gaming' },
-  { label: 'Tech & DIY', href: '/babos/tech' },
-  { label: 'Lifestyle', href: '/babos/lifestyle' },
-  { label: 'Outdoor', href: '/babos/outdoor' },
-]
+// Hub-Subnav aus der Taxonomie (`showOnHub`) statt handgepflegter Liste. Der
+// Umfang bleibt unveraendert: Gaming, Tech, Lifestyle, Outdoor — das Irrenhaus
+// gehoert bewusst nicht in den Einstieg.
+const SUBNAV = personaHubSubnav('babo')
 
 export default async function BabosPage() {
   const products = await getProductsByPersona('babo')

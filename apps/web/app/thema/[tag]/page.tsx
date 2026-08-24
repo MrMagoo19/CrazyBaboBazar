@@ -2,11 +2,16 @@ import { getProductsByTag } from '@/lib/db'
 import { ProductGrid } from '@/components/product-grid'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { isThemaTag, THEMA_TAGS, type ThemaTag } from '@/lib/taxonomy'
 import type { Metadata } from 'next'
 
 export const revalidate = 3600
 
-const TAG_CONFIG: Record<string, { label: string; desc: string; emoji: string; metaTitle: string; metaDesc: string; intro: string[] }> = {
+// `Record<ThemaTag, …>` statt `Record<string, …>`: `THEMA_TAGS` in
+// `lib/taxonomy.ts` ist die Liste, gegen die die Sitemap filtert. Waere ein Tag
+// nur dort oder nur hier vorhanden, faellt das jetzt beim Typecheck auf statt
+// als 404 in der Sitemap.
+const TAG_CONFIG: Record<ThemaTag, { label: string; desc: string; emoji: string; metaTitle: string; metaDesc: string; intro: string[] }> = {
   gaming: {
     label: 'Gaming', desc: 'Tabletop, Retro, Collectibles & Gamer-Gadgets', emoji: '🎮',
     metaTitle: 'Gaming Gadgets & Geschenke für Gamer | Crazy Babo Bazar',
@@ -95,15 +100,21 @@ const SUBNAV = Object.entries(TAG_CONFIG).map(([key, { label }]) => ({
   href: `/thema/${key}`,
 }))
 
+// Einziger Zugriffspfad auf TAG_CONFIG: nimmt einen ungeprueften URL-Wert und
+// liefert nur bei einem echten Tag eine Config.
+function getTagConfig(tag: string) {
+  return isThemaTag(tag) ? TAG_CONFIG[tag] : null
+}
+
 type Props = { params: Promise<{ tag: string }> }
 
 export function generateStaticParams() {
-  return Object.keys(TAG_CONFIG).map((tag) => ({ tag }))
+  return THEMA_TAGS.map((tag) => ({ tag }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tag } = await params
-  const config = TAG_CONFIG[tag]
+  const config = getTagConfig(tag)
   if (!config) return { title: 'Nicht gefunden', robots: { index: false, follow: false } }
   return {
     title: config.metaTitle,
@@ -119,7 +130,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ThemaPage({ params }: Props) {
   const { tag } = await params
-  const config = TAG_CONFIG[tag]
+  const config = getTagConfig(tag)
   if (!config) notFound()
 
   const products = await getProductsByTag(tag)

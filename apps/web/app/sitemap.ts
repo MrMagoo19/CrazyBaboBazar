@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { guides } from '@/lib/guides'
+import { isThemaTag, personaCategoryPath } from '@/lib/taxonomy'
 
 const BASE_URL = 'https://www.crazybabobazar.com'
 
@@ -109,15 +110,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     throw new SitemapDataError('products: 0 veroeffentlichte Produkte')
   }
 
-  // Dynamische Persona-Unterseiten aus DB ableiten
+  // Dynamische Unterseiten aus der DB ableiten — aber ausschliesslich solche,
+  // fuer die es auch eine Route gibt.
+  //
+  // Frueher wurde hier `/${base}/${cat}` fuer jede Persona/Kategorie-Kombination
+  // der DB gebaut und `/thema/${cat}` fuer jede Kategorie. Die drei
+  // Persona-Kategorieseiten und `app/thema/[tag]` kennen aber nur eine feste
+  // Allowlist und rufen sonst `notFound()` auf — die Sitemap meldete Google also
+  // programmatisch erzeugte 404s. `personaCategoryPath` und `isThemaTag` sind
+  // jetzt dieselbe Quelle, aus der die Routen ihre Gueltigkeit ableiten.
+  //
+  // Es entstehen dadurch keine neuen URLs: gefiltert wird nur nach unten.
   const personaSubPages = new Set<string>()
   for (const row of personaRows) {
     const { shop_persona: persona, shop_main_category: cat } = row
     if (!persona || !cat) continue
-    const baseMap: Record<string, string> = { babo: 'babos', queen: 'queens', miniboss: 'miniboss' }
-    const base = baseMap[persona]
-    if (base) personaSubPages.add(`/${base}/${cat}`)
-    personaSubPages.add(`/thema/${cat}`)
+    const personaPath = personaCategoryPath(persona, cat)
+    if (personaPath) personaSubPages.add(personaPath)
+    if (isThemaTag(cat)) personaSubPages.add(`/thema/${cat}`)
   }
 
   const staticPages: MetadataRoute.Sitemap = [
@@ -127,6 +137,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/miniboss`, changeFrequency: 'daily', priority: 0.8 },
     { url: `${BASE_URL}/trending`, changeFrequency: 'daily', priority: 0.7 },
     { url: `${BASE_URL}/listen`, changeFrequency: 'weekly', priority: 0.8 },
+    // Der Guide-Hub ist verlinkt und erreichbar, fehlte aber als Sitemap-Eintrag;
+    // nur die einzelnen /guide/<slug> standen drin.
+    { url: `${BASE_URL}/guide`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${BASE_URL}/unter-20`, changeFrequency: 'daily', priority: 0.7 },
     { url: `${BASE_URL}/unter-50`, changeFrequency: 'daily', priority: 0.7 },
     { url: `${BASE_URL}/unter-100`, changeFrequency: 'daily', priority: 0.6 },

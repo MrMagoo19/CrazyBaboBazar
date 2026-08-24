@@ -97,10 +97,35 @@ body > * {
   color: #0A0A0A;
 }
 
-/* Focus */
+/* Focus
+   Zweifarbiger Ring, weil die Seite drei sehr unterschiedliche Untergruende
+   mischt: weiss (#FFFFFF), Akzentgelb (#FFE500) und Schwarz (#0A0A0A).
+   Ein einfarbiger gelber Ring war auf Weiss (Kontrast ~1,2:1) kaum und auf
+   gelbem Hover-Hintergrund gar nicht zu sehen.
+   Aufbau von innen nach aussen:
+     1. box-shadow, weisser 2px-Ring — fuellt den outline-offset und traegt den
+        Ring auf schwarzem Grund.
+     2. outline, schwarzer 2px-Ring — traegt den Ring auf Weiss und auf Gelb.
+   Mindestens einer der beiden Ringe hat damit auf jedem der drei Untergruende
+   ausreichenden Kontrast (>= 3:1 gemaess WCAG 2.2 / 1.4.11).
+   Der Block steht bewusst ausserhalb jedes @layer: unlayered CSS gewinnt in
+   Tailwind v4 gegen Utilities aus @layer utilities, damit greift der Ring
+   ueberall, ohne dass einzelne Komponenten ihn setzen muessen. */
 :focus-visible {
-  outline: 2px solid #FFE500;
+  outline: 2px solid #0A0A0A;
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px #FFFFFF;
+}
+
+/* Forced Colors (Windows-Kontrastmodus): dort wird box-shadow nicht gezeichnet
+   und eigene Farben werden verworfen. Deshalb faellt der Ring hier auf eine
+   reine, etwas dickere outline in der Systemfarbe zurueck. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+    box-shadow: none;
+  }
 }
 
 /* Ticker animation */

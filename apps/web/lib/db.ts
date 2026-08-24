@@ -69,12 +69,18 @@ export async function getProductsByCategory(categorySlug: string): Promise<DbPro
   return data ?? []
 }
 
+// Wie jede andere Leseabfrage hier: nur veroeffentlichte Produkte. Es gibt in
+// dieser App keinen Preview- oder Admin-Pfad — die einzigen Aufrufer sind die
+// Produktseite (Seite + generateMetadata) und der Alternative-Lookup derselben
+// Seite. Ohne den Guard war eine unveroeffentlichte Produktseite unter direkter
+// URL erreichbar und lieferte volle Metadaten samt Affiliate-Link.
 export async function getProductBySlug(slug: string): Promise<DbProduct | null> {
   const supabase = publicClient()
   const { data } = await supabase
     .from('products')
     .select('*, categories(*)')
     .eq('slug', slug)
+    .eq('is_published', true)
     .maybeSingle()
   return data
 }
@@ -119,31 +125,42 @@ export async function getTrendingProducts(): Promise<DbProduct[]> {
   return data ?? []
 }
 
+/**
+ * `excludeSlug` haelt ein Produkt aus den Relationen heraus, das auf der Seite
+ * bereits prominent gezeigt wird (Alternative/Passt-dazu). Der Ausschluss muss
+ * in der Query passieren, nicht erst im Renderer: sonst verbraucht das doppelte
+ * Produkt einen der vier Plaetze aus `limit(4)` und die Liste faellt nachtraeglich
+ * auf drei Karten zurueck.
+ */
 export async function getRelatedProducts(
   currentSlug: string,
   persona: string | null,
-  mainCategory: string | null
+  mainCategory: string | null,
+  excludeSlug?: string | null
 ): Promise<DbProduct[]> {
   if (!persona) return []
   const supabase = publicClient()
+  // currentSlug ist schon per neq ausgeschlossen — nicht doppelt filtern.
+  const extraExclude = excludeSlug && excludeSlug !== currentSlug ? excludeSlug : null
   let query = supabase
     .from('products')
     .select('*, categories(*)')
     .eq('is_published', true)
     .eq('shop_persona', persona)
     .neq('slug', currentSlug)
-    .limit(4)
+  if (extraExclude) query = query.neq('slug', extraExclude)
   if (mainCategory) query = query.eq('shop_main_category', mainCategory)
-  const { data } = await query
+  const { data } = await query.limit(4)
   // If less than 4 results with same category, fill up from same persona only
   if ((data?.length ?? 0) < 4 && mainCategory) {
-    const { data: fallback } = await supabase
+    let fallbackQuery = supabase
       .from('products')
       .select('*, categories(*)')
       .eq('is_published', true)
       .eq('shop_persona', persona)
       .neq('slug', currentSlug)
-      .limit(4)
+    if (extraExclude) fallbackQuery = fallbackQuery.neq('slug', extraExclude)
+    const { data: fallback } = await fallbackQuery.limit(4)
     const existing = new Set((data ?? []).map(p => p.slug))
     const extra = (fallback ?? []).filter(p => !existing.has(p.slug))
     return [...(data ?? []), ...extra].slice(0, 4)

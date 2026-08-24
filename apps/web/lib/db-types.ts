@@ -31,6 +31,19 @@ export type DbProduct = {
   editorial_note: string | null
   created_at: string | null
   shop_tags: string[] | null
+  // Value-Add-Template-Felder: additiv und nullable auf der Production-Tabelle,
+  // derzeit ausschliesslich fuer die zehn Production-Pilotprodukte befuellt.
+  // Alle uebrigen Zeilen liefern null — jeder Renderer muss das abfangen.
+  // Migration: supabase/production_value_add/02_migrate_value_add.sql
+  // (Backfill: 04_backfill_value_add.sql, Rollback: 07_down_migration.sql).
+  fuer_wen: string | null
+  nicht_fuer: string | null
+  key_fact: string | null
+  pros: string[] | null
+  cons: string[] | null
+  alternative_slug: string | null
+  alternative_reason: string | null
+  alternative_kind: 'alternative' | 'complement' | null
 }
 
 export type DbList = {

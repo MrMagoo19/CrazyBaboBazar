@@ -65,11 +65,43 @@ export default async function ProduktPage({ params }: Props) {
   const product = await getProductBySlug(slug)
   if (!product) notFound()
 
-  const [related, inLists, inGuides] = await Promise.all([
-    getRelatedProducts(slug, product.shop_persona, product.shop_main_category),
+  const [related, inLists, inGuides, alternativeRaw] = await Promise.all([
+    // alternative_slug wird bereits in der Query ausgeschlossen, damit die
+    // Alternative keinen der vier Relations-Plaetze belegt.
+    getRelatedProducts(slug, product.shop_persona, product.shop_main_category, product.alternative_slug),
     getListsForProduct(slug),
     Promise.resolve(getGuidesForProduct(slug)),
+    // Value-Add: echte Alternative nur laden, wenn ein Verweis gesetzt ist.
+    // getProductBySlug liefert null bei unbekanntem Slug → graceful.
+    product.alternative_slug ? getProductBySlug(product.alternative_slug) : Promise.resolve(null),
   ])
+
+  // Alternative/Passt-dazu nur zeigen, wenn Ziel existiert, veröffentlicht ist und
+  // nicht auf sich selbst verweist. Sonst wird der ganze Block ausgelassen.
+  // `is_published` filtert getProductBySlug inzwischen selbst; die Prüfung hier
+  // bleibt als zweite Verteidigungslinie stehen.
+  const alternative =
+    alternativeRaw && alternativeRaw.is_published && alternativeRaw.slug !== product.slug
+      ? alternativeRaw
+      : null
+  // 'complement' = ergänzendes Produkt ("Passt dazu"); alles andere (inkl. Default)
+  // = echtes Ersatzprodukt ("Alternative"). Steuert die Überschrift des Blocks.
+  const isComplement = product.alternative_kind === 'complement'
+  const relationLabel = isComplement ? 'Passt dazu' : 'Alternative'
+
+  // Zweite Verteidigungslinie: der Ausschluss passiert schon in getRelatedProducts,
+  // aber ein Produkt, das als Alternative/Passt-dazu-Karte gezeigt wird, darf hier
+  // auch dann nicht auftauchen, wenn die Query-Seite je wieder aufweicht.
+  const relatedFiltered = (alternative
+    ? related.filter((p) => p.slug !== alternative.slug)
+    : related
+  ).slice(0, 4)
+
+  // Graceful-Degradation-Flags: jeder neue Block rendert nur bei echten Daten.
+  const hasGlance = Boolean(product.fuer_wen || product.nicht_fuer || product.key_fact)
+  const pros = product.pros ?? []
+  const cons = product.cons ?? []
+  const hasProsCons = pros.length > 0 || cons.length > 0
 
   const catEmoji = product.categories?.emoji ?? '📦'
 
@@ -113,6 +145,10 @@ export default async function ProduktPage({ params }: Props) {
     // (no PA-API, no timestamp), so an exact price + availability here would be a
     // stale, non-compliant claim. The Product snippet stays valid without offers.
     // Re-add offers with a live price + priceValidUntil once PA-API is available.
+    //
+    // Pros/cons are rendered visibly on the page but deliberately NOT emitted as
+    // structured data (no positiveNotes/negativeNotes, no Review, no rating). The
+    // Product snippet carries only name/description/image/brand + breadcrumb.
   }
 
   const breadcrumbSchema = {
@@ -275,7 +311,7 @@ export default async function ProduktPage({ params }: Props) {
                   href={product.affiliate_url}
                   target="_blank"
                   rel="sponsored nofollow noopener noreferrer"
-                  className="block w-full text-center bg-[#0A0A0A] text-white py-4 font-bold text-base hover:bg-[#FFE500] hover:text-[#0A0A0A] transition-all duration-200 mb-3"
+                  className="block w-full text-center bg-[#0A0A0A] text-white py-4 font-bold text-base hover:bg-[#FFE500] hover:text-[#0A0A0A] transition-colors duration-200 mb-3"
                 >
                   Preis auf Amazon prüfen →
                 </a>
@@ -290,6 +326,88 @@ export default async function ProduktPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* ── AUF EINEN BLICK ────────────────────────────────── */}
+      {hasGlance && (
+        <section className="border-b-2 border-[#0A0A0A] bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-1 h-6 bg-[#FFE500]" />
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A]">Auf einen Blick</h2>
+            </div>
+            <dl className="grid gap-4 sm:grid-cols-3">
+              {product.fuer_wen && (
+                <div className="border-2 border-[#0A0A0A] p-5">
+                  <dt className="font-[family-name:var(--font-mono)] font-black text-[10px] uppercase tracking-widest text-[#555] mb-2">Am besten für</dt>
+                  <dd className="text-[#0A0A0A] text-sm leading-relaxed font-medium">{product.fuer_wen}</dd>
+                </div>
+              )}
+              {product.nicht_fuer && (
+                <div className="border-2 border-[#0A0A0A] p-5">
+                  <dt className="font-[family-name:var(--font-mono)] font-black text-[10px] uppercase tracking-widest text-[#555] mb-2">Weniger geeignet für</dt>
+                  <dd className="text-[#0A0A0A] text-sm leading-relaxed font-medium">{product.nicht_fuer}</dd>
+                </div>
+              )}
+              {product.key_fact && (
+                <div className="border-2 border-[#0A0A0A] p-5">
+                  <dt className="font-[family-name:var(--font-mono)] font-black text-[10px] uppercase tracking-widest text-[#555] mb-2">Gut zu wissen</dt>
+                  {/* KEINE pauschale Quellenkennzeichnung. `key_fact` ist ein freies
+                      Textfeld ohne Quellenfeld: der Inhalt mischt je nach Produkt
+                      Herstellerangaben mit eigener Einordnung (z. B. beim N4 die
+                      Einschraenkung zur manuellen Nachreinigung, die aus einem
+                      unabhaengigen Test stammt). Ein fixes Label "Herstellerangabe"
+                      wuerde solche Saetze dem Hersteller zuschreiben — eine falsche
+                      Attribution. Erst wenn es ein echtes Quellenfeld in der DB gibt,
+                      darf hier wieder eine Quelle stehen, und zwar pro Produkt. */}
+                  <dd className="text-[#0A0A0A] text-sm leading-relaxed font-medium">
+                    {product.key_fact}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </div>
+        </section>
+      )}
+
+      {/* ── PRO & CONTRA ───────────────────────────────────── */}
+      {hasProsCons && (
+        <section className="border-b-2 border-[#0A0A0A] bg-[#F8F8F8]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-1 h-6 bg-[#FFE500]" />
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A]">Pro &amp; Contra</h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {pros.length > 0 && (
+                <div className="border-2 border-[#0A0A0A] bg-white p-5">
+                  <h3 id="pro-heading" className="font-[family-name:var(--font-mono)] font-black text-[10px] uppercase tracking-widest text-[#0A0A0A] mb-3">Pro</h3>
+                  <ul aria-labelledby="pro-heading" className="space-y-2">
+                    {pros.map((pro, i) => (
+                      <li key={i} className="flex gap-2 text-sm text-[#0A0A0A] leading-relaxed">
+                        <span aria-hidden className="font-black text-[#0A0A0A] select-none">+</span>
+                        <span>{pro}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {cons.length > 0 && (
+                <div className="border-2 border-[#0A0A0A] bg-white p-5">
+                  <h3 id="contra-heading" className="font-[family-name:var(--font-mono)] font-black text-[10px] uppercase tracking-widest text-[#555] mb-3">Contra</h3>
+                  <ul aria-labelledby="contra-heading" className="space-y-2">
+                    {cons.map((con, i) => (
+                      <li key={i} className="flex gap-2 text-sm text-[#555] leading-relaxed">
+                        <span aria-hidden className="font-black text-[#555] select-none">–</span>
+                        <span>{con}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── VIDEO ─────────────────────────────────────────── */}
       {product.video_url && (
@@ -324,6 +442,63 @@ export default async function ProduktPage({ params }: Props) {
                 {product.editorial_note}
               </p>
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── ALTERNATIVE / PASST DAZU ───────────────────────── */}
+      {alternative && (
+        <section className="border-b-2 border-[#0A0A0A] bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-1 h-6 bg-[#FFE500]" />
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A]">{relationLabel}</h2>
+            </div>
+            {/* Kein lokaler Focus-Ring mehr: der globale `:focus-visible`-Block in
+                globals.css ist jetzt zweifarbig (schwarze outline + weisser
+                box-shadow-Ring) und damit auf der weissen Karte wie im gelben
+                Hover-Zustand sichtbar. Die frühere !important-Sonderloesung ist
+                dadurch redundant. */}
+            <Link
+              href={`/produkt/${alternative.slug}`}
+              className="group flex flex-col sm:flex-row gap-5 border-2 border-[#0A0A0A] bg-white hover:bg-[#FFE500] transition-colors p-5"
+            >
+              <div className="w-full sm:w-40 aspect-square shrink-0 bg-[#F5F5F5] border-2 border-[#0A0A0A] relative overflow-hidden">
+                {alternative.image_url ? (
+                  // alt="" — der Produktname steht direkt daneben im selben Link.
+                  <Image src={alternative.image_url} alt="" fill className="object-contain p-4" unoptimized />
+                ) : (
+                  <div aria-hidden className="absolute inset-0 flex items-center justify-center text-5xl">📦</div>
+                )}
+              </div>
+              {/* min-w-0: Flex-Items haben min-width:auto und wachsen sonst ueber die
+                  Karte hinaus, sobald Name oder Begruendung ein sehr langes Wort
+                  (z. B. eine Modellbezeichnung) enthalten. break-words bricht ein
+                  solches Wort dann innerhalb der Spalte um. */}
+              <div className="flex flex-col gap-2 min-w-0">
+                {/* Kein Relationstyp-Badge: wiederholt nur die Abschnittsueberschrift. */}
+                <h3 className="font-[family-name:var(--font-display)] font-black text-lg text-[#0A0A0A] leading-tight break-words">
+                  {alternative.name}
+                </h3>
+                {product.alternative_reason && (
+                  <p className="text-sm text-[#555] leading-relaxed break-words">{product.alternative_reason}</p>
+                )}
+                <div className="mt-auto flex items-center justify-between gap-3">
+                  <span
+                    className="text-xs font-bold font-[family-name:var(--font-mono)] w-fit"
+                    style={{ backgroundColor: '#FFE500', color: '#0A0A0A', padding: '2px 8px' }}
+                  >
+                    {getPriceBand(alternative.price_cents)}
+                  </span>
+                  <span
+                    aria-hidden
+                    className="text-xs font-bold font-[family-name:var(--font-mono)] text-[#555] group-hover:text-[#0A0A0A] transition-colors whitespace-nowrap"
+                  >
+                    Produkt ansehen →
+                  </span>
+                </div>
+              </div>
+            </Link>
           </div>
         </section>
       )}
@@ -364,14 +539,14 @@ export default async function ProduktPage({ params }: Props) {
       )}
 
       {/* ── ÄHNLICHE PRODUKTE ──────────────────────────────── */}
-      {related.length > 0 && (
+      {relatedFiltered.length > 0 && (
         <section style={{ backgroundColor: '#F8F8F8', borderTop: '2px solid #0A0A0A', borderBottom: '2px solid #0A0A0A' }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
             <h2 className="font-[family-name:var(--font-display)] font-black text-xl text-[#0A0A0A] mb-6">
               Könnte dich auch interessieren
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {related.map((p) => (
+              {relatedFiltered.map((p) => (
                 <Link
                   key={p.slug}
                   href={`/produkt/${p.slug}`}

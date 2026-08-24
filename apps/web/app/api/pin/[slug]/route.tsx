@@ -91,7 +91,7 @@ export async function GET(
               gap: '14px',
             }}
           >
-            <div style={{ backgroundColor: '#0A0A0A', color: '#FFE500', padding: '4px 12px', fontSize: '12px', fontWeight: 700, letterSpacing: '0.15em', display: 'flex', width: 'fit-content' }}>
+            <div style={{ backgroundColor: '#0A0A0A', color: '#FFE500', padding: '4px 12px', fontSize: '12px', fontWeight: 700, letterSpacing: '0.15em', display: 'flex', alignSelf: 'flex-start' }}>
               CRAZY BABO BAZAR
             </div>
             <div style={{ fontSize: name.length > 40 ? '30px' : '36px', fontWeight: 800, color: '#0A0A0A', lineHeight: 1.15, display: 'flex' }}>

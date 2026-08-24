@@ -21,11 +21,71 @@ type Product = {
 const SESSION_KEY = 'cbb-swipe-session'
 const REFILL_THRESHOLD = 4
 
+/**
+ * Obergrenze für einen kompletten Startdeck-Ladevorgang (alle Queries zusammen).
+ * Danach werden die laufenden Requests wirklich abgebrochen, statt nur das
+ * Ergebnis zu ignorieren — sonst könnte ein später Rückläufer noch refs oder
+ * State beschreiben.
+ */
+const DECK_LOAD_TIMEOUT_MS = 15_000
+
 /** Ergebnis des Initial-Ladens — wird erst nach dem await in State übernommen. */
 type InitialDeck = {
   likes: number
   total: number
   cards: Product[]
+}
+
+/** Ein laufender Startdeck-Ladevorgang samt Abbruch-Handle. */
+type DeckLoad = {
+  promise: Promise<InitialDeck>
+  cancel: () => void
+}
+
+/**
+ * Startet einen Startdeck-Ladevorgang mit hartem Timeout.
+ *
+ * Kein `Promise.race`: Der Timeout ruft `controller.abort()` auf, wodurch die
+ * Supabase-Queries per `.abortSignal()` tatsächlich abgebrochen werden. Der
+ * Timer wird in jedem Ausgang gelöscht; `cancel()` ist idempotent und darf auch
+ * nach dem Settle noch aufgerufen werden (dann ein No-Op auf dem Netz).
+ */
+function startDeckLoad(
+  run: (signal: AbortSignal) => Promise<InitialDeck>,
+  timeoutMs: number = DECK_LOAD_TIMEOUT_MS
+): DeckLoad {
+  const controller = new AbortController()
+  let timer: ReturnType<typeof setTimeout> | null = setTimeout(() => {
+    timer = null
+    controller.abort()
+  }, timeoutMs)
+
+  const clearTimer = () => {
+    if (timer !== null) {
+      clearTimeout(timer)
+      timer = null
+    }
+  }
+
+  // `.finally` hängt am zurückgegebenen Promise — die Ablehnung wird also von
+  // der Aufruferin behandelt und erzeugt keinen zweiten, unbehandelten Zweig.
+  // Das try/catch fängt nur den (bei async-Funktionen unmöglichen) synchronen
+  // Wurf ab, damit dabei kein Timer stehen bleibt.
+  let promise: Promise<InitialDeck>
+  try {
+    promise = run(controller.signal).finally(clearTimer)
+  } catch (err) {
+    clearTimer()
+    promise = Promise.reject(err)
+  }
+
+  return {
+    promise,
+    cancel: () => {
+      clearTimer()
+      controller.abort()
+    },
+  }
 }
 
 /**
@@ -70,7 +130,10 @@ export function SwipeDeck() {
   // selben Tick gilt — vor der ersten Mutation.
   const deckLoadInFlight = useRef(false)
 
-  const fetchProducts = useCallback(async (weighted = false) => {
+  // `signal` wird nur aus dem Startladepfad übergeben. Ohne Signal bleibt das
+  // Verhalten exakt wie bisher: Fehler enden in `data: null` → leeres Array,
+  // damit Refills keinen neuen Rejection-Pfad bekommen.
+  const fetchProducts = useCallback(async (weighted = false, signal?: AbortSignal) => {
     const sb = createClient()
 
     // Build persona filter based on weights
@@ -94,7 +157,14 @@ export function SwipeDeck() {
       query = query.eq('shop_persona', personaFilter)
     }
 
-    const { data } = await query
+    if (signal) {
+      query = query.abortSignal(signal)
+    }
+
+    const { data, error } = await query
+    // Abbruch und Netzwerkfehler kommen bei PostgREST als `error` zurück, nicht
+    // als Rejection. Im Startladepfad muss das im Fehlerzustand landen.
+    if (signal && error) throw error
     if (!data) return []
 
     // Shuffle and filter out already seen
@@ -105,16 +175,19 @@ export function SwipeDeck() {
   // Reines Laden: liefert den Startzustand zurück, statt ihn selbst zu setzen.
   // So bleibt der Effekt unten eine reine Synchronisation mit einem externen
   // System — State wird ausschließlich im async Callback aktualisiert.
-  const loadInitialDeck = useCallback(async (): Promise<InitialDeck> => {
+  const loadInitialDeck = useCallback(async (signal: AbortSignal): Promise<InitialDeck> => {
     sessionId.current = getOrCreateSession()
 
     const sb = createClient()
 
     // Load already-swiped slugs + liked status
-    const { data: swipeData } = await sb
+    const { data: swipeData, error: swipeError } = await sb
       .from('swipes')
       .select('product_slug, liked')
       .eq('session_id', sessionId.current)
+      .abortSignal(signal)
+
+    if (swipeError) throw swipeError
 
     let hasPriorLikes = false
     let likes = 0
@@ -129,10 +202,13 @@ export function SwipeDeck() {
       // Restore persona weights from previously liked products
       if (likedSlugs.length > 0) {
         hasPriorLikes = true
-        const { data: likedProducts } = await sb
+        const { data: likedProducts, error: likedError } = await sb
           .from('products')
           .select('slug, shop_persona')
           .in('slug', likedSlugs)
+          .abortSignal(signal)
+
+        if (likedError) throw likedError
 
         if (likedProducts) {
           likedProducts.forEach((p) => {
@@ -145,7 +221,7 @@ export function SwipeDeck() {
       }
     }
 
-    const products = await fetchProducts(hasPriorLikes)
+    const products = await fetchProducts(hasPriorLikes, signal)
     const shuffled = [...products].sort(() => Math.random() - 0.5)
     shuffled.forEach((p) => seenSlugs.current.add(p.slug))
 
@@ -161,7 +237,13 @@ export function SwipeDeck() {
 
   useEffect(() => {
     let active = true
-    loadInitialDeck()
+    // loadInitialDeck rekonstruiert seenSlugs und personaWeights ohnehin aus der
+    // bestehenden Supabase-Session — der Reset isoliert Effect-Replay (Strict
+    // Mode) und abgebrochene Teilversuche, damit keine doppelten Gewichte bleiben.
+    seenSlugs.current = new Set()
+    personaWeights.current = {}
+    const load = startDeckLoad(loadInitialDeck)
+    load.promise
       .then((deck) => {
         if (!active) return
         if (isUsableDeck(deck)) {
@@ -179,7 +261,10 @@ export function SwipeDeck() {
         setLoadFailed(true)
       })
     return () => {
+      // Erst den Guard schließen (keine State-Updates nach Unmount), dann die
+      // laufenden Requests wirklich abbrechen.
       active = false
+      load.cancel()
     }
   }, [loadInitialDeck, applyInitialDeck])
 
@@ -241,16 +326,18 @@ export function SwipeDeck() {
     if (deckLoadInFlight.current) return
     deckLoadInFlight.current = true
 
-    try {
-      // Sauberer In-Memory-Start: ein abgebrochener Versuch darf seine bereits
-      // gezählten Persona-Gewichte nicht ein zweites Mal addieren. Die Session
-      // selbst bleibt bestehen — loadInitialDeck baut beides aus Supabase neu auf.
-      seenSlugs.current = new Set()
-      personaWeights.current = {}
-      setLoadFailed(false)
-      setLoading(true)
+    // Sauberer In-Memory-Start: ein abgebrochener Versuch darf seine bereits
+    // gezählten Persona-Gewichte nicht ein zweites Mal addieren. Die Session
+    // selbst bleibt bestehen — loadInitialDeck baut beides aus Supabase neu auf.
+    // Muss vor dem Start laufen, damit der Ladevorgang in die frischen Refs schreibt.
+    seenSlugs.current = new Set()
+    personaWeights.current = {}
+    setLoadFailed(false)
+    setLoading(true)
 
-      const deck = await loadInitialDeck()
+    const load = startDeckLoad(loadInitialDeck)
+    try {
+      const deck = await load.promise
       if (!isUsableDeck(deck)) {
         throw new Error('Retry load returned an unusable deck')
       }
@@ -259,6 +346,9 @@ export function SwipeDeck() {
       setLoading(false)
       setLoadFailed(true)
     } finally {
+      // Räumt Timer und Controller in jedem Pfad ab — nach dem Settle ist der
+      // Abort ein No-Op.
+      load.cancel()
       deckLoadInFlight.current = false
     }
   }, [loadInitialDeck, applyInitialDeck])
@@ -267,22 +357,23 @@ export function SwipeDeck() {
     if (deckLoadInFlight.current) return
     deckLoadInFlight.current = true
 
-    try {
-      // Clear session
-      try { localStorage.removeItem(SESSION_KEY) } catch {}
-      seenSlugs.current = new Set()
-      personaWeights.current = {}
-      sessionId.current = getOrCreateSession()
-      setLoadFailed(false)
-      setLikes(0)
-      setTotal(0)
-      setCards([])
-      setDone(false)
-      setLoading(true)
+    // Clear session
+    try { localStorage.removeItem(SESSION_KEY) } catch {}
+    seenSlugs.current = new Set()
+    personaWeights.current = {}
+    sessionId.current = getOrCreateSession()
+    setLoadFailed(false)
+    setLikes(0)
+    setTotal(0)
+    setCards([])
+    setDone(false)
+    setLoading(true)
 
+    const load = startDeckLoad(loadInitialDeck)
+    try {
       // Erst awaiten, dann anwenden: ein fehlgeschlagener Load darf keinen
       // halben Deck-Zustand hinterlassen.
-      const deck = await loadInitialDeck()
+      const deck = await load.promise
       // Supabase-Fehler kommen meist als `data: null` zurück, nicht als throw.
       // Eine frische Reset-Session muss veröffentlichte Karten liefern — ein
       // leeres Deck ist deshalb ein Ladefehler und kein gültiges Ergebnis.
@@ -295,6 +386,7 @@ export function SwipeDeck() {
       setLoading(false)
       setLoadFailed(true)
     } finally {
+      load.cancel()
       deckLoadInFlight.current = false
     }
   }, [loadInitialDeck, applyInitialDeck])

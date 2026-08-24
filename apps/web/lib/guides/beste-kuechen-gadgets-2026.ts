@@ -83,7 +83,7 @@ export const guideBesteKuechenGadgets: Guide = {
       heading: 'Für vegane Küchen und Pflanzenmilch-Enthusiasten',
       body: [
         'Vegane Küche ist 2026 kein Nischen-Thema mehr. Und wer sich vegan ernährt, weiß: Pflanzenmilch ist teuer, die Auswahl im Supermarkt begrenzt. Selbstmachen wird plötzlich attraktiv.',
-        'Der N4 Nussmilchbereiter für frische Pflanzenmilch — Hafer-, Mandel-, Soja-, Reis- oder Cashew-Milch in 15 Minuten. Mixt, kocht, filtert automatisch. Für Menschen, die Bio-Milch-Preise satt haben und ihre Zutaten selbst kontrollieren wollen. Amortisiert sich nach 2 Monaten täglichem Frühstück.',
+        'Der Ariceck N4 fasst 1,5 Liter und arbeitet mit einem 800-W-Motor. Programme für Getreide, Nüsse und Bohnen decken Hafer-, Mandel- und Sojamilch ab; ein Reinigungsprogramm unterstützt anschließend beim Saubermachen, ersetzt die manuelle Nachreinigung aber nicht immer. Für alle, die Zutaten selbst bestimmen und Pflanzenmilch regelmäßig frisch zubereiten wollen.',
         'Der Mango-Schneider aus Edelstahl mit Fruchthalter-Griff für Vitamine-Fans. Kern raus, zwei Hälften in Sekunden. Für Menschen, die Obst häufiger essen würden, wenn es weniger fummelig wäre — oder Smoothie-Bowls im Instagram-Look wollen.',
         'Und der DIYCUT Taco-Ständer für Taco-Abende, die endlich aussehen wie im mexikanischen Restaurant. Hält 4 Tacos in ordentlicher Präsentation, spülmaschinenfest. Kleines Küchen-Detail, ändert die Präsentation komplett.',
       ],

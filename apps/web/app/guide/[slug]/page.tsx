@@ -22,7 +22,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const guide = getGuideBySlug(slug)
   if (!guide) return {}
   return {
-    title: `${guide.title} — Crazy Babo Bazar`,
+    // Ohne Markensuffix: `title.template` im Root-Layout haengt ihn an (lib/seo-title.ts).
+    title: guide.title,
     description: guide.metaDescription,
     alternates: { canonical: `/guide/${slug}` },
     openGraph: {

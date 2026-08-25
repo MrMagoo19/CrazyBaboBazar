@@ -237,7 +237,10 @@ const routeUrls = [
   "/entdecken",
   "/unter-10",
   "/unknown/sonstiges",
-  "/likes",
+  // Die Likes-Liste liegt unter /entdecken/likes. Das frueher hier stehende
+  // /likes ist gar keine Route — die Diagnose mass also nur die 404-Seite.
+  "/entdecken/likes",
+  "/jarvis-ebook",
   "/design-preview",
   "/squad",
   "/wellness",

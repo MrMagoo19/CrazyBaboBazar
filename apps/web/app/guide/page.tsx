@@ -7,7 +7,8 @@ import type { Metadata } from 'next'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Guides & Produkt-Finder — Crazy Babo Bazar',
+  // Ohne Markensuffix: `title.template` im Root-Layout haengt ihn an (lib/seo-title.ts).
+  title: 'Guides & Produkt-Finder',
   description: 'Kuratierte Guides zu Geschenken, Küchen-Gadgets, Home-Office-Setup und mehr. Plus Produkt-Finder mit Preis- und Persona-Filter.',
   alternates: { canonical: '/guide' },
 }

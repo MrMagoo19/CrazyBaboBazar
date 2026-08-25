@@ -11,6 +11,7 @@
     "start": "next start",
     "start:pilot": "node --env-file=.env.pilot.local scripts/run-pilot.mjs start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },

@@ -1,5 +1,3 @@
-export const runtime = 'edge'
-
 export async function GET() {
   const res = await fetch(
     process.env.EBOOK_URL!,

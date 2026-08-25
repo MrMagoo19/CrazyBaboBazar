@@ -6,7 +6,8 @@ import type { Metadata } from 'next'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Premium Gadgets über 200 Euro — keine Kompromisse | Crazy Babo Bazar',
+  // Ohne Markensuffix: `title.template` im Root-Layout haengt ihn an (lib/seo-title.ts).
+  title: 'Premium Gadgets über 200 Euro — keine Kompromisse',
   description: 'Premium-Gadgets und Ausrüstung über 200 Euro — für alle, die wissen was sie wollen. HHKB, Sena, Laser-Engraver und mehr. Mit direktem Amazon-Link.',
   alternates: { canonical: '/ueber-200' },
 }

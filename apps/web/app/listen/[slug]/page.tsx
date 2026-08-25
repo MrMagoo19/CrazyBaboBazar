@@ -21,7 +21,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const list = await getListBySlug(slug)
   if (!list) return {}
   return {
-    title: `${list.title} — Crazy Babo Bazar`,
+    // document title ohne Markensuffix — `title.template` im Root-Layout haengt
+    // ihn an (lib/seo-title.ts). Der openGraph-Titel unten behaelt den
+    // Markenbezug: fuer ihn gilt das Template nicht.
+    title: list.title,
     description: list.intro ?? `${list.product_slugs.length} handverlesene Produkte: ${list.title}`,
     alternates: { canonical: `/listen/${slug}` },
     openGraph: {
@@ -189,13 +192,12 @@ export default async function ListDetailPage({ params }: Props) {
                 28 Seiten. Lauffähiger Code. Stimme, Briefings & Gedächtnis — kein Account, kein Kauf.
               </p>
             </div>
-            <a
-              href="/api/download/ebook"
-              download="Jarvis-mit-Claude-Ebook.pdf"
+            <Link
+              href="/jarvis-ebook"
               className="shrink-0 font-bold text-sm px-6 py-3 border-2 border-[#FFE500] bg-[#FFE500] text-[#0A0A0A] hover:bg-transparent hover:text-[#FFE500] transition-colors"
             >
-              ↓ Kostenlos downloaden
-            </a>
+              Zum kostenlosen E-Book →
+            </Link>
           </div>
         </section>
       )}

@@ -6,7 +6,8 @@ import type { Metadata } from 'next'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Geschenke unter 20 Euro — Wichtelgeschenke & Mitbringsel | Crazy Babo Bazar',
+  // Ohne Markensuffix: `title.template` im Root-Layout haengt ihn an (lib/seo-title.ts).
+  title: 'Geschenke unter 20 Euro — Wichtelgeschenke & Mitbringsel',
   description: 'Kuriose und witzige Geschenke unter 20 Euro — ideal für Wichteln, spontane Mitbringsel und Geburtstage. Handverlesen mit direktem Amazon-Link.',
   alternates: { canonical: '/unter-20' },
 }

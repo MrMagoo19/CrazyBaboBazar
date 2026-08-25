@@ -6,7 +6,8 @@ import type { Metadata } from 'next'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Geschenke unter 100 Euro — Gadgets & Technik | Crazy Babo Bazar',
+  // Ohne Markensuffix: `title.template` im Root-Layout haengt ihn an (lib/seo-title.ts).
+  title: 'Geschenke unter 100 Euro — Gadgets & Technik',
   description: 'Gadgets und Geschenke unter 100 Euro, die man sich selten selbst kauft — aber sofort haben will. Handverlesen mit direktem Amazon-Link.',
   alternates: { canonical: '/unter-100' },
 }

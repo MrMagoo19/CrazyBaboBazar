@@ -2,7 +2,8 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Impressum — Crazy Babo Bazar',
+  // Ohne Markensuffix: `title.template` im Root-Layout haengt ihn an (lib/seo-title.ts).
+  title: 'Impressum',
   description: 'Angaben gemäß § 5 TMG',
   alternates: { canonical: '/impressum' },
 }

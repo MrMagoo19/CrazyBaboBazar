@@ -1,0 +1,56 @@
+name: web quality
+
+# Quality Gate fuer apps/web: Tests, Typen, Lint.
+#
+# Bewusst OHNE `next build`. Der produktionsnahe Build rendert `app/sitemap.ts`
+# und zieht dafuer echte Supabase-Daten ueber das Netz — mit den Secrets eines
+# Live-Projekts in der CI waere das ein Schreibpfad-naher Zugriff aus jedem PR
+# heraus, ohne Secrets bricht der Build ohnehin ab. Vercel baut jeden Commit
+# ohnehin gegen die echte Umgebung und bleibt damit das Build-Gate; hier laufen
+# nur die Checks, die ohne Netz und ohne Secrets aussagekraeftig sind.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web/**'
+      # Die Tests unter apps/web pruefen auch die read-only Audit-Skripte im
+      # Repo-Root — sonst koennte eine Aenderung dort an der CI vorbeilaufen.
+      - 'scripts/**'
+      - '.github/workflows/web-quality.yml'
+  pull_request:
+    paths:
+      - 'apps/web/**'
+      - 'scripts/**'
+      - '.github/workflows/web-quality.yml'
+
+# Kein Schreibrecht: der Job liest nur den Code und meldet Erfolg oder Fehler.
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint

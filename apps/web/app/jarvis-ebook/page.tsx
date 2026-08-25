@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Baue deinen eigenen JARVIS mit Claude — Kostenloses E-Book',
   description: 'Der praktische Anfängerleitfaden für deinen persönlichen KI-Assistenten mit Stimme, Gedächtnis, News und Kalender. Mit lauffähigem Code. Kostenlos.',
+  alternates: { canonical: '/jarvis-ebook' },
   openGraph: {
     title: 'Baue deinen eigenen JARVIS mit Claude — Kostenlos',
     description: 'Persönlicher KI-Assistent mit Stimme, Briefings & Gedächtnis. 28 Seiten mit lauffähigem Code.',

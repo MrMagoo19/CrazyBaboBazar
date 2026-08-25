@@ -159,6 +159,34 @@ describe('sitemap — statische Seiten', () => {
     for (const g of guides) expect(all).toContain(`${BASE_URL}/guide/${g.slug}`)
   })
 
+  it('reicht jede Preis-Landingpage ein', async () => {
+    mockSupabase({})
+    const all = urls(await sitemap())
+    for (const path of ['/unter-10', '/unter-20', '/unter-50', '/unter-100', '/unter-200', '/ueber-200']) {
+      expect(all, path).toContain(`${BASE_URL}${path}`)
+    }
+  })
+
+  it('stuft /unter-10 wie die uebrigen taeglich wechselnden Preisseiten ein', async () => {
+    // Der Bestand hinter einem Preisfilter aendert sich mit jedem neuen Produkt,
+    // die Seite ist aber kein Hub — daher dieselbe Einstufung wie /unter-20.
+    mockSupabase({})
+    const entry = (await sitemap()).find((e) => e.url === `${BASE_URL}/unter-10`)
+
+    expect(entry).toBeDefined()
+    expect(entry?.changeFrequency).toBe('daily')
+    expect(entry?.priority).toBe(0.7)
+  })
+
+  it('reicht die JARVIS-Landingpage als Evergreen-Seite ein', async () => {
+    mockSupabase({})
+    const entry = (await sitemap()).find((e) => e.url === `${BASE_URL}/jarvis-ebook`)
+
+    expect(entry).toBeDefined()
+    expect(entry?.changeFrequency).toBe('monthly')
+    expect(entry?.priority).toBe(0.6)
+  })
+
   it('enthaelt Produkte und Listen', async () => {
     mockSupabase({
       products: [{ slug: 'p1', updated_at: '2026-02-02T00:00:00Z', created_at: '2026-01-01T00:00:00Z' }],
@@ -204,5 +232,20 @@ describe('sitemap — Fail-closed und Retry', () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', '')
     mockSupabase({})
     await expect(sitemap()).rejects.toThrow(/Supabase env vars missing/)
+  })
+})
+
+describe('sitemap — noindex-Routen', () => {
+  it('listet die auf noindex gesetzten Routen nicht', async () => {
+    // Gegenprobe zu `app/metadata-noindex.test.ts`: eine Route gleichzeitig per
+    // `robots.index: false` auszuschliessen und per Sitemap einzureichen, waere
+    // ein widerspruechliches Crawl-Signal.
+    mockSupabase({ personaRows: [{ shop_persona: 'babo', shop_main_category: 'gaming' }] })
+    const all = urls(await sitemap())
+    for (const path of ['/design-preview', '/entdecken/likes']) {
+      expect(all.some((u) => u.startsWith(`${BASE_URL}${path}`)), path).toBe(false)
+    }
+    // Der indexierbare Elternpfad bleibt drin — der Ausschluss trifft nur das Kind.
+    expect(all).toContain(`${BASE_URL}/entdecken`)
   })
 })

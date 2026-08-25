@@ -2,7 +2,10 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Über CrazyBabo Bazar — Wer steckt hinter dem Bazar?',
+  // Ohne Markennamen: `title.template` im Root-Layout haengt ihn an. Der frühere
+  // Titel trug ihn als „CrazyBabo Bazar" bereits selbst — dem Leser stand die
+  // Marke damit zweimal im `<title>`, in zwei Schreibweisen.
+  title: 'Über uns — Wer steckt hinter dem Bazar?',
   description: 'CrazyBabo Bazar ist kein generischer Affiliate-Shop. Wir sind ein handverlesenes Empfehlungsportal für kuriose, lustige und kaufstarke Produkte im DACH-Raum.',
   alternates: { canonical: '/ueber-uns' },
   openGraph: { images: [{ url: 'https://www.crazybabobazar.com/opengraph-image', width: 1200, height: 630 }] },

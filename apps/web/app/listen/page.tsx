@@ -5,7 +5,8 @@ import Link from 'next/link'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Kuratierte Listen — Crazy Babo Bazar',
+  // Ohne Markensuffix: `title.template` im Root-Layout haengt ihn an (lib/seo-title.ts).
+  title: 'Kuratierte Listen',
   description: 'Handverlesene Produktlisten nach Thema: Geschenke für Nerds, beste Gaming-Gadgets, Küchen-Hacks und mehr. Direkt auf Amazon verlinkt.',
   alternates: { canonical: '/listen' },
   openGraph: {

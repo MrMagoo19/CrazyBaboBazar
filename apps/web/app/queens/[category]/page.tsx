@@ -21,7 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params
   const cat = getPersonaCategory('queen', category)
   return {
-    title: `Geschenke für Frauen — ${cat?.label ?? category} | Crazy Babo Bazar`,
+    // Ohne Markensuffix: `title.template` im Root-Layout haengt ihn an (lib/seo-title.ts).
+    title: `Geschenke für Frauen — ${cat?.label ?? category}`,
     description: cat?.intro ?? 'Handverlesene Produkte für Queens.',
     alternates: { canonical: `/queens/${category}` },
   }

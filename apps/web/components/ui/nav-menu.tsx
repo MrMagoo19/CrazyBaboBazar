@@ -29,6 +29,7 @@ const THEMEN: DropdownItem[] = [
 
 const PREISE: DropdownItem[] = [
   { label: "Alle Produkte", href: "/trending",   icon: Zap, desc: "Kompletter Überblick" },
+  { label: "Unter 10€",     href: "/unter-10",   icon: Zap, desc: "Wichteln & Kalender" },
   { label: "Unter 20€",     href: "/unter-20",   icon: Zap, desc: "Günstig & gut" },
   { label: "Unter 50€",     href: "/unter-50",   icon: Zap, desc: "Top Preis-Leistung" },
   { label: "Unter 100€",    href: "/unter-100",  icon: Zap, desc: "Gute Mitte" },
@@ -232,7 +233,7 @@ export function DesktopNav() {
   const isThemenActive = pathname?.startsWith('/thema')
   const isListenActive = pathname?.startsWith('/listen')
   const isGuideActive = pathname?.startsWith('/guide')
-  const isPreisActive = ['/trending', '/unter-20', '/unter-50', '/unter-100', '/unter-200', '/ueber-200'].includes(pathname ?? '')
+  const isPreisActive = ['/trending', '/unter-10', '/unter-20', '/unter-50', '/unter-100', '/unter-200', '/ueber-200'].includes(pathname ?? '')
 
   const dropdown = open && (
     <div

@@ -2,7 +2,8 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Datenschutz — Crazy Babo Bazar',
+  // Ohne Markensuffix: `title.template` im Root-Layout haengt ihn an (lib/seo-title.ts).
+  title: 'Datenschutz',
   description: 'Datenschutzerklärung von Crazy Babo Bazar gemäß DSGVO',
   alternates: { canonical: '/datenschutz' },
 }

@@ -7,7 +7,8 @@ import type { Metadata } from 'next'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Geschenke für Kinder — Spielzeug, Gaming & Spaß | Crazy Babo Bazar',
+  // Ohne Markensuffix: `title.template` im Root-Layout haengt ihn an (lib/seo-title.ts).
+  title: 'Geschenke für Kinder — Spielzeug, Gaming & Spaß',
   description: 'STEM-Lernspielzeug, Minecraft-Spardosen, Partyspiele und digitale Haustiere für den Miniboss zuhause.',
   alternates: { canonical: '/miniboss' },
   openGraph: { images: [{ url: 'https://www.crazybabobazar.com/opengraph-image', width: 1200, height: 630 }] },

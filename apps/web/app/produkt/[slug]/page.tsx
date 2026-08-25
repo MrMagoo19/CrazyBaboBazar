@@ -39,7 +39,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return {}
   const metaDescription = toMetaDescription(product.description, product.tagline)
   return {
-    title: `${product.name} — Crazy Babo Bazar`,
+    // document title ohne Markensuffix — `title.template` im Root-Layout haengt
+    // ihn an (lib/seo-title.ts). Die openGraph-/twitter-Titel unten behalten den
+    // Markenbezug bewusst: fuer sie gilt das Template nicht, sie stehen in
+    // Social-Previews fuer sich allein.
+    title: product.name,
     description: metaDescription,
     alternates: {
       canonical: `${SITE_URL}/produkt/${slug}`,

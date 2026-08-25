@@ -3,41 +3,52 @@
 // Klassifiziert die Live-Produktseiten aus dem Overnight-Audit gegen den
 // GSC-90-Tage-Export und schreibt eine CSV.
 //
-// Aufrufvarianten:
-//   node scripts/overnight-classify-products.mjs <live-audit.json> <gsc-pages.csv> <output.csv>
-//     -> CLI-Argumente haben immer Vorrang.
-//   CBB_MONEYWIKI_ROOT="/pfad/zum/Money WiKi" node scripts/overnight-classify-products.mjs
-//     -> GSC-Pages und Output werden relativ zum Vault-Root aufgelöst.
-//   node scripts/overnight-classify-products.mjs <live-audit.json>
-//     -> nur zulässig, wenn CBB_MONEYWIKI_ROOT gesetzt ist.
+// Aufruf:
+//   node scripts/overnight-classify-products.mjs <live-audit.json> [gsc-pages.csv] <output.csv>
 //
-// Ohne CLI-Pfade und ohne CBB_MONEYWIKI_ROOT bricht das Skript ab, bevor
-// irgendetwas gelesen oder geschrieben wird. Es wird nie an einen geratenen
-// Pfad geschrieben.
+// Der Output-Pfad (4. Argument) ist IMMER anzugeben. Frueher stand hier ein
+// Default auf einen datierten Report im Money-WiKi-Vault — ein zweiter Lauf
+// hätte den Bericht des ersten stillschweigend überschrieben, sobald
+// CBB_MONEYWIKI_ROOT gesetzt war. Es gibt deshalb keinen Default-Output mehr,
+// und geschrieben wird mit `flag: "wx"`: existiert die Datei bereits, bricht
+// das Skript ab statt zu überschreiben.
+//
+// Die GSC-Pages-CSV darf weiterhin aus CBB_MONEYWIKI_ROOT aufgelöst werden —
+// das ist ein reiner Lesepfad.
+//
+//   CBB_MONEYWIKI_ROOT="/pfad/zum/Money WiKi" \
+//     node scripts/overnight-classify-products.mjs <live-audit.json> "" <output.csv>
+//
+// Ohne auflösbare Pfade bricht das Skript ab, bevor irgendetwas gelesen oder
+// geschrieben wird. Es wird nie an einen geratenen Pfad geschrieben.
 
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 const GSC_PAGES_RELATIVE = "raw/seo/search-console/2026-08-22/pages-90d.csv";
-const OUTPUT_RELATIVE = "wiki/CrazyBaboBazar/Overnight/Produktklassifizierung-2026-08-24.csv";
 
 const LIVE_AUDIT = process.argv[2] ?? "/tmp/crazybabobazar-overnight-live-audit.json";
 const moneyWikiRoot = process.env.CBB_MONEYWIKI_ROOT?.trim() || null;
 
-const resolveVaultPath = (cliValue, relative) => {
-  if (cliValue) return cliValue;
-  return moneyWikiRoot ? join(moneyWikiRoot, relative) : null;
-};
+const USAGE =
+  "node scripts/overnight-classify-products.mjs <live-audit.json> [gsc-pages.csv] <output.csv>";
 
-const GSC_PAGES = resolveVaultPath(process.argv[3], GSC_PAGES_RELATIVE);
-const OUTPUT = resolveVaultPath(process.argv[4], OUTPUT_RELATIVE);
+const GSC_PAGES =
+  process.argv[3]?.trim() || (moneyWikiRoot ? join(moneyWikiRoot, GSC_PAGES_RELATIVE) : null);
+const OUTPUT = process.argv[4]?.trim() || null;
 
-if (!GSC_PAGES || !OUTPUT) {
-  const missing = [!GSC_PAGES && "GSC-Pages-CSV", !OUTPUT && "Output-CSV"].filter(Boolean);
+if (!GSC_PAGES) {
   throw new Error(
-    `Fail-closed: ${missing.join(" und ")} nicht auflösbar. ` +
-      "Entweder CBB_MONEYWIKI_ROOT auf das Money-WiKi-Vault setzen oder die Pfade explizit übergeben: " +
-      "node scripts/overnight-classify-products.mjs <live-audit.json> <gsc-pages.csv> <output.csv>",
+    "Fail-closed: GSC-Pages-CSV nicht auflösbar. Entweder CBB_MONEYWIKI_ROOT auf das " +
+      `Money-WiKi-Vault setzen oder den Pfad explizit übergeben: ${USAGE}`,
+  );
+}
+
+if (!OUTPUT) {
+  throw new Error(
+    "Fail-closed: Output-CSV nicht angegeben. Der Output-Pfad hat keinen Default — " +
+      `auch nicht bei gesetztem CBB_MONEYWIKI_ROOT — damit kein vorhandener Report ` +
+      `still überschrieben wird: ${USAGE}`,
   );
 }
 
@@ -54,23 +65,112 @@ const pilotSlugs = new Set([
   "welpen-usb-ladekabel-hunde-design",
 ]);
 
-// The deployed route files currently accept only these combinations. A URL can
-// be present in the sitemap/product HTML and still be a real 404, so mere link
-// presence is not enough to call the category assignment healthy.
-const validPersonaCategoryPaths = new Set([
-  "/babos/gaming",
-  "/babos/tech",
-  "/babos/lifestyle",
-  "/babos/outdoor",
-  "/babos/irrenhaus",
-  "/queens/kueche",
-  "/queens/lifestyle",
-  "/queens/beauty",
-  "/queens/geschenke",
-  "/miniboss/spielzeug",
-  "/miniboss/gaming",
-  "/miniboss/spass",
-]);
+// Ein Link auf /babos/<kategorie> kann auf der Produktseite stehen und trotzdem
+// ein echter 404 sein — blosse Link-Praesenz reicht also nicht, um die
+// Kategoriezuordnung gesund zu nennen. Frueher stand hier eine handgepflegte
+// Allowlist der damals deployten 12 Kombinationen; sie veraltete lautlos, sobald
+// eine Persona-Kategorie dazukam oder wegfiel.
+//
+// Quelle ist jetzt die Live-Sitemap desselben Audits: `app/sitemap.ts` leitet die
+// Persona-Kategorieseiten aus derselben Taxonomie ab, aus der die Routen ihre
+// Gueltigkeit ziehen. Was dort steht, ist eine erreichbare Seite.
+const PERSONA_CATEGORY_PATH = /^\/(?:babos|queens|miniboss)\/[^/]+$/;
+
+/** Ein einzelner nachgestellter Slash zaehlt nicht als anderer Pfad. */
+const normalizePath = (path) =>
+  typeof path === "string" && path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+
+// Der Pfad allein sagt nichts darueber, ob eine URL zu unserer Seite gehoert:
+// `https://evil.example/babos/foo` hat denselben Pfad wie unsere Kategorieseite.
+// Ohne Origin-Pruefung koennte ein fremder Eintrag in audit.sitemap.urls also
+// eine Kategorie als "existiert" ausweisen, die es bei uns gar nicht gibt.
+// Massgeblich ist die Origin, gegen die das Audit gelaufen ist.
+const requireAuditOrigin = (method) => {
+  const raw = typeof method?.origin === "string" ? method.origin.trim() : "";
+  if (!raw) {
+    throw new Error(
+      "Fail-closed: audit.method.origin fehlt oder ist kein String (war: " +
+        `${JSON.stringify(method?.origin)}). Ohne bekannte Audit-Origin laesst sich nicht ` +
+        "entscheiden, welche Sitemap-URLs zur eigenen Seite gehoeren.",
+    );
+  }
+
+  let parsed;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    throw new Error(
+      `Fail-closed: audit.method.origin ist keine gueltige URL (war: ${JSON.stringify(raw)})`,
+    );
+  }
+
+  // Nur http(s) hat eine vergleichbare Origin — `new URL("file:///x").origin`
+  // ist der undurchsichtige String "null", gegen den jeder Vergleich sinnlos waere.
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error(
+      `Fail-closed: audit.method.origin ist keine http(s)-Origin (war: ${JSON.stringify(raw)})`,
+    );
+  }
+
+  return parsed.origin;
+};
+
+const derivePersonaCategoryPaths = (sitemapUrls, expectedOrigin) => {
+  if (!Array.isArray(sitemapUrls) || sitemapUrls.length === 0) {
+    throw new Error(
+      "Fail-closed: audit.sitemap.urls fehlt oder ist leer — ohne Sitemap laesst sich nicht " +
+        "entscheiden, welche Persona-/Kategorie-Links echte Seiten sind.",
+    );
+  }
+
+  const paths = new Set();
+  const malformed = [];
+  const foreign = [];
+
+  for (const url of sitemapUrls) {
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      // Nicht ueberspringen: eine unlesbare Sitemap-URL heisst, dass die Ableitung
+      // unvollstaendig waere — und eine fehlende gueltige Kategorie wuerde als
+      // "404" in den Report wandern.
+      malformed.push(String(url));
+      continue;
+    }
+    if (parsed.origin !== expectedOrigin) {
+      // Ebenfalls nicht still ueberspringen: eine fremde Origin in der Sitemap ist
+      // ein kaputtes oder manipuliertes Audit, kein harmloses Rauschen.
+      foreign.push(String(url));
+      continue;
+    }
+    const pathname = normalizePath(parsed.pathname);
+    if (PERSONA_CATEGORY_PATH.test(pathname)) paths.add(pathname);
+  }
+
+  if (malformed.length > 0) {
+    throw new Error(
+      `Fail-closed: ${malformed.length} unlesbare URL(s) in audit.sitemap.urls, ` +
+        `erste: ${malformed.slice(0, 3).join(", ")}`,
+    );
+  }
+
+  if (foreign.length > 0) {
+    throw new Error(
+      `Fail-closed: ${foreign.length} Sitemap-URL(s) mit fremder Origin (erwartet ${expectedOrigin}), ` +
+        `erste: ${foreign.slice(0, 3).join(", ")}`,
+    );
+  }
+
+  if (paths.size === 0) {
+    throw new Error(
+      "Fail-closed: keine /babos|queens|miniboss/<kategorie>-Pfade in audit.sitemap.urls — " +
+        "jede Kategoriezuordnung wuerde faelschlich als 404 klassifiziert.",
+    );
+  }
+
+  return paths;
+};
 
 const parseGsc = (csv) => {
   const rows = csv.trim().split(/\r?\n/).slice(1);
@@ -88,9 +188,9 @@ const parseGsc = (csv) => {
   return byPath;
 };
 
-const classify = (product, gsc) => {
+const classify = (product, gsc, validPersonaCategoryPaths) => {
   const memberships = product.memberships.length;
-  const categoryLink = product.personaCategoryLinks[0] ?? null;
+  const categoryLink = normalizePath(product.personaCategoryLinks[0]) ?? null;
   const hasValidCategoryLink = categoryLink != null && validPersonaCategoryPaths.has(categoryLink);
   const highReasons = [];
   if (pilotSlugs.has(product.slug)) highReasons.push("Value-Add-Pilotseite");
@@ -133,8 +233,40 @@ const escapeCsv = (value) => {
 const audit = JSON.parse(await readFile(LIVE_AUDIT, "utf8"));
 const gscByPath = parseGsc(await readFile(GSC_PAGES, "utf8"));
 
-const rows = audit.productPages
-  .filter((product) => !product.error)
+const auditOrigin = requireAuditOrigin(audit.method);
+const validPersonaCategoryPaths = derivePersonaCategoryPaths(audit.sitemap?.urls, auditOrigin);
+
+// Sollwert fuer alles Weitere: wie viele /produkt/-URLs die Sitemap gemeldet hat.
+// Frueher stand hier die Konstante 372 — sie war ab dem naechsten neuen Produkt
+// falsch und haette einen sonst korrekten Lauf abgebrochen.
+const productCount = audit.sitemap?.productCount;
+if (!Number.isInteger(productCount) || productCount <= 0) {
+  throw new Error(
+    `Fail-closed: audit.sitemap.productCount ist keine positive ganze Zahl (war: ${JSON.stringify(productCount)})`,
+  );
+}
+
+const productPages = audit.productPages;
+if (!Array.isArray(productPages)) {
+  throw new Error(
+    `Fail-closed: audit.productPages ist kein Array (war: ${JSON.stringify(productPages)})`,
+  );
+}
+
+// Fehlerhafte Produktseiten nicht still wegfiltern: eine abgebrochene Anfrage
+// heisst nicht, dass die Seite in Ordnung ist — sie wurde nur nicht gemessen.
+// Wer sie aus der Zeilenzahl herausrechnet, bekommt einen Report, der vollstaendig
+// aussieht und es nicht ist.
+const failedProducts = productPages.filter((product) => product.error);
+if (failedProducts.length > 0) {
+  const first = failedProducts.slice(0, 3).map((product) => product.url ?? "(ohne URL)");
+  throw new Error(
+    `Fail-closed: ${failedProducts.length} von ${productPages.length} Produktseiten konnten im ` +
+      `Audit nicht geladen werden, erste: ${first.join(", ")}. Audit wiederholen, bevor klassifiziert wird.`,
+  );
+}
+
+const rows = productPages
   .map((product) => {
     const gsc = gscByPath.get(product.path) ?? {
       clicks: 0,
@@ -142,8 +274,8 @@ const rows = audit.productPages
       ctr: 0,
       position: null,
     };
-    const classification = classify(product, gsc);
-    const personaCategory = product.personaCategoryLinks[0] ?? "unbekannt";
+    const classification = classify(product, gsc, validPersonaCategoryPaths);
+    const personaCategory = normalizePath(product.personaCategoryLinks[0]) ?? "unbekannt";
     const [, persona = "unbekannt", category = "unbekannt"] = personaCategory.split("/");
     const categoryLinkStatus = validPersonaCategoryPaths.has(personaCategory)
       ? "200"
@@ -171,18 +303,11 @@ const rows = audit.productPages
     a.classification.localeCompare(b.classification, "de") || a.name.localeCompare(b.name, "de"),
   );
 
-if (rows.length !== 372) {
-  throw new Error(`Fail-closed: erwartet 372 Live-Produktseiten, gefunden ${rows.length}`);
+if (rows.length !== productCount) {
+  throw new Error(
+    `Fail-closed: Sitemap meldet ${productCount} Produktseiten, klassifiziert wurden ${rows.length}`,
+  );
 }
-
-const header = Object.keys(rows[0]);
-const csv = [
-  header.join(","),
-  ...rows.map((row) => header.map((key) => escapeCsv(row[key])).join(",")),
-].join("\n");
-
-await mkdir(dirname(OUTPUT), { recursive: true });
-await writeFile(OUTPUT, `${csv}\n`, "utf8");
 
 const counts = Object.fromEntries(
   [...new Set(rows.map((row) => row.classification))].map((className) => [
@@ -191,7 +316,33 @@ const counts = Object.fromEntries(
   ]),
 );
 const countTotal = Object.values(counts).reduce((sum, count) => sum + count, 0);
-if (countTotal !== 372) throw new Error(`Fail-closed: Klassensumme ${countTotal} statt 372`);
+if (countTotal !== productCount) {
+  throw new Error(`Fail-closed: Klassensumme ${countTotal} statt ${productCount}`);
+}
+
+const header = Object.keys(rows[0]);
+const csv = [
+  header.join(","),
+  ...rows.map((row) => header.map((key) => escapeCsv(row[key])).join(",")),
+].join("\n");
+
+// Erst pruefen, dann schreiben: wegen `flag: "wx"` waere eine nach dem Schreiben
+// geworfene Pruefung nicht wiederholbar — der zweite Lauf scheiterte am
+// halbfertigen Report des ersten.
+await mkdir(dirname(OUTPUT), { recursive: true });
+// `flag: "wx"` statt Ueberschreiben: ein bereits vorhandener Report ist das
+// Ergebnis eines frueheren Laufs und wird nicht angetastet.
+try {
+  await writeFile(OUTPUT, `${csv}\n`, { encoding: "utf8", flag: "wx" });
+} catch (error) {
+  if (error?.code === "EEXIST") {
+    throw new Error(
+      `Fail-closed: ${OUTPUT} existiert bereits und wird nicht überschrieben. ` +
+        "Einen neuen Ausgabepfad wählen oder die vorhandene Datei bewusst entfernen.",
+    );
+  }
+  throw error;
+}
 
 console.log(`OUTPUT=${OUTPUT}`);
 console.log(`ROWS=${rows.length}`);

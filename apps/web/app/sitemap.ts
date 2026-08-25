@@ -140,12 +140,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Der Guide-Hub ist verlinkt und erreichbar, fehlte aber als Sitemap-Eintrag;
     // nur die einzelnen /guide/<slug> standen drin.
     { url: `${BASE_URL}/guide`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE_URL}/unter-10`, changeFrequency: 'daily', priority: 0.7 },
     { url: `${BASE_URL}/unter-20`, changeFrequency: 'daily', priority: 0.7 },
     { url: `${BASE_URL}/unter-50`, changeFrequency: 'daily', priority: 0.7 },
     { url: `${BASE_URL}/unter-100`, changeFrequency: 'daily', priority: 0.6 },
     { url: `${BASE_URL}/unter-200`, changeFrequency: 'daily', priority: 0.6 },
     { url: `${BASE_URL}/ueber-200`, changeFrequency: 'daily', priority: 0.6 },
     { url: `${BASE_URL}/entdecken`, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${BASE_URL}/jarvis-ebook`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE_URL}/ueber-uns`, changeFrequency: 'monthly', priority: 0.4 },
     { url: `${BASE_URL}/impressum`, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${BASE_URL}/datenschutz`, changeFrequency: 'yearly', priority: 0.2 },

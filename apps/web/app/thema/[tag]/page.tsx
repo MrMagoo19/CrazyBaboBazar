@@ -3,6 +3,7 @@ import { ProductGrid } from '@/components/product-grid'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { isThemaTag, THEMA_TAGS, type ThemaTag } from '@/lib/taxonomy'
+import { stripSiteNameSuffix } from '@/lib/seo-title'
 import type { Metadata } from 'next'
 
 export const revalidate = 3600
@@ -116,8 +117,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tag } = await params
   const config = getTagConfig(tag)
   if (!config) return { title: 'Nicht gefunden', robots: { index: false, follow: false } }
+  // `metaTitle` traegt den Markensuffix und bleibt so der eigenstaendige
+  // Social-Titel. Der document title muss ihn ablegen, weil `title.template` im
+  // Root-Layout ihn ohnehin anhaengt (lib/seo-title.ts) — sonst stuende die
+  // Marke zweimal im <title>.
   return {
-    title: config.metaTitle,
+    title: stripSiteNameSuffix(config.metaTitle),
     description: config.metaDesc,
     alternates: { canonical: `/thema/${tag}` },
     openGraph: {

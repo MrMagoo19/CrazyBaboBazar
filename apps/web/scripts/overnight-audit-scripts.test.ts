@@ -378,4 +378,14 @@ describe('overnight-live-audit — diagnostizierte Routen', () => {
       expect(paths, path).toContain(path)
     }
   })
+
+  it('schliesst HTTP-Verbindungen nach jedem Request', () => {
+    // Node 20 hielt nach dem vollstaendigen Crawl sonst TCPSocketWraps offen:
+    // Der Report war geschrieben, aber der Prozess beendete sich nicht. Der
+    // Live-Lauf selbst bleibt aus diesem Unit-Test heraus; hier sichern wir den
+    // Header ab, dessen Wirkung im Production-Audit mit natuerlichem Exit 0
+    // nachgewiesen wurde.
+    const source = readFileSync(LIVE_AUDIT, 'utf8')
+    expect(source).toMatch(/connection:\s*["']close["']/)
+  })
 })

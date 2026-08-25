@@ -47,7 +47,15 @@ const fetchText = async (url) => {
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
     const response = await fetch(url, {
-      headers: { "user-agent": "CrazyBaboBazar-overnight-readonly-audit/1.0" },
+      // Der Node-20-Fetch-Pool hielt nach dem vollstaendigen Crawl zwei
+      // TCPSocketWraps offen; der Report war fertig geschrieben, der Prozess
+      // beendete sich aber nicht. Dieser Batch-Crawler profitiert nicht von
+      // langlebigen Verbindungen nach dem letzten Request, deshalb schliesst
+      // jede Antwort ihre Verbindung explizit.
+      headers: {
+        "user-agent": "CrazyBaboBazar-overnight-readonly-audit/1.0",
+        connection: "close",
+      },
       redirect: "follow",
       signal: controller.signal,
     });

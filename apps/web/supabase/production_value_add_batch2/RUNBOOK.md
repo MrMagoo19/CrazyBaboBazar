@@ -21,8 +21,13 @@
 > in [`LOCAL_TEST_REPORT.md`](LOCAL_TEST_REPORT.md) §1.
 >
 > Der Rollout dieses Verzeichnisses ist ein reiner **Datenbank**-Vorgang.
-> Er beinhaltet **keinen** Commit, **keinen** Push und **keinen** Deploy —
-> der lokale Codestand ist davon unabhängig und weiterhin nicht ausgerollt.
+> Er beinhaltete **keinen** Commit, **keinen** Push und **keinen** Deploy —
+> der Codestand ist davon unabhängig. **Zeitlich danach** sind die
+> Repo-Artefakte mit `3557b0d` `feat(web): ship SEO fixes and value-add batch 2`
+> und `1be76d1` `fix(audit): close live crawler connections` committet, auf
+> GitHub `main` gepusht und über Vercel ausgerollt worden. Das war ein
+> **getrennter** Vorgang nach Gate 6 und hat an den DB-Gates oben nichts
+> geändert. Siehe §10.
 
 ---
 
@@ -638,6 +643,47 @@ Keine Uhrzeiten protokolliert.
 
 > [!note] Abgrenzung zum Codestand
 > Dieser Abschnitt beschreibt ausschließlich den **Datenbank**-Rollout. Der
-> lokale Codestand des Repositories ist davon getrennt: `main` und
-> `origin/main` stehen weiterhin auf `ea353c9`, es gibt keinen Commit, keinen
-> Push und keinen Deploy.
+> Codestand des Repositories ist davon getrennt und wurde **erst danach** in
+> einem eigenen Vorgang ausgerollt — siehe §10.
+
+---
+
+## 10. Codestand: getrennter Rollout nach Gate 6
+
+> [!info] Zeitliche Trennung
+> Zum Zeitpunkt der DB-Gates oben standen `main` und `origin/main` auf
+> `ea353c9`, der Worktree war dirty. Der Datenbank-Rollout hat davon nichts
+> berührt und war mit Gate 6 abgeschlossen. **Erst danach** wurden die
+> Repo-Artefakte committet, gepusht und ausgerollt. Die Gate-Ergebnisse in
+> §5 und §9 sind dadurch unverändert.
+
+**Stand 2026-08-26 nach diesem getrennten Vorgang:**
+
+- `3557b0d` `feat(web): ship SEO fixes and value-add batch 2` — auf GitHub
+  `main` gepusht und von Vercel ausgerollt.
+- `1be76d1` `fix(audit): close live crawler connections` — Folgecommit nach
+  dem Live-Voll-Audit, ebenfalls auf `main` gepusht. Er änderte **nur** das
+  Audit-Skript und einen Regressionstest, keine Anwendungs- oder SQL-Datei
+  dieses Verzeichnisses.
+- `main` **und** `origin/main` stehen exakt auf `1be76d1`. Worktree sauber.
+- GitHub Actions `web quality`: für `3557b0d` erfolgreich, für `1be76d1`
+  ebenfalls `completed/success` (Run 32913224131).
+- Finale lokale Gates nach dem Crawler-Fix: **162/162 Tests**, Typecheck grün,
+  Lint grün; Production-Build des Web-Changesets **441/441 Pfade** grün.
+
+**Befund aus dem Live-Voll-Audit:** Nach fertig geschriebenem Report blieben
+unter Node 20 zwei `TCPSocketWrap`-Handles des Crawlers offen. Fix:
+`connection: close` plus Regressionstest (`1be76d1`). Der Voll-Crawler danach
+beendet sich natürlich mit Exit 0 in 16,6 s.
+
+> [!note] Betrieblicher Hinweis zum Push
+> Der erste HTTPS-Push wurde von GitHub wegen der neuen Workflow-Datei und
+> fehlendem `workflow`-Scope abgelehnt. Remote wurde dabei **nichts**
+> verändert. Der bereits vorhandene, als `MrMagoo19` authentifizierte
+> SSH-Key wurde danach für den Push verwendet; an Credentials oder
+> Remote-Konfiguration wurde nichts geändert. Kein offenes Produktproblem —
+> nur relevant, falls künftig erneut per HTTPS gepusht wird.
+
+**Unverändert durch diesen Abschnitt:** alle DB-Gates, Snapshot v2, Payload v2
+und der Restore-Status (`05_restore_value_add_batch2.sql` bleibt **nicht
+ausgeführt**). Value-Add-Abdeckung in Production bleibt **20 von 372**.

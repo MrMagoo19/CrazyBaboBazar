@@ -665,7 +665,10 @@ Keine Uhrzeiten protokolliert.
   dem Live-Voll-Audit, ebenfalls auf `main` gepusht. Er änderte **nur** das
   Audit-Skript und einen Regressionstest, keine Anwendungs- oder SQL-Datei
   dieses Verzeichnisses.
-- `main` **und** `origin/main` stehen exakt auf `1be76d1`. Worktree sauber.
+- Der ausgerollte **Funktionsstand** endet bei `1be76d1`; spätere reine
+  Runbook-Commits ändern weder Anwendungscode noch die DB-Evidenz. Der aktuelle
+  Repository-HEAD wird deshalb hier bewusst nicht selbstreferenziell fixiert
+  und ist direkt über `git log -1` zu prüfen.
 - GitHub Actions `web quality`: für `3557b0d` erfolgreich, für `1be76d1`
   ebenfalls `completed/success` (Run 32913224131).
 - Finale lokale Gates nach dem Crawler-Fix: **162/162 Tests**, Typecheck grün,

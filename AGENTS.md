@@ -2,7 +2,64 @@
 
 Dieses Dokument ist die dauerhafte Supervisor- und Audit-Policy für das gesamte CrazyBaboBazar-Projekt. Es gilt projektweit und nicht nur für den aktuellen Value-Add-Pilot.
 
+## 0. Engine-Routing — welche Stufe für welche Aufgabe
+
+Ziel: **Kosten nach Aufgabenkomplexität, ohne Qualitätsverlust.** Nicht die Denktiefe
+für schwere Aufgaben senken, sondern aufhören, sie für leichte zu bezahlen.
+
+### Codex (Auditor / Supervisor)
+
+Standard ist seit 2026-08-27 `medium` statt `xhigh`. Hochgeschaltet wird per Profil,
+nicht durch Ändern des Defaults.
+
+| Aufgabe | Aufruf | Stufe |
+|---|---|---|
+| Tippfehler, Formatierung, Umbenennen, Datei anzeigen, Existenzprüfung | `codex --profile quick` | low |
+| Routine: kleine Edits, klar umrissene Recherche, Statusprüfung, Commit-Nachricht | `codex` | **medium** |
+| **Eigentliche Codex-Rolle:** unabhängiges Audit von Claude-Ergebnissen, Code-Review, Architektur, Fehlersuche über mehrere Dateien, Strategie- und Quellenprüfung | `codex --profile deep` | xhigh |
+| Eskalation: widersprüchliche Befunde, hartnäckiger Bug, schwer rückabwickelbare Entscheidung | `codex --profile max` | max |
+
+**Regel:** Jede Aufgabe, die unter §7 dieses Dokuments freigabepflichtig ist, wird
+mindestens mit `--profile deep` auditiert. Für die Audit-Rolle wird nie
+heruntergeschaltet — dort liegt der Wert von Codex.
+
+### Claude Code (Worker)
+
+Claude wählt die Engine über Subagenten in `.claude/agents/`. Das Modell ist in der
+Agentendefinition hinterlegt und greift automatisch bei Delegation.
+
+| Agent | Modell | Effort | Wofür |
+|---|---|---|---|
+| `scout` | haiku | — | Fakten beschaffen: Dateien finden, zählen, SQL, HTTP-Status, Seitengrößen. Read-only. |
+| `rechercheur` | sonnet | medium | Externe Recherche **mit Belegstufe** (✅ primär / 🟡 sekundär / 🔴 unverifiziert) |
+| `code-auditor` | sonnet | high | Code-Befunde mit `datei.tsx:zeile` und Wirkungsangabe. Read-only. |
+| `texter` | sonnet | high | Veröffentlichungstexte nach Voice Bible (Register A/B, Personas, Stoppliste) |
+| `pruefer` | opus | high | Gegnerische Endprüfung vor Vorlage beim Benutzer |
+
+Haiku unterstützt keine konfigurierbare Effort-Stufe — daher `—` beim `scout`.
+Die Einsparung entsteht dort durch das Modell selbst, nicht durch eine Stufe.
+
+**Regeln für Claude:**
+
+1. **Delegieren, wo delegierbar.** Zählen, Suchen, Statusprüfen gehört an `scout` —
+   nicht an die Hauptsitzung. Das ist der größte Einzelhebel auf der Claude-Seite.
+2. **Nicht hochstufen ohne Grund.** `pruefer` (opus) läuft am Ende eines Ergebnisses,
+   nicht zwischendurch.
+3. **Nicht herunterstufen bei Urteilsfragen.** Strategie, Abwägung, Entscheidung und
+   Synthese bleiben in der Hauptsitzung. Ein Befund, an dem eine Entscheidung hängt,
+   geht nicht an `scout`.
+4. **Belegpflicht bleibt unberührt.** Eine günstigere Engine senkt nie den
+   Belegstandard. Jeder Agent liefert Quelle, Codestelle oder Abfrage mit.
+
+### Was ausdrücklich nicht heruntergestuft wird
+
+- Unabhängiges Audit durch Codex (Kern der Rolle laut §1)
+- Entscheidungen mit Umsatz-, Rechts- oder Rückabwicklungsfolge
+- Alles, was unter §7 eine Benutzerfreigabe braucht
+- Der letzte Prüfschritt vor Vorlage beim Benutzer
+
 ## 1. Rollen und Verantwortlichkeiten
+
 
 - Codex = Lead Reviewer, Auditor, Supervisor und Orchestrator
 - Claude Code = primärer Worker und Implementierungs-Agent

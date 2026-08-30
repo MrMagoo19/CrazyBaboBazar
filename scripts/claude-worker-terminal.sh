@@ -5,7 +5,9 @@ set -o pipefail
 
 readonly CBB_REPO_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly CBB_MONEYWIKI_ROOT="/home/batman/Schreibtisch/Obsidian/Money WiKi"
-readonly CBB_WORKER_STATE_DIR="/tmp/crazybabobazar-claude-worker"
+# Der State-Pfad ist ueberschreibbar, damit der Test-Harness den Runner in einem
+# Wegwerf-Verzeichnis starten kann. Ohne Override bleibt der bisherige Pfad.
+readonly CBB_WORKER_STATE_DIR="${CBB_WORKER_STATE_DIR:-/tmp/crazybabobazar-claude-worker}"
 readonly CBB_READY_FILE="${CBB_WORKER_STATE_DIR}/ready"
 readonly CBB_JOB_FILE="${CBB_WORKER_STATE_DIR}/job.prompt"
 readonly CBB_MODE_FILE="${CBB_WORKER_STATE_DIR}/job.mode"
@@ -13,9 +15,19 @@ readonly CBB_RUNNING_FILE="${CBB_WORKER_STATE_DIR}/running.prompt"
 readonly CBB_LATEST_PROMPT="${CBB_WORKER_STATE_DIR}/latest.prompt"
 readonly CBB_LATEST_LOG="${CBB_WORKER_STATE_DIR}/latest.log"
 readonly CBB_LATEST_STATUS="${CBB_WORKER_STATE_DIR}/latest.status"
-readonly CBB_AUTO_INJECT_MODEL_ENV_VAR="CBB_AUTO_INJECT_MODEL"
-readonly CBB_AUTO_CONFIRM_WARNINGS_ENV_VAR="CBB_AUTO_CONFIRM_WARNINGS"
+readonly CBB_CHOSEN_AGENT_FILE="${CBB_WORKER_STATE_DIR}/chosen.agent"
+readonly CBB_CHOSEN_ENGINE_FILE="${CBB_WORKER_STATE_DIR}/chosen.engine"
 readonly CBB_WORKER_CONFIG_FILE="${CBB_REPO_ROOT}/.claude/worker-config.yaml"
+readonly CBB_ROUTING_FILE="${CBB_REPO_ROOT}/.claude/agents/engine-routing.md"
+readonly CBB_AGENTS_POLICY_FILE="${CBB_REPO_ROOT}/AGENTS.md"
+readonly CBB_ROUTING_LIB="${CBB_REPO_ROOT}/scripts/engine-routing-lib.sh"
+
+if [[ ! -f "${CBB_ROUTING_LIB}" ]]; then
+  echo "CLAUDE WORKER abgebrochen: ${CBB_ROUTING_LIB} fehlt."
+  exit 1
+fi
+# shellcheck source=scripts/engine-routing-lib.sh
+source "${CBB_ROUTING_LIB}"
 
 if [[ -L "${CBB_WORKER_STATE_DIR}" ]]; then
   echo "CLAUDE WORKER abgebrochen: State-Pfad darf kein Symlink sein."
@@ -41,107 +53,89 @@ if ! command -v claude >/dev/null 2>&1; then
   exit 1
 fi
 
+# --- Repo-Config laden -------------------------------------------------------
+# Muss VOR der Validierung passieren, sonst kann auto_confirm_warnings beim
+# Start nicht wirken. Env-Variablen haben Vorrang vor der Datei.
+cbb_auto_inject_model="${CBB_AUTO_INJECT_MODEL:-}"
+if [[ -z "${cbb_auto_inject_model}" ]]; then
+  # Default true: AGENTS.md §14 verlangt automatische Profilwahl. Sicher ist das,
+  # weil nur Aliasse aus .claude/agents/engine-routing.md injiziert werden.
+  cbb_auto_inject_model="$(cbb_config_value "${CBB_WORKER_CONFIG_FILE}" 'auto_inject_model')"
+  [[ -n "${cbb_auto_inject_model}" ]] || cbb_auto_inject_model="true"
+fi
+
+cbb_auto_confirm_warnings="${CBB_AUTO_CONFIRM_WARNINGS:-}"
+if [[ -z "${cbb_auto_confirm_warnings}" ]]; then
+  cbb_auto_confirm_warnings="$(cbb_config_value "${CBB_WORKER_CONFIG_FILE}" 'auto_confirm_warnings')"
+  [[ -n "${cbb_auto_confirm_warnings}" ]] || cbb_auto_confirm_warnings="false"
+fi
+
+cbb_engine_log_path="$(cbb_config_value "${CBB_WORKER_CONFIG_FILE}" 'engine_log_path')"
+if [[ -z "${cbb_engine_log_path}" ]]; then
+  cbb_engine_log_path="${CBB_WORKER_STATE_DIR}/engine.log"
+fi
+if [[ -L "${cbb_engine_log_path}" ]]; then
+  echo "WARNUNG: engine_log_path ist ein Symlink; nutze Standardpfad im State-Verzeichnis."
+  cbb_engine_log_path="${CBB_WORKER_STATE_DIR}/engine.log"
+fi
+mkdir -p -- "$(dirname -- "${cbb_engine_log_path}")" 2>/dev/null || true
+
+readonly CBB_AUTO_INJECT_MODEL="${cbb_auto_inject_model}"
+readonly CBB_AUTO_CONFIRM_WARNINGS="${cbb_auto_confirm_warnings}"
+readonly CBB_ENGINE_LOG_PATH="${cbb_engine_log_path}"
+
 # --- Engine / Para Memory validation (prevent accidental engine switches) ---
-ENG_ROUTING_FILE="${CBB_REPO_ROOT}/.claude/agents/engine-routing.md"
-AGENTS_POLICY_FILE="${CBB_REPO_ROOT}/AGENTS.md"
-
 validate_engine_files() {
-  warn=0
+  local warn=0 answer=""
 
-  if [[ ! -f "${ENG_ROUTING_FILE}" ]]; then
-    echo "WARNUNG: ${ENG_ROUTING_FILE} fehlt. Worker hat keine Engine-Routing-Referenz."
+  if [[ ! -f "${CBB_ROUTING_FILE}" ]]; then
+    echo "WARNUNG: ${CBB_ROUTING_FILE} fehlt. Worker hat keine Engine-Routing-Referenz."
     warn=1
   else
     # einfache Plausibilitätsprüfung: wichtige Stichworte vorhanden?
-    if ! grep -Ei 'agents:|para_memory:|recommended_engine' "${ENG_ROUTING_FILE}" >/dev/null 2>&1; then
-      echo "WARNUNG: ${ENG_ROUTING_FILE} scheint keine erwarteten Schlüssel zu enthalten."
+    if ! grep -Ei 'agents:|para_memory:|recommended_engine' "${CBB_ROUTING_FILE}" >/dev/null 2>&1; then
+      echo "WARNUNG: ${CBB_ROUTING_FILE} scheint keine erwarteten Schlüssel zu enthalten."
       warn=1
     fi
   fi
 
-  if [[ ! -f "${AGENTS_POLICY_FILE}" ]]; then
-    echo "WARNUNG: ${AGENTS_POLICY_FILE} fehlt. Projekt-Policy nicht auffindbar."
+  if [[ ! -f "${CBB_AGENTS_POLICY_FILE}" ]]; then
+    echo "WARNUNG: ${CBB_AGENTS_POLICY_FILE} fehlt. Projekt-Policy nicht auffindbar."
     warn=1
   else
-    if ! grep -Ei 'PARA MEMORY|Engine-Auto-Selection|Para Memory' "${AGENTS_POLICY_FILE}" >/dev/null 2>&1; then
-      echo "WARNUNG: ${AGENTS_POLICY_FILE} enthält keine sichtbare PARA MEMORY/Engine-Auto-Selection-Sektion."
+    if ! grep -Ei 'PARA MEMORY|Engine-Auto-Selection|Para Memory' "${CBB_AGENTS_POLICY_FILE}" >/dev/null 2>&1; then
+      echo "WARNUNG: ${CBB_AGENTS_POLICY_FILE} enthält keine sichtbare PARA MEMORY/Engine-Auto-Selection-Sektion."
       warn=1
     fi
   fi
 
-  if [[ ${warn} -ne 0 ]]; then
-    echo
-    read -p "Weiter ausführen trotz Warnungen? (y/N) " answer
-    case "${answer}" in
-      [yY])
-        echo "Fortsetzen auf Benutzerwunsch." ;;
-      *)
-        echo "CLAUDE WORKER abgebrochen: Bitte Policy/Config prüfen." ; exit 1 ;;
-    esac
+  if [[ ${warn} -eq 0 ]]; then
+    return 0
   fi
+
+  echo
+  if cbb_is_true "${CBB_AUTO_CONFIRM_WARNINGS}"; then
+    echo "Fortsetzen: auto_confirm_warnings ist aktiv."
+    return 0
+  fi
+
+  # Ohne Terminal gibt es keine stillschweigende Fortsetzung.
+  if [[ ! -t 0 ]]; then
+    echo "CLAUDE WORKER abgebrochen: Policy-Warnungen ohne interaktive Bestätigung."
+    exit 1
+  fi
+
+  read -r -p "Weiter ausführen trotz Warnungen? (y/N) " answer
+  case "${answer}" in
+    [yY])
+      echo "Fortsetzen auf Benutzerwunsch." ;;
+    *)
+      echo "CLAUDE WORKER abgebrochen: Bitte Policy/Config prüfen." ; exit 1 ;;
+  esac
 }
 
 # Führe die Validierung einmal beim Start aus
 validate_engine_files
-
-# Load repo config if present (worker-config.yaml). Values are overridden by env vars.
-if [[ -f "${CBB_WORKER_CONFIG_FILE}" ]]; then
-  read_auto_inject_model=$(python3 - <<PY 2>/dev/null || true
-import yaml,sys
-try:
-  with open('${CBB_WORKER_CONFIG_FILE}','r') as f:
-    cfg=yaml.safe_load(f)
-    print(cfg.get('auto_inject_model',''))
-except Exception:
-  sys.exit(0)
-PY
-  ) || true
-  read_auto_confirm=$(python3 - <<PY 2>/dev/null || true
-import yaml,sys
-try:
-  with open('${CBB_WORKER_CONFIG_FILE}','r') as f:
-    cfg=yaml.safe_load(f)
-    print(cfg.get('auto_confirm_warnings',''))
-except Exception:
-  sys.exit(0)
-PY
-  ) || true
-  read_engine_log_path=$(python3 - <<PY 2>/dev/null || true
-import yaml,sys
-try:
-  with open('${CBB_WORKER_CONFIG_FILE}','r') as f:
-    cfg=yaml.safe_load(f)
-    print(cfg.get('engine_log_path',''))
-except Exception:
-  sys.exit(0)
-PY
-  ) || true
-fi
-
-# Default: do NOT auto-inject model unless explicitly enabled (safer)
-if [[ -z "${!CBB_AUTO_INJECT_MODEL_ENV_VAR:-}" ]]; then
-  if [[ "${read_auto_inject_model:-}" == "True" || "${read_auto_inject_model:-}" == "true" ]]; then
-    export CBB_AUTO_INJECT_MODEL=true
-  else
-    export CBB_AUTO_INJECT_MODEL=false
-  fi
-fi
-
-# Default for auto-confirm warnings: false unless enabled
-if [[ -z "${!CBB_AUTO_CONFIRM_WARNINGS_ENV_VAR:-}" ]]; then
-  if [[ "${read_auto_confirm:-}" == "True" || "${read_auto_confirm:-}" == "true" ]]; then
-    export CBB_AUTO_CONFIRM_WARNINGS=true
-  else
-    export CBB_AUTO_CONFIRM_WARNINGS=false
-  fi
-fi
-
-# Determine engine log path (from config or default state dir)
-if [[ -n "${read_engine_log_path:-}" ]]; then
-  CBB_ENGINE_LOG_PATH="${read_engine_log_path}"
-else
-  CBB_ENGINE_LOG_PATH="${CBB_WORKER_STATE_DIR}/engine.log"
-fi
 
 # Im sichtbaren VS-Code-Terminal den vereinbarten Namen setzen. Die Escape-
 # Sequenz wirkt nur bei interaktiver Terminalausgabe; Logs bleiben unveraendert.
@@ -161,6 +155,12 @@ printf 'ready\n' > "${CBB_READY_FILE}"
 echo "============================================================"
 echo "CLAUDE WORKER — sichtbarer CrazyBaboBazar-Worker"
 echo "Repo: ${CBB_REPO_ROOT}"
+echo "Auto-Engine: ${CBB_AUTO_INJECT_MODEL} (Allowlist: $(cbb_allowed_engines "${CBB_ROUTING_FILE}" | tr '\n' ' '))"
+if ! cbb_is_true "${CBB_AUTO_INJECT_MODEL}"; then
+  echo "HINWEIS: Automatische Engine-Wahl ist AUS. AGENTS.md §14 verlangt sie —"
+  echo "         setze auto_inject_model: true in .claude/worker-config.yaml"
+  echo "         oder starte mit CBB_AUTO_INJECT_MODEL=true."
+fi
 echo "Status: bereit; Codex darf jetzt einen geprüften Auftrag senden."
 echo "Terminal geöffnet lassen. Mit Ctrl+C wird der Runner beendet."
 echo "============================================================"
@@ -170,44 +170,41 @@ while true; do
     mv -- "${CBB_JOB_FILE}" "${CBB_RUNNING_FILE}"
     rm -f -- "${CBB_LATEST_STATUS}"
 
+    # Pro Job zuruecksetzen: keine Datei und kein Wert aus einem frueheren Job
+    # darf in diesen Job hineinwirken.
+    rm -f -- "${CBB_CHOSEN_AGENT_FILE}" "${CBB_CHOSEN_ENGINE_FILE}"
+    chosen_agent=""
+    recommended_engine=""
+    CBB_CLAUDE_MODEL_ARGS=()
+    CBB_CLAUDE_ARGS=()
+
     worker_mode="plain"
     if [[ -s "${CBB_MODE_FILE}" ]]; then
       worker_mode="$(<"${CBB_MODE_FILE}")"
       mv -- "${CBB_MODE_FILE}" "${CBB_WORKER_STATE_DIR}/latest.mode"
     fi
 
-    # Auto-detect agent from YAML frontmatter in the prompt (optional)
-    detect_agent_from_prompt() {
-      # extract YAML frontmatter via sed and pull the agent: value
-      sed -n '1,2000p' "${CBB_RUNNING_FILE}" | sed -n '/^---$/,/^---$/p' | sed -n 's/^agent:[[:space:]]*//p' | tr -d '"\r'
-    }
-
-    chosen_agent="$(detect_agent_from_prompt || true)"
+    # Agent aus dem YAML-Frontmatter des Prompts lesen (optional) und die
+    # empfohlene Engine in der Routingdatei nachschlagen.
+    chosen_agent="$(cbb_detect_agent_from_prompt "${CBB_RUNNING_FILE}")"
     if [[ -n "${chosen_agent}" ]]; then
-      # record choice and attempt a lookup of recommended_engine from engine-routing.md
-      echo "agent: ${chosen_agent}" > "${CBB_WORKER_STATE_DIR}/chosen.agent"
-      ROUTING_FILE="${CBB_REPO_ROOT}/.claude/agents/engine-routing.md"
-      recommended_engine=""
-      if [[ -f "${ROUTING_FILE}" ]]; then
-        # crude parsing: find the agent block and extract recommended_engine
-        recommended_engine=$(awk -v a="${chosen_agent}" '
-          BEGIN{found=0}
-          $0~("^\\s*"a":") {found=1}
-          found && $0~"recommended_engine:" {gsub(/^[ \t]*recommended_engine:[ \t]*/,"",$0); print $0; exit}
-        ' "${ROUTING_FILE}")
-      fi
+      printf 'agent: %s\n' "${chosen_agent}" > "${CBB_CHOSEN_AGENT_FILE}"
+      recommended_engine="$(cbb_lookup_recommended_engine "${CBB_ROUTING_FILE}" "${chosen_agent}")"
       if [[ -n "${recommended_engine}" ]]; then
-        echo "recommended_engine: ${recommended_engine}" > "${CBB_WORKER_STATE_DIR}/chosen.engine"
-      fi
-      # append to engine decision log
-      printf '%s %s %s\n' "$(date --iso-8601=seconds)" "agent=${chosen_agent}" "engine=${recommended_engine:-unknown}" >> "${CBB_ENGINE_LOG_PATH}"
-
-      # If claude supports a --model flag, pass recommended_engine to claude
-      CLAUDE_MODEL_ARG=""
-      if [[ "${CBB_AUTO_INJECT_MODEL}" != "false" && -n "${recommended_engine}" ]]; then
-        CLAUDE_MODEL_ARG="--model ${recommended_engine}"
+        printf 'recommended_engine: %s\n' "${recommended_engine}" > "${CBB_CHOSEN_ENGINE_FILE}"
       fi
     fi
+
+    # Modellargument immer neu bauen — auch ohne Agent. Danach ist das Array
+    # garantiert definiert (set -u) und enthaelt nie einen alten Wert.
+    cbb_build_model_args "${CBB_AUTO_INJECT_MODEL}" "${recommended_engine}"
+
+    printf '%s agent=%s engine=%s injected=%s\n' \
+      "$(date --iso-8601=seconds)" \
+      "${chosen_agent:-none}" \
+      "${recommended_engine:-unknown}" \
+      "$([[ ${#CBB_CLAUDE_MODEL_ARGS[@]} -gt 0 ]] && echo yes || echo no)" \
+      >> "${CBB_ENGINE_LOG_PATH}"
 
     worker_prompt="$(<"${CBB_RUNNING_FILE}")"
     cp -- "${CBB_RUNNING_FILE}" "${CBB_LATEST_PROMPT}"
@@ -215,62 +212,23 @@ while true; do
     echo
     echo "---------------- CLAUDE-AUFTRAG ----------------"
     echo "Modus: ${worker_mode}"
+    echo "Agent: ${chosen_agent:-none} | Engine: ${recommended_engine:-default}"
     printf '%s\n' "${worker_prompt}"
     echo "---------------- CLAUDE-AUSGABE ----------------"
 
-    if [[ "${worker_mode}" == "chrome" ]]; then
-      claude ${CLAUDE_MODEL_ARG} --chrome \
-        --add-dir "${CBB_REPO_ROOT}" \
-        --allowedTools 'mcp__claude-in-chrome__*' \
-        -p "${worker_prompt}" 2>&1 | tee "${CBB_LATEST_LOG}"
-      worker_status="${PIPESTATUS[0]}"
-    elif [[ "${worker_mode}" == "chrome_resume" ]]; then
-      # Die Chrome-Tab-Gruppe ist an die benannte interaktive Sitzung gebunden.
-      # Durch Resume bleibt die bereits sichtbar erteilte Browserfreigabe
-      # erhalten, statt fuer jeden Print-Auftrag eine neue Sitzung anzulegen.
-      claude ${CLAUDE_MODEL_ARG} --chrome --resume "CLAUDE WORKER" \
-        --add-dir "${CBB_REPO_ROOT}" \
-        --allowedTools 'mcp__claude-in-chrome__*' \
-        -p "${worker_prompt}" 2>&1 \
-        | tee "${CBB_LATEST_LOG}"
-      worker_status="${PIPESTATUS[0]}"
-    elif [[ "${worker_mode}" == "edit" ]]; then
-      # Lokale Datei-Edits fuer explizit abgegrenzte Implementierungsauftraege
-      # automatisch erlauben. Bash, Netzwerk und externe Aktionen behalten
-      # ihre normalen Claude-Berechtigungsgrenzen.
-      claude ${CLAUDE_MODEL_ARG} --permission-mode acceptEdits \
-        --add-dir "${CBB_MONEYWIKI_ROOT}" \
-        -p "${worker_prompt}" 2>&1 \
-        | tee "${CBB_LATEST_LOG}"
-      worker_status="${PIPESTATUS[0]}"
-    elif [[ "${worker_mode}" == "supabase_read" ]]; then
-      # Direkter, projektgebundener Supabase-MCP: nur die serverseitig
-      # gelieferte Projekt-URL darf ohne Rueckfrage gelesen werden. Schreibende
-      # Supabase-Tools bleiben fuer diesen Auftrag explizit gesperrt.
-      claude ${CLAUDE_MODEL_ARG} --permission-mode dontAsk \
-        --allowedTools 'mcp__supabase__get_project_url' \
-        --disallowedTools 'mcp__supabase__execute_sql,mcp__supabase__apply_migration,mcp__supabase__create_branch,mcp__supabase__deploy_edge_function,mcp__supabase__update_storage_config' \
-        -p "${worker_prompt}" 2>&1 \
-        | tee "${CBB_LATEST_LOG}"
-      worker_status="${PIPESTATUS[0]}"
-    elif [[ "${worker_mode}" == "supabase_write" ]]; then
-      # Nur fuer einen einzeln freigegebenen Production-Schritt. Die Erlaubnis
-      # gilt ausschliesslich fuer diesen Claude-Prozess und wird nach dessen
-      # Ende nicht gespeichert. Alle anderen schreibenden Supabase-Tools sind
-      # explizit gesperrt.
-      claude ${CLAUDE_MODEL_ARG} --permission-mode dontAsk \
-        --allowedTools 'Read,mcp__supabase__get_project_url,mcp__supabase__execute_sql' \
-        --disallowedTools 'mcp__supabase__apply_migration,mcp__supabase__create_branch,mcp__supabase__deploy_edge_function,mcp__supabase__update_storage_config' \
-        -p "${worker_prompt}" 2>&1 \
-        | tee "${CBB_LATEST_LOG}"
-      worker_status="${PIPESTATUS[0]}"
-    elif [[ "${worker_mode}" == "plain" ]]; then
-      claude ${CLAUDE_MODEL_ARG} -p "${worker_prompt}" 2>&1 | tee "${CBB_LATEST_LOG}"
-      worker_status="${PIPESTATUS[0]}"
-    else
+    if ! cbb_build_claude_args "${worker_mode}" "${CBB_REPO_ROOT}" "${CBB_MONEYWIKI_ROOT}"; then
       echo "CLAUDE WORKER abgebrochen: unbekannter Modus '${worker_mode}'." \
         | tee "${CBB_LATEST_LOG}"
       worker_status=64
+    else
+      # "-p --" ist Pflicht: ohne den Optionsabschluss liest die CLI einen
+      # Prompt, der mit "---" (YAML-Frontmatter) beginnt, als Option.
+      claude \
+        ${CBB_CLAUDE_MODEL_ARGS[@]+"${CBB_CLAUDE_MODEL_ARGS[@]}"} \
+        ${CBB_CLAUDE_ARGS[@]+"${CBB_CLAUDE_ARGS[@]}"} \
+        -p -- "${worker_prompt}" 2>&1 \
+        | tee "${CBB_LATEST_LOG}"
+      worker_status="${PIPESTATUS[0]}"
     fi
 
     printf '%s\n' "${worker_status}" > "${CBB_LATEST_STATUS}"

@@ -323,8 +323,39 @@ PARA Memory — Kosten-Regeln (strikt):
 
 Implementierungshinweis:
 
-- Diese Datei ist die Single Source of Truth für Team-Regeln. Worker-Skripte
-  und Subagent-Configs sollten `.claude/agents/engine-routing.md` referenzieren
-  und vor Ausführung prüfen. Falls du möchtest, kann ich den Claude-Worker
-  Start-Task so erweitern, dass er diese Datei prüft und eine Warnung ausgibt,
-  wenn ein vorgeschlagener Engine-Wechsel gegen die Policy verstößt.
+- Diese Datei ist die Single Source of Truth für Team-Regeln.
+  `.claude/agents/engine-routing.md` ist die maschinenlesbare Ableitung davon.
+
+- **Umsetzung im CLAUDE WORKER** (`scripts/claude-worker-terminal.sh`, gemeinsame
+  Logik in `scripts/engine-routing-lib.sh`):
+  1. Der Worker liest den Agenten aus dem YAML-Frontmatter des Auftrags
+     (`agent: <name>`). Der Block darf auch nach einem Vorspann stehen — ein
+     Prompt muss nicht mit `---` beginnen.
+  2. Er schlägt `recommended_engine` im Block dieses Agenten in
+     `.claude/agents/engine-routing.md` nach und übergibt sie als `--model`.
+  3. Injiziert wird **ausschließlich** ein Alias, der in der Routingdatei als
+     `recommended_engine` steht (aktuell `haiku`, `sonnet`, `opus`). Agentennamen
+     und Engine-Aliasse werden gegen ein enges Zeichenmuster geprüft; alles
+     andere wird verworfen und auf stderr gemeldet. Es findet keine freie
+     Shell-Expansion statt.
+  4. Ohne Agent im Frontmatter, bei unbekanntem Agent oder bei ungültigem Wert
+     läuft der Auftrag mit der Default-Engine der CLI — nie mit dem Wert eines
+     vorherigen Auftrags.
+  5. Jede Entscheidung wird nach `engine_log_path` protokolliert
+     (`agent=… engine=… injected=yes|no`).
+
+- **Schalter:** `auto_inject_model` in `.claude/worker-config.yaml`, Env-Override
+  `CBB_AUTO_INJECT_MODEL`. Policy-konform ist `true`; steht er auf `false`, gibt
+  der Worker beim Start einen sichtbaren Hinweis auf diese Abweichung aus.
+
+- **Startprüfung:** Fehlen `AGENTS.md` oder die Routingdatei bzw. fehlen die
+  erwarteten Schlüssel, warnt der Worker. Fortgesetzt wird nur nach
+  interaktiver Bestätigung — oder wenn `auto_confirm_warnings` (Env:
+  `CBB_AUTO_CONFIRM_WARNINGS`) ausdrücklich gesetzt ist. Ohne Terminal und ohne
+  diesen Schalter bricht der Worker ab; stillschweigendes Weiterlaufen bei
+  Policy-Warnungen gibt es nicht.
+
+- **Test:** `scripts/engine-routing-test.sh` prüft Parsing, Lookup,
+  Modellargument-Bildung, Prompt mit Frontmatter und den Reset zwischen Jobs.
+  Der Integrationsteil startet den echten Runner mit einem Stub-`claude` und
+  einem Wegwerf-State-Verzeichnis — es wird nie das echte Claude aufgerufen.

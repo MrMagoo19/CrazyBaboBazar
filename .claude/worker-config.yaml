@@ -2,7 +2,7 @@
 # Safe, optimal defaults. Override with env vars or by editing this file.
 
 # If true, the worker will pass the recommended_engine as --model to the claude CLI.
-auto_inject_model: false
+auto_inject_model: true
 
 # If true, the worker will auto-confirm startup warnings (useful for CI).
 auto_confirm_warnings: false

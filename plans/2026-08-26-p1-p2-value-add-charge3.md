@@ -387,8 +387,11 @@ Evidenz geführt.
    kein `main`-Push/-Merge und keine externe Schreibaktion fand statt.
 2. Das Retention-Pre-enable-Gate ist weiterhin **NICHT ERFÜLLT**. Der
    `SUPABASE_SERVICE_ROLE_KEY` darf für Klick-Messung nicht gesetzt werden.
-3. A4, A5, B2, B5, D6 und D7 sind konkrete Production-Datenkorrekturen. Ihre
+3. Der konkrete Supabase-DPA/SCC-Kontostand und die reale Projektregion sind
+   im Repo nicht belegbar. Beides ist vor dem ersten Production-Write
+   read-only zu verifizieren und im Click-out-Runbook zu protokollieren.
+4. A4, A5, B2, B5, D6 und D7 sind konkrete Production-Datenkorrekturen. Ihre
    Fundorte sind read-only belegt; die Ausführung braucht ausdrückliche
    Benutzerfreigabe.
-4. W4 der Search-Console-Wirkungsmessung bleibt **2026-09-23**. Vorher gibt es
+5. W4 der Search-Console-Wirkungsmessung bleibt **2026-09-23**. Vorher gibt es
    keine belastbare Nachher-Aussage.

@@ -149,6 +149,29 @@ erfuellen, **erst dann** die Umgebungsvariable setzen. Umgekehrt liefe die Anwen
 existierende Tabelle — fail-open faengt das zwar ab, aber es waere unnoetiger
 Fehlerlaerm. Und ohne erfuelltes Gate entstuenden Daten ohne Loeschmechanismus.
 
+### PRE-DEPLOY-GATE — Auftragsverarbeitung und Drittlandtransfer
+
+Die Datenschutzerklaerung nennt Supabase jetzt wahrheitsgemaess als
+Datenbankdienst/Empfaenger und verweist auf den vom Anbieter dokumentierten
+SCC-Mechanismus. Das Repository kann aber **nicht** belegen, welcher DPA-/SCC-
+Vertragsstand fuer das konkrete Supabase-Konto tatsaechlich gilt.
+
+Vor dem ersten Production-Write und vor jedem Deploy, der die Klick-Messung
+scharf schalten koennte, muss deshalb im Supabase-Konto read-only verifiziert
+und in Abschnitt 10 protokolliert werden:
+
+1. aktueller DPA fuer die verwendete Organisation/das verwendete Projekt
+   wirksam bzw. angenommen,
+2. die dort einbezogenen Standardvertragsklauseln und Unterauftragsverarbeiter
+   passen zu der in `app/datenschutz/page.tsx` beschriebenen Verarbeitung,
+3. die reale Projektregion ist bekannt; falls sie in der Datenschutzerklaerung
+   genannt werden soll, wird sie erst nach dieser Verifikation eingetragen.
+
+Bis dieser Nachweis protokolliert ist, bleibt der Rollout auch bei gruenem SQL-
+und Retention-Gate gesperrt. Die aktuelle Datenschutzerklaerung behauptet
+bewusst keine unbestaetigte Projektregion und keinen individuell verifizierten
+Vertragsabschluss.
+
 ---
 
 ## 6 · Ablauf (jeder Schritt einzeln freizugeben)
@@ -387,3 +410,6 @@ Gates.
 | Datum | Schritt | Ziel | Ergebnis |
 |---|---|---|---|
 | — | — | — | **Noch nichts ausgefuehrt.** Production-Hold aktiv. |
+
+Zusaetzlich offen: DPA/SCC-Kontostand und reale Projektregion gemaess dem
+Pre-Deploy-Gate in Abschnitt 5 read-only verifizieren und hier protokollieren.

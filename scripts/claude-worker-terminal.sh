@@ -13,6 +13,8 @@ readonly CBB_RUNNING_FILE="${CBB_WORKER_STATE_DIR}/running.prompt"
 readonly CBB_LATEST_PROMPT="${CBB_WORKER_STATE_DIR}/latest.prompt"
 readonly CBB_LATEST_LOG="${CBB_WORKER_STATE_DIR}/latest.log"
 readonly CBB_LATEST_STATUS="${CBB_WORKER_STATE_DIR}/latest.status"
+readonly CBB_AUTO_INJECT_MODEL_ENV_VAR="CBB_AUTO_INJECT_MODEL"
+readonly CBB_AUTO_CONFIRM_WARNINGS_ENV_VAR="CBB_AUTO_CONFIRM_WARNINGS"
 
 if [[ -L "${CBB_WORKER_STATE_DIR}" ]]; then
   echo "CLAUDE WORKER abgebrochen: State-Pfad darf kein Symlink sein."
@@ -81,6 +83,16 @@ validate_engine_files() {
 # Führe die Validierung einmal beim Start aus
 validate_engine_files
 
+# Auto-inject control: default true (set env CBB_AUTO_INJECT_MODEL=false to disable)
+if [[ -z "${!CBB_AUTO_INJECT_MODEL_ENV_VAR:-}" ]]; then
+  export CBB_AUTO_INJECT_MODEL=true
+fi
+
+# Auto-confirm warnings (useful for CI/testing). Default false.
+if [[ -z "${!CBB_AUTO_CONFIRM_WARNINGS_ENV_VAR:-}" ]]; then
+  export CBB_AUTO_CONFIRM_WARNINGS=false
+fi
+
 # Im sichtbaren VS-Code-Terminal den vereinbarten Namen setzen. Die Escape-
 # Sequenz wirkt nur bei interaktiver Terminalausgabe; Logs bleiben unveraendert.
 if [[ -t 1 ]]; then
@@ -142,7 +154,7 @@ while true; do
 
       # If claude supports a --model flag, pass recommended_engine to claude
       CLAUDE_MODEL_ARG=""
-      if [[ -n "${recommended_engine}" ]]; then
+      if [[ "${CBB_AUTO_INJECT_MODEL}" != "false" && -n "${recommended_engine}" ]]; then
         CLAUDE_MODEL_ARG="--model ${recommended_engine}"
       fi
     fi

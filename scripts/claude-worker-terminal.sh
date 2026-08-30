@@ -15,6 +15,7 @@ readonly CBB_LATEST_LOG="${CBB_WORKER_STATE_DIR}/latest.log"
 readonly CBB_LATEST_STATUS="${CBB_WORKER_STATE_DIR}/latest.status"
 readonly CBB_AUTO_INJECT_MODEL_ENV_VAR="CBB_AUTO_INJECT_MODEL"
 readonly CBB_AUTO_CONFIRM_WARNINGS_ENV_VAR="CBB_AUTO_CONFIRM_WARNINGS"
+readonly CBB_WORKER_CONFIG_FILE="${CBB_REPO_ROOT}/.claude/worker-config.yaml"
 
 if [[ -L "${CBB_WORKER_STATE_DIR}" ]]; then
   echo "CLAUDE WORKER abgebrochen: State-Pfad darf kein Symlink sein."
@@ -83,14 +84,63 @@ validate_engine_files() {
 # Führe die Validierung einmal beim Start aus
 validate_engine_files
 
-# Auto-inject control: default true (set env CBB_AUTO_INJECT_MODEL=false to disable)
-if [[ -z "${!CBB_AUTO_INJECT_MODEL_ENV_VAR:-}" ]]; then
-  export CBB_AUTO_INJECT_MODEL=true
+# Load repo config if present (worker-config.yaml). Values are overridden by env vars.
+if [[ -f "${CBB_WORKER_CONFIG_FILE}" ]]; then
+  read_auto_inject_model=$(python3 - <<PY 2>/dev/null || true
+import yaml,sys
+try:
+  with open('${CBB_WORKER_CONFIG_FILE}','r') as f:
+    cfg=yaml.safe_load(f)
+    print(cfg.get('auto_inject_model',''))
+except Exception:
+  sys.exit(0)
+PY
+  ) || true
+  read_auto_confirm=$(python3 - <<PY 2>/dev/null || true
+import yaml,sys
+try:
+  with open('${CBB_WORKER_CONFIG_FILE}','r') as f:
+    cfg=yaml.safe_load(f)
+    print(cfg.get('auto_confirm_warnings',''))
+except Exception:
+  sys.exit(0)
+PY
+  ) || true
+  read_engine_log_path=$(python3 - <<PY 2>/dev/null || true
+import yaml,sys
+try:
+  with open('${CBB_WORKER_CONFIG_FILE}','r') as f:
+    cfg=yaml.safe_load(f)
+    print(cfg.get('engine_log_path',''))
+except Exception:
+  sys.exit(0)
+PY
+  ) || true
 fi
 
-# Auto-confirm warnings (useful for CI/testing). Default false.
+# Default: do NOT auto-inject model unless explicitly enabled (safer)
+if [[ -z "${!CBB_AUTO_INJECT_MODEL_ENV_VAR:-}" ]]; then
+  if [[ "${read_auto_inject_model:-}" == "True" || "${read_auto_inject_model:-}" == "true" ]]; then
+    export CBB_AUTO_INJECT_MODEL=true
+  else
+    export CBB_AUTO_INJECT_MODEL=false
+  fi
+fi
+
+# Default for auto-confirm warnings: false unless enabled
 if [[ -z "${!CBB_AUTO_CONFIRM_WARNINGS_ENV_VAR:-}" ]]; then
-  export CBB_AUTO_CONFIRM_WARNINGS=false
+  if [[ "${read_auto_confirm:-}" == "True" || "${read_auto_confirm:-}" == "true" ]]; then
+    export CBB_AUTO_CONFIRM_WARNINGS=true
+  else
+    export CBB_AUTO_CONFIRM_WARNINGS=false
+  fi
+fi
+
+# Determine engine log path (from config or default state dir)
+if [[ -n "${read_engine_log_path:-}" ]]; then
+  CBB_ENGINE_LOG_PATH="${read_engine_log_path}"
+else
+  CBB_ENGINE_LOG_PATH="${CBB_WORKER_STATE_DIR}/engine.log"
 fi
 
 # Im sichtbaren VS-Code-Terminal den vereinbarten Namen setzen. Die Escape-
@@ -150,7 +200,7 @@ while true; do
         echo "recommended_engine: ${recommended_engine}" > "${CBB_WORKER_STATE_DIR}/chosen.engine"
       fi
       # append to engine decision log
-      printf '%s %s %s\n' "$(date --iso-8601=seconds)" "agent=${chosen_agent}" "engine=${recommended_engine:-unknown}" >> "${CBB_WORKER_STATE_DIR}/engine.log"
+      printf '%s %s %s\n' "$(date --iso-8601=seconds)" "agent=${chosen_agent}" "engine=${recommended_engine:-unknown}" >> "${CBB_ENGINE_LOG_PATH}"
 
       # If claude supports a --model flag, pass recommended_engine to claude
       CLAUDE_MODEL_ARG=""

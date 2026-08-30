@@ -114,6 +114,33 @@ while true; do
       mv -- "${CBB_MODE_FILE}" "${CBB_WORKER_STATE_DIR}/latest.mode"
     fi
 
+    # Auto-detect agent from YAML frontmatter in the prompt (optional)
+    detect_agent_from_prompt() {
+      # read first 2000 chars to be safe
+      head -c 2000 "${CBB_RUNNING_FILE}" | awk 'BEGIN{in=0} /^---/ { if(in==0){in=1; next} else {exit}} in==1{print}' | sed -n 's/^agent:[[:space:]]*\(.*\)$/\1/p' | tr -d '"\r'
+    }
+
+    chosen_agent="$(detect_agent_from_prompt || true)"
+    if [[ -n "${chosen_agent}" ]]; then
+      # record choice and attempt a lookup of recommended_engine from engine-routing.md
+      echo "agent: ${chosen_agent}" > "${CBB_WORKER_STATE_DIR}/chosen.agent"
+      ROUTING_FILE="${CBB_REPO_ROOT}/.claude/agents/engine-routing.md"
+      recommended_engine=""
+      if [[ -f "${ROUTING_FILE}" ]]; then
+        # crude parsing: find the agent block and extract recommended_engine
+        recommended_engine=$(awk -v a="${chosen_agent}" '
+          BEGIN{found=0}
+          $0~("^\\s*"a":") {found=1}
+          found && $0~"recommended_engine:" {gsub(/^[ \t]*recommended_engine:[ \t]*/,"",$0); print $0; exit}
+        ' "${ROUTING_FILE}")
+      fi
+      if [[ -n "${recommended_engine}" ]]; then
+        echo "recommended_engine: ${recommended_engine}" > "${CBB_WORKER_STATE_DIR}/chosen.engine"
+      fi
+      # append to engine decision log
+      printf '%s %s %s\n' "$(date --iso-8601=seconds)" "agent=${chosen_agent}" "engine=${recommended_engine:-unknown}" >> "${CBB_WORKER_STATE_DIR}/engine.log"
+    fi
+
     worker_prompt="$(<"${CBB_RUNNING_FILE}")"
     cp -- "${CBB_RUNNING_FILE}" "${CBB_LATEST_PROMPT}"
 

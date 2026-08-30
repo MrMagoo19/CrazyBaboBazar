@@ -38,6 +38,49 @@ if ! command -v claude >/dev/null 2>&1; then
   exit 1
 fi
 
+# --- Engine / Para Memory validation (prevent accidental engine switches) ---
+ENG_ROUTING_FILE="${CBB_REPO_ROOT}/.claude/agents/engine-routing.md"
+AGENTS_POLICY_FILE="${CBB_REPO_ROOT}/AGENTS.md"
+
+validate_engine_files() {
+  warn=0
+
+  if [[ ! -f "${ENG_ROUTING_FILE}" ]]; then
+    echo "WARNUNG: ${ENG_ROUTING_FILE} fehlt. Worker hat keine Engine-Routing-Referenz."
+    warn=1
+  else
+    # einfache Plausibilitätsprüfung: wichtige Stichworte vorhanden?
+    if ! grep -Ei 'agents:|para_memory:|recommended_engine' "${ENG_ROUTING_FILE}" >/dev/null 2>&1; then
+      echo "WARNUNG: ${ENG_ROUTING_FILE} scheint keine erwarteten Schlüssel zu enthalten."
+      warn=1
+    fi
+  fi
+
+  if [[ ! -f "${AGENTS_POLICY_FILE}" ]]; then
+    echo "WARNUNG: ${AGENTS_POLICY_FILE} fehlt. Projekt-Policy nicht auffindbar."
+    warn=1
+  else
+    if ! grep -Ei 'PARA MEMORY|Engine-Auto-Selection|Para Memory' "${AGENTS_POLICY_FILE}" >/dev/null 2>&1; then
+      echo "WARNUNG: ${AGENTS_POLICY_FILE} enthält keine sichtbare PARA MEMORY/Engine-Auto-Selection-Sektion."
+      warn=1
+    fi
+  fi
+
+  if [[ ${warn} -ne 0 ]]; then
+    echo
+    read -p "Weiter ausführen trotz Warnungen? (y/N) " answer
+    case "${answer}" in
+      [yY])
+        echo "Fortsetzen auf Benutzerwunsch." ;;
+      *)
+        echo "CLAUDE WORKER abgebrochen: Bitte Policy/Config prüfen." ; exit 1 ;;
+    esac
+  fi
+}
+
+# Führe die Validierung einmal beim Start aus
+validate_engine_files
+
 # Im sichtbaren VS-Code-Terminal den vereinbarten Namen setzen. Die Escape-
 # Sequenz wirkt nur bei interaktiver Terminalausgabe; Logs bleiben unveraendert.
 if [[ -t 1 ]]; then

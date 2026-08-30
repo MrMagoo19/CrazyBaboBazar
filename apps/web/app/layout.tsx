@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Syne, DM_Sans, IBM_Plex_Mono } from 'next/font/google'
 import Link from 'next/link'
+import { ConsentSettingsButton } from '@/components/ui/consent-settings-button'
 import { CookieConsent } from '@/components/ui/cookie-consent'
 import { NavMenus, NavSearch } from '@/components/ui/nav-menu'
 import { Analytics } from '@vercel/analytics/next'
@@ -151,6 +152,9 @@ export default function RootLayout({
                   <li><Link href="/ueber-uns" className="text-sm text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors font-medium">Über uns</Link></li>
                   <li><Link href="/impressum" className="text-sm text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors font-medium">Impressum</Link></li>
                   <li><Link href="/datenschutz" className="text-sm text-[#0A0A0A] hover:text-[#FFE500] hover:bg-[#0A0A0A] px-1 transition-colors font-medium">Datenschutz</Link></li>
+                  {/* Der Widerruf gehoert dorthin, wo er dauerhaft erreichbar ist.
+                      Der Hinweisbanner ist es nach der ersten Entscheidung nicht mehr. */}
+                  <li><ConsentSettingsButton /></li>
                 </ul>
               </div>
             </div>

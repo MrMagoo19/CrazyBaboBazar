@@ -6,6 +6,10 @@ Kurzfassung für Claude: Delegiere mechanische Arbeit an die Subagenten in
 `.claude/agents/` — dort ist das Modell je Aufgabentyp hinterlegt und greift
 automatisch.
 
+Wichtig: Folge der Engine-Auto-Selection- und PARA-Memory-Policy in
+`AGENTS.md` (§14) und konsultiere `.claude/agents/engine-routing.md` bevor
+du Para Memory anfragst oder eine Engine automatisch wechselst.
+
 | Aufgabe | Agent | Engine |
 |---|---|---|
 | Zählen, suchen, SQL, HTTP-Status, Seitengrößen | `scout` | haiku / — |

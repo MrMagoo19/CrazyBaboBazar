@@ -5,6 +5,9 @@ import Image from 'next/image'
 import type { DbProduct } from '@/lib/db-types'
 import { getPriceBand } from '@/lib/db-types'
 import { isKnownPersona } from '@/lib/persona'
+import { merchantCtaLabel, resolveMerchant } from '@/lib/affiliate'
+import { AFFILIATE_DISCLOSURE, affiliateAriaLabel } from '@/lib/affiliate-disclosure'
+import { AffiliateLink } from '@/components/ui/affiliate-link'
 import { ExternalLink } from 'lucide-react'
 
 const PERSONA_COLOR: Record<string, string> = {
@@ -25,6 +28,7 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
         const accent = getAccent(product)
         const isLight = ['#FFE500', '#B8FF3B', '#3BFFDC'].includes(accent)
         const onAccent = isLight ? '#0A0A0A' : '#fff'
+        const ctaLabel = merchantCtaLabel(resolveMerchant(product.affiliate_url))
 
         return (
           <div
@@ -46,7 +50,13 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
               el.style.transform = 'translate(0,0)'
             }}
           >
-            {/* ── Bild ── */}
+            {/* ── Bild ──
+                Der Affiliate-CTA lag frueher als <a> INNERHALB dieses <Link> und
+                war nur im Hover sichtbar. Beides ist weg: verschachtelte Links
+                sind ungueltiges HTML (der Browser bricht das aeussere <a> auf,
+                Tastatur- und Screenreader-Navigation wird unvorhersehbar), und
+                ein Hover-CTA existiert auf Touch-Geraeten praktisch nicht. Der
+                CTA steht jetzt als eigenes Geschwisterelement im Karten-Footer. */}
             <Link href={`/produkt/${product.slug}`} className="block">
               <div
                 className="relative w-full overflow-hidden bg-[#F5F5F5]"
@@ -74,20 +84,6 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
                     </span>
                   </div>
                 )}
-
-                {/* Amazon Hover */}
-                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-200">
-                  <a
-                    href={product.affiliate_url}
-                    target="_blank"
-                    rel="sponsored nofollow noopener noreferrer"
-                    onClick={e => e.stopPropagation()}
-                    className="flex items-center gap-1.5 text-[10px] font-black px-3 py-1.5 uppercase tracking-wider"
-                    style={{ background: accent, color: onAccent, border: '2px solid #0A0A0A' }}
-                  >
-                    Amazon <ExternalLink size={9} />
-                  </a>
-                </div>
               </div>
             </Link>
 
@@ -143,6 +139,41 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
                   {getPriceBand(product.price_cents)}
                 </span>
               </div>
+
+              {/* ── Affiliate-CTA — dauerhaft sichtbar, volle Kartenbreite ──
+                  minHeight 44px ist die uebliche Mindestgroesse fuer ein
+                  Touch-Ziel. Das aria-label wiederholt den Produktnamen, weil
+                  auf einer Listenseite sonst zwanzig gleich benannte Links
+                  nebeneinander stehen. Die sichtbare Kennzeichnung darunter
+                  bleibt unveraendert; sie wird fuer Screenreader aber nicht
+                  mitgelesen, sobald ein `aria-label` gesetzt ist — deshalb
+                  steht sie zusaetzlich im Label. */}
+              <AffiliateLink
+                slug={product.slug}
+                affiliateUrl={product.affiliate_url}
+                ariaLabel={affiliateAriaLabel(`${ctaLabel}: ${product.name}`)}
+                className="flex items-center justify-center gap-2 w-full text-[11px] font-black uppercase tracking-widest"
+                style={{
+                  minHeight: '44px',
+                  // Longhand statt `background`/`border`-Kurzform: identische
+                  // Darstellung, aber ein Wert, den auch strenge
+                  // CSSOM-Implementierungen verlustfrei zurueckgeben — sonst
+                  // liesse sich das Designsystem nicht testen.
+                  backgroundColor: accent,
+                  color: onAccent,
+                  borderWidth: '2.5px',
+                  borderStyle: 'solid',
+                  borderColor: '#0A0A0A',
+                  boxShadow: '3px 3px 0px #0A0A0A',
+                }}
+              >
+                {ctaLabel}
+                <ExternalLink size={12} aria-hidden />
+              </AffiliateLink>
+
+              <p className="text-[9px] text-[#777] text-center leading-tight">
+                {AFFILIATE_DISCLOSURE}
+              </p>
             </div>
           </div>
         )

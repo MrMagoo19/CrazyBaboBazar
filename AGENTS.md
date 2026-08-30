@@ -288,3 +288,43 @@ Wenn eine Aktion potenziell produktiv, datenschutzrelevant, monetarisierungsrele
 - dann mit dem Benutzer abstimmen, falls kritische Wirkung wahrscheinlich ist.
 
 So werden große CrazyBaboBazar-Aufgaben kontrolliert, reproduzierbar und nachweisbar gesteuert.
+
+## 14. Engine-Auto-Selection & PARA MEMORY COST POLICY
+
+Ziel: Kosten sparen ohne Qualitätsverlust. Agenten (Claude-Worker + lokale
+Worker) stellen die Engine / das Profil automatisch je nach Aufgabenkomplexität
+ein — dabei gelten die folgenden Regeln und Prüfpfade:
+
+- **Automatische Auswahl:** Worker wählen ein Engine-Profil basierend auf der
+  Aufgabenkategorie (siehe `.claude/agents/engine-routing.md`).
+- **Minimaler Aufwand zuerst:** Mechanische, gut definierte Aufgaben verwenden
+  günstigere/leichte Engines (z. B. `haiku`/`low`) — solange die Belegpflicht
+  erfüllt bleibt (Quellen, Dateiangaben, konkrete Outputs).
+- **Hochstufung bei Urteilsfragen:** Strategie, Synthese, Entscheidungstexte,
+  Architektur und Audit-Aufgaben laufen mindestens auf `medium` oder höher.
+- **Audit-Pflicht:** Ergebnisse, die Entscheidungsfolgen haben, werden immer
+  von Codex (audit) unabhängig geprüft; Codex darf nicht automatisch
+  heruntergestuft werden.
+
+PARA Memory — Kosten-Regeln (strikt):
+
+- Verwende Para Memory nur, wenn vorheriger Projekt-Kontext *wesentlich*
+  erforderlich ist.
+- Keine Nutzung von Para Memory für:
+  - einfache UI-Edits, CSS, component-fixes
+  - lint, typecheck, builds, tests
+  - lokale Refactors oder offensichtliche Bugfixes
+  - Aufgaben, die bereits im aktuellen Chat vollständig beschrieben sind
+- Vor Para Memory lookup: 1) `AGENTS.md` prüfen, 2) Repo-Dateien prüfen, 3)
+  bereits geladenen Kontext verwenden. Nur wenn dennoch historischer Kontext
+  fehlt, Para Memory anfragen.
+- Innerhalb einer Aufgabe niemals dieselbe Para Memory-Abfrage wiederholen,
+  außer neue Informationen sind notwendig.
+
+Implementierungshinweis:
+
+- Diese Datei ist die Single Source of Truth für Team-Regeln. Worker-Skripte
+  und Subagent-Configs sollten `.claude/agents/engine-routing.md` referenzieren
+  und vor Ausführung prüfen. Falls du möchtest, kann ich den Claude-Worker
+  Start-Task so erweitern, dass er diese Datei prüft und eine Warnung ausgibt,
+  wenn ein vorgeschlagener Engine-Wechsel gegen die Policy verstößt.

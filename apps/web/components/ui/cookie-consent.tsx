@@ -2,10 +2,18 @@
 
 import { useSyncExternalStore } from 'react'
 import Link from 'next/link'
-import { createConsentStore, type ConsentSnapshot } from '@/lib/consent-store'
+import { consentStore } from '@/lib/consent'
+import type { ConsentSnapshot } from '@/lib/consent-store'
 
-const { subscribe, getSnapshot, getServerSnapshot, setConsent } =
-  createConsentStore('cbb-cookie-consent-v1')
+// Eine gemeinsame Store-Instanz fuer Hinweis und Affiliate-Links (lib/consent.ts).
+// Frueher legte diese Datei ihren eigenen Store an; die Affiliate-Links haetten
+// eine Entscheidung dann erst nach einer Navigation mitbekommen.
+//
+// `setConsent` ist die EINZIGE Stelle, die den Consent-Cookie setzt — dieser
+// Hinweis ist also die einzige Quelle einer Einwilligung. Das Aufraeumen der
+// Sitzungskennung beim Ablehnen erledigt der Store selbst, damit es hier nicht
+// vergessen werden kann.
+const { subscribe, getSnapshot, getServerSnapshot, setConsent } = consentStore
 
 export function CookieConsent() {
   const consent = useSyncExternalStore<ConsentSnapshot>(subscribe, getSnapshot, getServerSnapshot)
@@ -23,9 +31,12 @@ export function CookieConsent() {
         bottom: 0,
         left: 0,
         right: 0,
+        // Bewusst hoeher als die mobile Sticky-CTA-Leiste (z-index 90):
+        // der Hinweis darf nie verdeckt werden.
         zIndex: 200,
         backgroundColor: '#0A0A0A',
         borderTop: '4px solid #FFE500',
+        paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -38,9 +49,18 @@ export function CookieConsent() {
           >
             Cookies
           </span>
-          Diese Website verwendet keine Tracking-Cookies. Wir nutzen{' '}
+          Diese Website setzt <span className="text-white font-medium">keine Werbe- und keine
+          Profiling-Cookies</span>. Wir nutzen{' '}
           <span className="text-white font-medium">Vercel Analytics</span>{' '}
-          zur anonymen Besucherstatistik (ohne Cookies, DSGVO-konform). Amazon kann beim Klick auf Affiliate-Links eigene Cookies setzen.{' '}
+          zur anonymen Besucherstatistik (ohne Cookies). Mit{' '}
+          <span className="text-white font-medium">Akzeptieren</span> zählen wir zusätzlich, welcher
+          Partnerlink angeklickt wurde. Dafür speichern wir Ihre Entscheidung — und nur sie, also
+          „akzeptiert“ oder „abgelehnt“ — in einem funktionalen eigenen Cookie mit 182 Tagen
+          Laufzeit, damit unser Server sie prüfen kann. Die zufällige Kennung des Klicks entsteht
+          erst nach Ihrer Einwilligung, bleibt im sessionStorage des Browsers und endet mit dem Tab;
+          sie steht nie im Cookie, IP-Adressen speichern wir nicht. Widerrufen können Sie jederzeit
+          über „Datenschutz-Einstellungen“ im Fußbereich. Amazon kann beim Klick auf Affiliate-Links
+          eigene Cookies setzen.{' '}
           <Link href="/datenschutz" className="text-[#FFE500] underline underline-offset-2 hover:text-white transition-colors">
             Datenschutzerklärung
           </Link>

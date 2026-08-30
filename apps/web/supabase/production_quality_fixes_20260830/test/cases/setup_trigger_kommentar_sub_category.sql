@@ -19,4 +19,3 @@ begin
   return new;
 end
 $$;
-

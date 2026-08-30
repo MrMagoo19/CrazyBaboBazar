@@ -20,4 +20,3 @@ begin
   return new;
 end
 $$;
-

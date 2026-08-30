@@ -6,7 +6,7 @@
 -- test/cases/ vergleichen spaeter gegen diese Baseline:
 --
 --   assert_base_state.sql   alles gleich der Baseline
---   assert_after_04.sql     genau neun Zeilen abweichend, alle anderen gleich
+--   assert_after_04.sql     genau zehn Zeilen abweichend, alle anderen gleich
 --   assert_after_06.sql     wieder alles gleich der Baseline — der Round-Trip
 --                           ist damit exakt, updated_at eingeschlossen
 --
@@ -29,7 +29,7 @@ from public.lists l;
 alter table cbb_test.baseline_products add primary key (id);
 alter table cbb_test.baseline_lists    add primary key (id);
 
--- Die neun Zielzeilen namentlich, damit die Assertions "Zielzeile" und
+-- Die zehn Zielzeilen namentlich, damit die Assertions "Zielzeile" und
 -- "Nichtzielzeile" ohne Wiederholung der Slug-Listen unterscheiden koennen.
 create table cbb_test.zielprodukte (slug text primary key);
 insert into cbb_test.zielprodukte values
@@ -38,7 +38,8 @@ insert into cbb_test.zielprodukte values
   ('pizza-socks-box-pepperoni'),
   ('divoom-pixoo-led-panel'),
   ('divoom-minitoo-retro-pc-lautsprecher-pixel'),
-  ('cream-noise-machine-baby-tragbar');
+  ('cream-noise-machine-baby-tragbar'),
+  ('plasmakugel-8-zoll-beruehrungsempfindlich');
 
 create table cbb_test.ziellisten (slug text primary key);
 insert into cbb_test.ziellisten values

@@ -1,8 +1,8 @@
 -- ============================================================================
 -- SETUP — gemischter Zustand
 -- ============================================================================
--- Setzt EINE der neun Zielzeilen von Hand auf den Zielzustand. Danach stehen
--- fuenf Produkte im Vorzustand, eines im Zielzustand, alle drei Listen im
+-- Setzt EINE der zehn Zielzeilen von Hand auf den Zielzustand. Danach stehen
+-- sechs Produkte im Vorzustand, eines im Zielzustand, alle drei Listen im
 -- Vorzustand.
 --
 -- Genau dieser Zustand ist gefaehrlich: eine Datei, die einfach "alles auf den

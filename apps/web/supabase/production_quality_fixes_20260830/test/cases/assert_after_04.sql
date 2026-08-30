@@ -2,12 +2,12 @@
 -- ASSERT — Zustand nach 04_apply_quality_fixes.sql
 -- ============================================================================
 -- Prueft unabhaengig von den Nachbedingungen in 04 selbst:
---   1. alle sechs Produktzeilen tragen exakt den Zielzustand,
+--   1. alle sieben Produktzeilen tragen exakt den Zielzustand,
 --   2. alle drei Listenzeilen tragen exakt den Zielzustand,
---   3. genau neun Zeilen weichen von der Baseline ab — keine einzige mehr,
+--   3. genau zehn Zeilen weichen von der Baseline ab — keine einzige mehr,
 --   4. an den Zielzeilen wurde nur geaendert, was geaendert werden durfte,
---   5. updated_at ist bei allen sechs Produkten neu und liegt nach dem
---      Baseline-Wert,
+--   5. updated_at ist bei den sechs sichtbar geaenderten Produkten neu; bei
+--      der nicht gerenderten A4-Unterkategorie bleibt es exakt historisch,
 --   6. die Fremdliste mit demselben Fehlerslug ist unberuehrt geblieben.
 -- ============================================================================
 
@@ -78,6 +78,23 @@ begin
     raise exception 'Nach 04: %/1 D6-Zeile im Zielzustand.', n;
   end if;
 
+  -- 1 — A4-Kategorie: nur die Unterkategorie darf gewandert sein. Persona,
+  --     Hauptkategorie und Tags stehen ausdruecklich mit im Vergleich, damit
+  --     ein zu breites UPDATE hier auffaellt.
+  select count(*) into n
+  from public.products p
+  join cbb_private_backup.quality_fixes_20260830_products_v1 b
+    on b.id = p.id and b.slug = p.slug
+  where p.slug = 'plasmakugel-8-zoll-beruehrungsempfindlich'
+    and p.shop_persona = 'babo'
+    and p.shop_main_category = 'tech'
+    and p.shop_sub_category = 'gadgets'
+    and p.shop_tags = array['babo:tech','preis:unter50','preis:unter100']
+    and p.updated_at is not distinct from b.updated_at;
+  if n <> 1 then
+    raise exception 'Nach 04: %/1 A4-Kategorie-Zeile im Zielzustand.', n;
+  end if;
+
   -- 2 — Listen
   select count(*) into n
   from public.lists
@@ -128,7 +145,7 @@ begin
     raise exception 'Nach 04: A5-Reihenfolge stimmt nicht.';
   end if;
 
-  -- 3 — genau sechs Produktzeilen und drei Listenzeilen weichen von der
+  -- 3 — genau sieben Produktzeilen und drei Listenzeilen weichen von der
   --     Baseline ab.
   select count(*) into n
   from cbb_test.baseline_products b
@@ -137,8 +154,8 @@ begin
   ) p on p.id = b.id
   where b.id is null or p.id is null
      or p.fingerabdruck is distinct from b.fingerabdruck;
-  if n <> 6 then
-    raise exception 'Nach 04: % Produktzeilen weichen von der Baseline ab (erwartet genau 6).', n;
+  if n <> 7 then
+    raise exception 'Nach 04: % Produktzeilen weichen von der Baseline ab (erwartet genau 7).', n;
   end if;
 
   select count(*) into n
@@ -146,8 +163,8 @@ begin
   join public.products p on p.id = b.id
   join cbb_test.zielprodukte z on z.slug = p.slug
   where md5(to_jsonb(p)::text) is distinct from b.fingerabdruck;
-  if n <> 6 then
-    raise exception 'Nach 04: nur % der sechs abweichenden Zeilen sind Zielprodukte.', n;
+  if n <> 7 then
+    raise exception 'Nach 04: nur % der sieben abweichenden Zeilen sind Zielprodukte.', n;
   end if;
 
   select count(*) into n
@@ -173,6 +190,8 @@ begin
         then array['image_url','image_urls','updated_at']
       when 'cream-noise-machine-baby-tragbar'
         then array['name','description','editorial_note','updated_at']
+      when 'plasmakugel-8-zoll-beruehrungsempfindlich'
+        then array['shop_sub_category']
       else array['shop_persona','shop_main_category','shop_sub_category','shop_tags','updated_at']
     end
     is not distinct from to_jsonb(b) - case p.slug
@@ -182,19 +201,22 @@ begin
         then array['image_url','image_urls','updated_at']
       when 'cream-noise-machine-baby-tragbar'
         then array['name','description','editorial_note','updated_at']
+      when 'plasmakugel-8-zoll-beruehrungsempfindlich'
+        then array['shop_sub_category']
       else array['shop_persona','shop_main_category','shop_sub_category','shop_tags','updated_at']
     end;
-  if n <> 6 then
-    raise exception 'Nach 04: nur %/6 Zielprodukte sind ausserhalb der erlaubten Spalten unveraendert.', n;
+  if n <> 7 then
+    raise exception 'Nach 04: nur %/7 Zielprodukte sind ausserhalb der erlaubten Spalten unveraendert.', n;
   end if;
 
-  -- 5 — neues lastmod bei allen sechs.
+  -- 5 — neues lastmod bei den sechs sichtbar geaenderten Produkten.
   select count(*) into n
   from public.products p
   join cbb_private_backup.quality_fixes_20260830_products_v1 b on b.id = p.id
-  where p.updated_at > b.updated_at;
+  where p.slug <> 'plasmakugel-8-zoll-beruehrungsempfindlich'
+    and p.updated_at > b.updated_at;
   if n <> 6 then
-    raise exception 'Nach 04: nur %/6 Zielprodukte haben ein neues updated_at.', n;
+    raise exception 'Nach 04: nur %/6 lastmod-Zielprodukte haben ein neues updated_at.', n;
   end if;
 
   -- 6 — die Fremdliste mit demselben Fehlerslug wurde NICHT angefasst.

@@ -4,11 +4,14 @@
 -- Zielbild ist der Production-Vorzustand, den Codex am 2026-08-30 read-only
 -- verifiziert hat:
 --
---   sechs Zielprodukte     alle published, alle im belegten Vorzustand
+--   sieben Zielprodukte    alle published, alle im belegten Vorzustand
 --   drei Ziellisten        exakt die belegten product_slugs-Arrays
 --   zwei A4-Zielprodukte   plasmakugel-...-beruehrungsempfindlich und
 --                          bug-a-salt-3-0-fliegenjaeger-salzgewehr, je genau
---                          einmal und published
+--                          einmal und published. Die Plasmakugel ist seit der
+--                          Paketerweiterung zugleich das siebte Zielprodukt:
+--                          ihre shop_sub_category wird von 'basteln' auf
+--                          'gadgets' korrigiert.
 --   Produkte gesamt        >= 300 (Fingerprint jedes Guards)
 --
 -- Alle Fuelltexte hier sind Testdaten. Sie stammen nicht aus Production und
@@ -16,14 +19,26 @@
 -- gegen einen eigenen Cluster ohne TCP-Port.
 --
 -- ECHT sind ausschliesslich die Werte, auf die die Guards prueten: die
--- Vorzustandsfelder der sechs Zielprodukte, die drei Listen-Arrays und die
+-- Vorzustandsfelder der sieben Zielprodukte, die drei Listen-Arrays und die
 -- Slugs. Sie stammen aus dem Repo (import_products_batch2.sql,
 -- import_lists_batch1.sql, update_list_add_gamer_products.sql,
 -- add_shop_fields.sql) und aus dem Codex-Preflight.
 --
--- JEDE der sechs Zielzeilen traegt ein EIGENES historisches updated_at. Damit
--- muss 06 beweisbar sechs verschiedene Zeitstempel exakt zurueckspielen und
--- kann sich nicht auf einen Einheitswert stuetzen.
+-- JEDE der sieben Zielzeilen traegt ein EIGENES historisches updated_at. Damit
+-- muss 06 beweisbar sechs verschiedene geaenderte Zeitstempel exakt
+-- zurueckspielen; fuer A4 muss 04/06 beweisen, dass der siebte unveraendert
+-- bleibt. Kein Pfad kann sich auf einen Einheitswert stuetzen.
+--
+-- Die Plasmakugel behaelt dabei den read-only belegten Production-Wert
+-- 2026-07-04T00:00:00+00. Damit trotzdem sieben VERSCHIEDENE Zeitstempel
+-- entstehen, traegt fingerabdruck-vorhaengeschloss-eseesmart hier 2026-07-03
+-- statt wie zuvor 2026-07-04. Dieser Wert ist reines Testdatum: kein Guard des
+-- Pakets prueft ihn auf einen bestimmten Zeitpunkt, sondern nur darauf, dass er
+-- nicht NULL ist.
+--
+-- bug-a-salt-3-0-fliegenjaeger-salzgewehr ist KEIN Zielprodukt und behaelt
+-- deshalb 2026-07-04; es zaehlt zur Nichtzielmenge, deren Unveraendertheit
+-- 04 und 06 ueber md5(to_jsonb(zeile)) messen.
 -- ============================================================================
 
 insert into public.categories (slug, name, description, emoji, sort_order) values
@@ -50,7 +65,7 @@ insert into public.products (
  true, 'unknown', 'sonstiges', 'ungeordnet',
  array['preis:unter50','preis:unter100'],
  'Eseesmart', 'Fixture-Redaktionsnotiz Eseesmart.',
- timestamptz '2026-04-20 08:00:00+00', timestamptz '2026-07-04 00:00:00+00'),
+ timestamptz '2026-04-20 08:00:00+00', timestamptz '2026-07-03 00:00:00+00'),
 
 ('flauschige-handschuhe-weihnachten',
  'Flauschige Handschuhe Weihnachten',
@@ -145,10 +160,20 @@ insert into public.products (
 --    — 01, 04 und 05 pruefen das hart.
 --    Die fehlerhaften Slugs (...beruehlungs..., ...fliegenjager...) gibt es
 --    bewusst NICHT: genau deshalb sind die Listeneintraege tot.
+--
+--    Die Plasmakugel ist zugleich das SIEBTE Zielprodukt. Ihr Vorzustand ist
+--    read-only auf Production verifiziert (2026-08-30):
+--      babo / tech / basteln,
+--      shop_tags ['babo:tech','preis:unter50','preis:unter100'],
+--      is_published = true, updated_at 2026-07-04T00:00:00+00.
+--    Genau diese vier Werte sind ECHT und werden von den Guards geprueft.
+--    reassign_all_categories.sql Z. 144-162 wollte die Zeile nach
+--    babo / tech / gadgets stellen, traf aber den Tippfehler-Slug (Z. 158) —
+--    deshalb steht sie bis heute auf 'basteln'.
 -- ----------------------------------------------------------------------------
 insert into public.products (
   slug, name, tagline, description, price_cents, affiliate_url, image_url,
-  is_published, shop_persona, shop_main_category, shop_sub_category,
+  is_published, shop_persona, shop_main_category, shop_sub_category, shop_tags,
   created_at, updated_at
 ) values
 ('plasmakugel-8-zoll-beruehrungsempfindlich',
@@ -157,7 +182,8 @@ insert into public.products (
  'Magische 8-Zoll-Plasmakugel. Fixture-Testtext.',
  3799, 'https://www.amazon.de/dp/B081HXZCRL?tag=geeklist-21',
  'https://m.media-amazon.com/images/I/41yolsOXR+L._AC_.jpg',
- true, 'babo', 'diy', 'basteln',
+ true, 'babo', 'tech', 'basteln',
+ array['babo:tech','preis:unter50','preis:unter100'],
  timestamptz '2026-04-10 08:00:00+00', timestamptz '2026-07-04 00:00:00+00'),
 
 ('bug-a-salt-3-0-fliegenjaeger-salzgewehr',
@@ -167,6 +193,7 @@ insert into public.products (
  5573, 'https://www.amazon.de/dp/B089CDCCR1?tag=geeklist-21',
  'https://m.media-amazon.com/images/I/31S68XoTJoL._AC_.jpg',
  true, 'babo', 'lifestyle', 'gadgets',
+ array['babo:lifestyle','preis:unter100','preis:unter200'],
  timestamptz '2026-04-11 08:00:00+00', timestamptz '2026-07-04 00:00:00+00');
 
 -- ----------------------------------------------------------------------------

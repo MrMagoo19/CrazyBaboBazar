@@ -12,11 +12,12 @@
 --   referenziert. Fehlt eine davon, bricht bereits die Planung ab.
 --
 -- WAS DIESE DATEI BEWEIST
---   1. Alle neun Zielzeilen stehen exakt im Zielzustand.
---   2. Keine der neun Zeilen wurde ausserhalb der erlaubten Spalten veraendert
+--   1. Alle zehn Zielzeilen stehen exakt im Zielzustand.
+--   2. Keine der zehn Zeilen wurde ausserhalb der erlaubten Spalten veraendert
 --      — geprueft ueber den vollstaendigen Zeilenvergleich gegen das Backup,
 --      abzueglich genau der Spalten, die 04 aendern durfte.
---   3. Die sechs Produktzeilen tragen ein neues lastmod.
+--   3. Die sechs sichtbar geaenderten Produktseiten tragen ein neues lastmod;
+--      die nicht gerenderte A4-Unterkategorie behaelt ihren Zeitstempel.
 --   4. Das Backup ist unveraendert und damit weiterhin ein gueltiger
 --      Rollback-Pfad.
 --   5. Die beiden fehlerhaften Slugs stehen in keiner der drei Listen mehr,
@@ -27,7 +28,7 @@
 --   veraendert wurde. Dieser Nachweis ist nur innerhalb der Transaktion von 04
 --   moeglich (Nachbedingungen 6 und 7 dort) und wird hier nicht wiederholt.
 --
--- ERWARTETES ERGEBNIS: 27 Zeilen — 22 harte PASS-Zeilen (Sortierung 30 bis 240)
+-- ERWARTETES ERGEBNIS: 28 Zeilen — 23 harte PASS-Zeilen (Sortierung 30 bis 240)
 -- und 5 INFO-Zeilen (10, 20, 300, 310, 320). Jede FAIL-Zeile ist ein Befund.
 -- ============================================================================
 
@@ -88,6 +89,17 @@ d6_erwartet(slug, pre_name, ziel_name, pre_description, ziel_description, pre_no
     'Tragbare White Noise Machine für Kinderwagen, Auto oder Reisen. Klein, wiederaufladbar via USB, mehrere Sound-Modi (weißes Rauschen, Regen, Herzschlag). Karabinerhaken für Kinderwagen. Für Eltern, die gemerkt haben: Schlaf des Babys = Ruhe des Hauses. Basic für unterwegs-schlafende Kinder.'::text,
     'Die tragbare Cream-Noise-Machine für Kinderwagen, Auto oder Reise. Klein, wiederaufladbar, mehrere Geräusche. Für alle, die gemerkt haben, dass Schlaf des Babys = Ruhe der Eltern = Frieden im Haus.'::text,
     'Die tragbare White-Noise-Machine für Kinderwagen, Auto oder Reise. Klein, wiederaufladbar, mehrere Geräusche. Für alle, die gemerkt haben, dass Schlaf des Babys = Ruhe der Eltern = Frieden im Haus.'::text
+  )
+),
+-- A4 (Kategorie) — die siebte Produktzeile. Persona, Hauptkategorie und Tags
+-- sind Vorwerte und muessen unveraendert sein; geaendert wurde nur
+-- shop_sub_category 'basteln' -> 'gadgets'.
+a4_kategorie_erwartet(slug, pre_persona, pre_main, pre_sub, pre_tags, ziel_sub) as (
+  values (
+    'plasmakugel-8-zoll-beruehrungsempfindlich'::text,
+    'babo'::text, 'tech'::text, 'basteln'::text,
+    array['babo:tech','preis:unter50','preis:unter100']::text[],
+    'gadgets'::text
   )
 ),
 listen_erwartet(slug, pre_slugs, ziel_slugs) as (
@@ -214,7 +226,9 @@ produkt_spalten(slug, geaenderte_spalten) as (
     ('divoom-minitoo-retro-pc-lautsprecher-pixel',
      array['image_url','image_urls','updated_at']::text[]),
     ('cream-noise-machine-baby-tragbar',
-     array['name','description','editorial_note','updated_at']::text[])
+     array['name','description','editorial_note','updated_at']::text[]),
+    ('plasmakugel-8-zoll-beruehrungsempfindlich',
+     array['shop_sub_category']::text[])
 ),
 
 fingerprint as (
@@ -258,6 +272,11 @@ zielzustand as (
      where p.name is not distinct from e.ziel_name
        and p.description is not distinct from e.ziel_description
        and p.editorial_note is not distinct from e.ziel_note)::integer as d6_ziel,
+    (select count(*) from public.products p join a4_kategorie_erwartet e on e.slug = p.slug
+     where p.shop_persona is not distinct from e.pre_persona
+       and p.shop_main_category is not distinct from e.pre_main
+       and p.shop_sub_category is not distinct from e.ziel_sub
+       and p.shop_tags is not distinct from e.pre_tags)::integer as a4_kat_ziel,
     (select count(*) from public.lists l join listen_erwartet e on e.slug = l.slug
      where l.product_slugs is not distinct from e.ziel_slugs)::integer as listen_ziel
 ),
@@ -279,6 +298,11 @@ restvorzustand as (
          where p.name is not distinct from e.pre_name
            and p.description is not distinct from e.pre_description
            and p.editorial_note is not distinct from e.pre_note)
+      + (select count(*) from public.products p join a4_kategorie_erwartet e on e.slug = p.slug
+         where p.shop_persona is not distinct from e.pre_persona
+           and p.shop_main_category is not distinct from e.pre_main
+           and p.shop_sub_category is not distinct from e.pre_sub
+           and p.shop_tags is not distinct from e.pre_tags)
       + (select count(*) from public.lists l join listen_erwartet e on e.slug = l.slug
          where l.product_slugs is not distinct from e.pre_slugs)
     )::integer as noch_vorzustand
@@ -306,7 +330,9 @@ unveraendert as (
     (select count(*)
      from public.products p
      join cbb_private_backup.quality_fixes_20260830_products_v1 b on b.id = p.id
-     where p.updated_at > b.updated_at)::integer as lastmod_neu
+     join produkt_spalten g on g.slug = p.slug
+     where 'updated_at' = any(g.geaenderte_spalten)
+       and p.updated_at > b.updated_at)::integer as lastmod_neu
 ),
 
 backup_zustand as (
@@ -330,6 +356,12 @@ backup_zustand as (
          where b.name is not distinct from e.pre_name
            and b.description is not distinct from e.pre_description
            and b.editorial_note is not distinct from e.pre_note)
+      + (select count(*) from cbb_private_backup.quality_fixes_20260830_products_v1 b
+          join a4_kategorie_erwartet e on e.slug = b.slug
+         where b.shop_persona is not distinct from e.pre_persona
+           and b.shop_main_category is not distinct from e.pre_main
+           and b.shop_sub_category is not distinct from e.pre_sub
+           and b.shop_tags is not distinct from e.pre_tags)
     )::integer as backup_produkte_pre,
     (select count(*) from cbb_private_backup.quality_fixes_20260830_lists_v1 b
       join listen_erwartet e on e.slug = b.slug
@@ -392,11 +424,11 @@ checks as (
   select 50, 'pilot_artefakte', pilot_artefakte::text, '0',
     case when pilot_artefakte = 0 then 'PASS' else 'FAIL' end from summary
   union all
-  select 60, 'zielprodukte_vorhanden', zielprodukte::text, '6',
-    case when zielprodukte = 6 then 'PASS' else 'FAIL' end from summary
+  select 60, 'zielprodukte_vorhanden', zielprodukte::text, '7',
+    case when zielprodukte = 7 then 'PASS' else 'FAIL' end from summary
   union all
-  select 70, 'zielprodukte_published', zielprodukte_published::text, '6',
-    case when zielprodukte_published = 6 then 'PASS' else 'FAIL' end from summary
+  select 70, 'zielprodukte_published', zielprodukte_published::text, '7',
+    case when zielprodukte_published = 7 then 'PASS' else 'FAIL' end from summary
   union all
   select 80, 'ziellisten_vorhanden', ziellisten::text, '3',
     case when ziellisten = 3 then 'PASS' else 'FAIL' end from summary
@@ -413,9 +445,12 @@ checks as (
   select 120, 'd6_zielzustand_white_noise', d6_ziel::text, '1',
     case when d6_ziel = 1 then 'PASS' else 'FAIL' end from summary
   union all
+  select 125, 'a4_kategorie_zielzustand_gadgets', a4_kat_ziel::text, '1',
+    case when a4_kat_ziel = 1 then 'PASS' else 'FAIL' end from summary
+  union all
   select 130, 'produkte_zielzustand_gesamt',
-    (b2_ziel + b5_preis_ziel + b5_bilder_ziel + d6_ziel)::text, '6',
-    case when (b2_ziel + b5_preis_ziel + b5_bilder_ziel + d6_ziel) = 6
+    (b2_ziel + b5_preis_ziel + b5_bilder_ziel + d6_ziel + a4_kat_ziel)::text, '7',
+    case when (b2_ziel + b5_preis_ziel + b5_bilder_ziel + d6_ziel + a4_kat_ziel) = 7
       then 'PASS' else 'FAIL' end from summary
   union all
   select 140, 'listen_zielzustand_gesamt', listen_ziel::text, '3',
@@ -424,8 +459,8 @@ checks as (
   select 150, 'kein_vorzustand_mehr', noch_vorzustand::text, '0',
     case when noch_vorzustand = 0 then 'PASS' else 'FAIL' end from summary
   union all
-  select 160, 'zielprodukte_sonst_wie_backup', produkte_sonst_gleich::text, '6',
-    case when produkte_sonst_gleich = 6 then 'PASS' else 'FAIL' end from summary
+  select 160, 'zielprodukte_sonst_wie_backup', produkte_sonst_gleich::text, '7',
+    case when produkte_sonst_gleich = 7 then 'PASS' else 'FAIL' end from summary
   union all
   select 170, 'ziellisten_sonst_wie_backup', listen_sonst_gleich::text, '3',
     case when listen_sonst_gleich = 3 then 'PASS' else 'FAIL' end from summary
@@ -433,8 +468,8 @@ checks as (
   select 180, 'lastmod_neu', lastmod_neu::text, '6',
     case when lastmod_neu = 6 then 'PASS' else 'FAIL' end from summary
   union all
-  select 190, 'backup_produkte_unveraendert', backup_produkte_pre::text, '6',
-    case when backup_produkte_pre = 6 then 'PASS' else 'FAIL' end from summary
+  select 190, 'backup_produkte_unveraendert', backup_produkte_pre::text, '7',
+    case when backup_produkte_pre = 7 then 'PASS' else 'FAIL' end from summary
   union all
   select 200, 'backup_listen_unveraendert', backup_listen_pre::text, '3',
     case when backup_listen_pre = 3 then 'PASS' else 'FAIL' end from summary

@@ -2,16 +2,20 @@
 
 ## Status
 
-**`lokal vollstaendig geprueft, nichts auf Production ausgefuehrt`**
+**`lokal vollstaendig getestet, nichts auf Production ausgefuehrt`**
 
 Keine Datei dieses Verzeichnisses wurde gegen `project/ydiihvzcxaaoqhmgoqvu`
 (Production) oder `project/nmzuycveumyfvtxdcnuc` (Pilot) ausgefuehrt. Es gab
 keinen Production-Write, keinen Pilot-Write, keinen Push und kein Deploy.
-Codex hat den Production-Vorzustand der neun Zielzeilen per read-only REST-GET
+Codex hat den Production-Vorzustand der Zielzeilen per read-only REST-GET
 geprueft und Preis, ASINs sowie Bild-Erreichbarkeit extern read-only
-gegengeprueft. Der lokale PostgreSQL-16.15-Harness (`test/`) ist nach der
-abschliessenden Codex-Haertung mit **119/119 PASS**, **0 Abweichungen** und
-Exit **0** durchgelaufen.
+gegengeprueft.
+
+Der definitive Codex-Vollauf gegen PostgreSQL **16.15** bestand mit
+**145/145 PASS**, **0 Abweichungen** und Exit **0**. Ergebnisdatei:
+`/tmp/cbb-qftest.AgI5UJsx/results.tsv`; dauerhafte Zusammenfassung:
+[`LOCAL_TEST_REPORT.md`](LOCAL_TEST_REPORT.md). Der fruehere Lauf mit 119/119
+PASS bleibt als Historie fuer den Paketstand vor der Erweiterung dokumentiert.
 
 Jeder spaetere Schritt ist **einzeln** freigabepflichtig. Es gibt keine
 Sammelfreigabe fuer dieses Paket. Die Freigabetabelle steht in
@@ -22,13 +26,14 @@ Sammelfreigabe fuer dieses Paket. Die Freigabetabelle steht in
 
 ## 1. Worum es geht
 
-Das Paket korrigiert vier belegte Produktionsbefunde und **nichts sonst**.
-Betroffen sind genau **sechs Zeilen in `public.products`** und **drei Zeilen in
+Das Paket korrigiert fuenf belegte Produktionsbefunde und **nichts sonst**.
+Betroffen sind genau **sieben Zeilen in `public.products`** und **drei Zeilen in
 `public.lists`**.
 
 | Befund | Was ist falsch | Beleg im Repo |
 |---|---|---|
-| **A4** | Zwei Listen verweisen auf einen Produkt-Slug mit Schreibfehler. Die korrekten Produkte existieren, die Listeneintraege zeigen ins Leere. | `import_lists_batch1.sql` Z. 58 und Z. 130 gegen `import_products_batch2.sql` Z. 30 und Z. 48 |
+| **A4** (Listen) | Zwei Listen verweisen auf einen Produkt-Slug mit Schreibfehler. Die korrekten Produkte existieren, die Listeneintraege zeigen ins Leere. | `import_lists_batch1.sql` Z. 58 und Z. 130 gegen `import_products_batch2.sql` Z. 30 und Z. 48 |
+| **A4** (Kategorie) | Derselbe Tippfehler hat eine Produktzeile stehen lassen: `reassign_all_categories.sql` Z. 144-162 stellt einen Block ausdruecklich auf `babo / tech / gadgets`, fuehrt in seiner Slug-Liste (Z. 158) aber `plasmakugel-8-zoll-beruehlungsempfindlich`. Das echte Produkt `plasmakugel-8-zoll-beruehrungsempfindlich` wurde davon nie getroffen und steht bis heute auf `shop_sub_category = 'basteln'`. | `reassign_all_categories.sql` Z. 144-162, Tippfehler-Slug in Z. 158 |
 | **A5** | `geschenke-fuer-gamer` traegt 16 statt 13 Eintraege — die letzten drei sind exakte Wiederholungen der Positionen 11 bis 13. | `update_list_add_gamer_products.sql` haengt genau diese drei Slugs an und ist zweimal gelaufen |
 | **B2** | Drei Produkte stehen noch auf den Spaltendefaults `unknown / sonstiges / ungeordnet` und tragen nur Preis-Tags, also keinen Persona-Tag. | Defaults aus `add_shop_fields.sql`; Tag-Konvention aus `pilot_staging_seed.sql` |
 | **B5** | `divoom-pixoo-led-panel` hat keinen Preis. `divoom-minitoo-…` hat ein einzelnes Nicht-Amazon-Bild. | `backfill_pilot_value_add.sql` Z. 25 haelt den fehlenden Preis ausdruecklich fest |
@@ -37,7 +42,7 @@ Betroffen sind genau **sechs Zeilen in `public.products`** und **drei Zeilen in
 **D7 ist ausdruecklich NICHT Teil dieses Pakets.** Siehe
 [Abschnitt 6](#6-d7--warum-hier-nichts-passiert).
 
-Der Production-Vorzustand aller neun Zeilen wurde am **2026-08-30 von Codex
+Der Production-Vorzustand aller zehn Zeilen wurde am **2026-08-30 von Codex
 read-only verifiziert**. Genau dieser Vorzustand steht als Literal in allen
 sechs SQL-Dateien und ist harte Abbruchbedingung.
 
@@ -45,7 +50,7 @@ sechs SQL-Dateien und ist harte Abbruchbedingung.
 
 ## 2. Was genau geaendert wird
 
-### 2.1 `public.products` — sechs Zeilen
+### 2.1 `public.products` — sieben Zeilen
 
 | Gruppe | Slug | Geaenderte Spalten | vorher | nachher |
 |---|---|---|---|---|
@@ -55,6 +60,25 @@ sechs SQL-Dateien und ist harte Abbruchbedingung.
 | B5a | `divoom-pixoo-led-panel` | `price_cents`, `updated_at` | `NULL` | `4249` |
 | B5b | `divoom-minitoo-retro-pc-lautsprecher-pixel` | `image_url`, `image_urls`, `updated_at` | ein Divoom-Shop-Bild | erstes von neun Amazon-Bildern; `image_urls` = alle neun |
 | D6 | `cream-noise-machine-baby-tragbar` | `name`, `description`, `editorial_note`, `updated_at` | „Cream Noise Machine“ | „White Noise Machine“ |
+| A4 | `plasmakugel-8-zoll-beruehrungsempfindlich` | nur `shop_sub_category` | `babo / tech / basteln`, Tags `['babo:tech','preis:unter50','preis:unter100']` | `babo / tech / gadgets` — **Persona, Hauptkategorie, Tags und `updated_at` bleiben identisch** |
+
+**A4 aendert genau eine Spalte.** `shop_persona`, `shop_main_category`,
+`shop_tags` und `updated_at` stehen in `04` nicht im `SET`, sondern
+ausschliesslich in der Vorzustands- beziehungsweise Vollzeilenpruefung. Ein zu
+breites UPDATE liesse die Transaktion scheitern.
+
+Belege fuer die A4-Zeile:
+
+* **Production, read-only am 2026-08-30 (Codex):** `babo / tech / basteln`,
+  `shop_tags = ['babo:tech','preis:unter50','preis:unter100']`,
+  `is_published = true`, `updated_at = 2026-07-04T00:00:00+00`.
+* **Repo:** `reassign_all_categories.sql` Z. 144-162 — der Block setzt
+  ausdruecklich `babo / tech / gadgets`, seine Slug-Liste enthaelt in Z. 158
+  jedoch den Tippfehler-Slug `plasmakugel-8-zoll-beruehlungsempfindlich`. Das
+  Zielprodukt wurde deshalb nie getroffen.
+
+Die beabsichtigte Unterkategorie steht damit im Repo; das Paket vollzieht nur
+nach, was `reassign_all_categories.sql` erreichen wollte.
 
 **Kein Preis-Tag wird erfunden.** Die Persona-Tags werden den bereits
 vorhandenen Preis-Tags nur vorangestellt; die Preisbaender bleiben, wie sie
@@ -92,6 +116,28 @@ sein Fingerprint besteht aus `products`, `lists`, `page_content`,
 `public.lists` hat **keine** Spalte `updated_at`. Dort wird kein Zeitstempel
 geschrieben.
 
+> **Beleggrenze dieser Aussage.** Sie stuetzt sich auf zwei Quellen mit
+> unterschiedlichem Gewicht:
+>
+> 1. **Production-REST-Schemaprobe, 2026-08-30, read-only.** Eine
+>    PostgREST-Abfrage auf `updated_at` in `public.lists` antwortete mit
+>    PostgreSQL-Fehlercode **`42703`** (`undefined_column`). Das ist ein
+>    direkter Beleg am laufenden Production-Schema — nicht am Repo.
+> 2. **Statische Repo-Pruefung.** Die einzige explizite Nicht-Test-Definition
+>    von `public.lists` im Repo steht in `pilot_staging_bootstrap.sql` und
+>    gehoert zum Pilot/Staging-Aufbau; sie fuehrt keine Spalte `updated_at`.
+>    Das ist fuer Production nur eine Heuristik.
+>
+> Punkt 2 allein ist eine **Heuristik**, kein Beweis: eine ausserhalb des Repos
+> von Hand ausgefuehrte Migration waere darin unsichtbar. Verbindlich ist
+> deshalb Punkt 1. Die Repo-Dateien wurden fuer diese Aussage zusaetzlich
+> vollstaendig von Codex und vom Pruefer gelesen, nicht nur gegrept.
+>
+> Praktisch abgesichert ist die Aussage ohnehin doppelt: schriebe `04` einen
+> Zeitstempel in `public.lists`, gaebe es die Spalte nicht und die Anweisung
+> scheiterte; gaebe es sie doch, faenge der `to_jsonb`-Vergleich gegen das
+> Backup jede unbeabsichtigte Aenderung ab.
+
 **Es werden keine anderen Dubletten bereinigt.** Die Deduplizierung gilt
 ausschliesslich fuer `geschenke-fuer-gamer` und nur fuer die drei belegten
 Wiederholungen. Andere Listen bleiben unberuehrt — auch dann, wenn sie
@@ -99,7 +145,8 @@ zufaellig denselben fehlerhaften Slug enthalten.
 
 ### 2.3 `updated_at`
 
-Alle sechs Produktaenderungen setzen `updated_at = now()` **ausdruecklich**.
+Die sechs sichtbaren Produktaenderungen setzen `updated_at = now()`
+**ausdruecklich**.
 Der Trigger `products_set_updated_at` (`supabase/seo_updated_at_trigger.sql`)
 ueberschreibt einen ausdruecklich mitgeschriebenen Wert nicht.
 
@@ -116,9 +163,45 @@ Begruendung je Gruppe:
 * **B5b** — `image_url` ist das primaere Produktbild und JSON-LD-Fallback.
 * **D6** — `name`, `description` und `editorial_note` sind H1, Fliesstext,
   Meta-Description und der „Unser Urteil“-Block.
+* **A4** — **hier liegt der Fall anders.**
+  `shop_sub_category` erscheint im Rendering der Produktseite nicht: die
+  einzige Verwendung im Anwendungscode ist `lib/db-types.ts` als Typfeld, und
+  der Trigger-Kommentar in `supabase/seo_updated_at_trigger.sql` fuehrt die
+  Spalte ausdruecklich unter „Bewusst NICHT aufgenommen“ mit der Begruendung
+  „Kommt im gesamten Rendering nicht vor“. Aus demselben Grund wuerde der
+  Trigger hier **nicht** feuern. Das Paket folgt diesem Aufnahmekriterium:
+  `updated_at` bleibt bei A4 exakt historisch, und `04`, `05` sowie der
+  Harness pruefen diese Nichtaenderung ausdruecklich.
 
-`06` stellt die **historischen** `updated_at`-Werte aus dem Snapshot wieder her,
-nicht `now()`.
+`06` stellt die **historischen** `updated_at`-Werte der sechs
+lastmod-Zielprodukte aus dem Snapshot wieder her, nicht `now()`. Bei A4 war der
+historische Wert auch im Zielzustand unveraendert.
+
+### 2.4 `updated_at IS NULL` ist eine harte Abbruchbedingung
+
+`schema.sql` definiert `updated_at` nur als `DEFAULT now()`, **nicht** als
+`NOT NULL`. Ein NULL-Zeitstempel an einer Zielzeile wuerde jeden Beweis dieses
+Pakets still aushebeln:
+
+* `p.updated_at > b.updated_at` ergibt mit NULL wieder NULL — die Zeile zaehlt
+  weder als „neu“ noch als „nicht neu“.
+* `06` haette keinen historischen Wert zurueckzuspielen; der Round-Trip waere
+  ein Datenverlust statt einer Wiederherstellung.
+
+Deshalb bricht **jede schreibende Datei vor ihrem Schreibvorgang** ab, wenn
+eines der sechs lastmod-Zielprodukte `updated_at IS NULL` traegt:
+
+| Datei | Geprueft wird | Meldung beginnt mit |
+|---|---|---|
+| `02` | die sechs lastmod-Zielzeilen in `public.products`, nach dem Row-Lock | `QF-Backup abgebrochen: … updated_at IS NULL` |
+| `04` | die sechs lastmod-Zielzeilen in `public.products`, vor dem ersten UPDATE | `QF-Korrektur abgebrochen: … updated_at IS NULL` |
+| `06` | die sechs lastmod-Zielzeilen **und** ihre sechs Backup-Zeilen | `QF-Restore abgebrochen: updated_at IS NULL bei …` |
+
+`01` meldet denselben Sachverhalt read-only als Pruefzeile
+`lastmod_zielprodukte_updated_at_nicht_null` (erwartet 6). Der Harness weist alle drei
+Guards mit eigenen Negativfaellen nach
+(`case_j_updated_at_null`, `case_j2_updated_at_null_vor_04`,
+`case_j3_updated_at_null_vor_06`).
 
 ---
 
@@ -148,11 +231,17 @@ Erwartete Ergebnisformen:
 
 | Datei | Zeilen | davon PASS | davon INFO | FAIL |
 |---|---|---|---|---|
-| `01` | 26 | 20 | 6 | 0 |
+| `01` | 28 | 22 | 6 | 0 |
 | `03` | 23 | 16 | 7 | 0 |
-| `05` | 27 | 22 | 5 | 0 |
+| `05` | 28 | 23 | 5 | 0 |
 
-`02` gibt nach dem Commit `6` und `3` zurueck. `04` und `06` geben nichts
+Gegenueber dem Stand vor der Erweiterung sind das in `01` zwei zusaetzliche
+PASS-Zeilen (`a4_kategorie_vorzustand_basteln`,
+  `lastmod_zielprodukte_updated_at_nicht_null`) und in `05` eine
+(`a4_kategorie_zielzustand_gadgets`). `03` bleibt bei 16 PASS-Zeilen; dort
+aendern sich nur die erwarteten Zahlen von 6 auf 7.
+
+`02` gibt nach dem Commit `7` und `3` zurueck. `04` und `06` geben nichts
 zurueck; ein erfolgreicher Lauf ist ein Lauf ohne Exception.
 
 ---
@@ -192,10 +281,15 @@ alle uebrigen Produktbilder des Shops.
 
 ### 4.4 Lokaler Harness — Gate erfuellt
 
+**Stand: `145/145 PASS, 0 Abweichungen, Exit 0`.**
+
 `test/run_local_postgres_test.sh` lief am 2026-08-30 gegen PostgreSQL **16.15**
-mit **119/119 PASS**, **0 Abweichungen** und Exit **0**. Der Harness testet die
-sechs Originaldateien gegen eine echte lokale PostgreSQL-16-Instanz. Details
-und Laufhistorie stehen in [`test/README.md`](test/README.md).
+mit **145/145 PASS**, **0 Abweichungen** und Exit **0**. Darin enthalten sind
+die siebte Zielproduktzeile, die zusaetzlichen Diagnosezeilen, der Rollen-Guard
+in `02`, die drei `updated_at`-Guards sowie vier neue Negativfaelle. Der
+lokale Cluster wurde danach sauber gestoppt; PGDATA und Socketverzeichnis wurden
+entfernt. Details stehen in [`LOCAL_TEST_REPORT.md`](LOCAL_TEST_REPORT.md) und
+[`test/README.md`](test/README.md).
 
 ---
 
@@ -232,15 +326,16 @@ Jede schreibende Datei bricht ab, wenn
 Die sperrfreie Vorpruefung ist nur ein billiger Vorfilter. Verbindlich ist
 immer die Pruefung **nach** dem Row-Lock:
 
-1. Alle neun Zielzeilen werden gemeinsam mit ihren Backup-Zeilen gesperrt
+1. Alle zehn Zielzeilen werden gemeinsam mit ihren Backup-Zeilen gesperrt
    (`FOR UPDATE OF p, b` bzw. `FOR UPDATE OF l, b`). Die erwartete Zeilenzahl
-   wird per `GET DIAGNOSTICS` geprueft: 6 und 3.
+   wird per `GET DIAGNOSTICS` geprueft: 7 und 3.
 2. Danach wird der Zustand **vollstaendig** neu klassifiziert, plus:
    * Backup entspricht exakt dem bekannten Vorzustand (Manipulationsschutz),
    * Backup und Quelle sind im Vorzustandsfall **ueber alle Spalten** driftfrei
-     (`to_jsonb`-Vergleich, `updated_at` eingeschlossen).
+     (`to_jsonb`-Vergleich, `updated_at` eingeschlossen),
+   * kein Zielprodukt traegt `updated_at IS NULL` (siehe Abschnitt 2.4).
 3. Erst danach wird geschrieben. Jedes UPDATE prueft seine Trefferzahl exakt
-   (3, 1, 1, 1 fuer Produkte; 3 fuer Listen).
+   (3, 1, 1, 1, 1 fuer Produkte; 3 fuer Listen).
 
 Eine konkurrierende Aenderung, die zwischen Vorpruefung und Lock committet, wird
 dadurch erkannt und **nicht** ueberschrieben. Der Harness weist beides mit echten
@@ -269,7 +364,7 @@ Operation auf der Backup-Zeile.
 
 | Tabelle | Inhalt |
 |---|---|
-| `quality_fixes_20260830_products_v1` | 6 vollstaendige Zeilen aus `public.products` (`SELECT *`) |
+| `quality_fixes_20260830_products_v1` | 7 vollstaendige Zeilen aus `public.products` (`SELECT *`) |
 | `quality_fixes_20260830_lists_v1` | 3 vollstaendige Zeilen aus `public.lists` (`SELECT *`) |
 
 „Vollstaendig“ ist Absicht: der Rollback ist damit nicht auf die heute bekannte
@@ -287,6 +382,31 @@ ist.
 Auf Supabase traegt `service_role` typischerweise `BYPASSRLS`; RLS allein ist
 gegen sie kein Schutz.
 
+**Rollen-Guard — alle drei schreibenden Dateien.** Saemtliche Rechte-Zaehler
+laufen ueber `pg_roles … where rolname in ('anon','authenticated',
+'service_role')`. Fehlt eine der beiden App-Rollen, faellt sie aus dem Join und
+der Zaehler meldet still `0` — kein Beleg fuer „keine Rechte“, nur einer fuer
+„keine Rolle“. `04` und `06` brachen dafuer schon vorher hart ab; **`02` tut es
+jetzt ebenfalls**, und zwar in Guard 1, also **vor jeder Verzweigung**. Damit
+kann auch der No-Op-Zweig (Backup existiert bereits) keine Backup-Tabelle mehr
+als „sicher“ durchwinken, deren Rechtelage gar nicht gemessen wurde. Die
+Meldung lautet einheitlich
+`… abgebrochen: %/2 App-Rollen (anon, authenticated) vorhanden — Rechtepruefung nicht aussagekraeftig.`
+
+`service_role` bleibt aus dieser Vorbedingung bewusst draussen: `02` revoked sie
+nur, wenn es sie gibt, und ein Cluster ohne `service_role` ist kein Fehlerfall.
+`anon` und `authenticated` dagegen existieren auf Supabase immer.
+
+Der Harness weist das mit `case_i_rolle_fehlt` nach. Dort wird `authenticated`
+**umbenannt statt geloescht**: ACL-Eintraege haengen an der Rollen-OID, ein
+`DROP ROLE` scheiterte an den Rechten in allen bereits angelegten
+Fall-Datenbanken. Aus Sicht der Guards ist die Rolle danach genauso weg wie nach
+einem `DROP`. Weil Rollen und Rollenattribute **clusterweit** sind, hat der Fall
+ein eigenes Teardown, das zurueckbenennt und danach nachweist, dass Name,
+`NOINHERIT`, die Rechte auf `public` und die Dichtheit des privaten Backups
+unveraendert sind; ein abschliessender `02`-Lauf belegt, dass der Cluster
+wirklich wieder sauber ist.
+
 > **Vor Freigabe #4 lesen:** Melden die vier `service_role`-INFO-Zeilen von `03`
 > etwas anderes als `keine`, wird `04` abbrechen. Das ist beabsichtigt und dann
 > ein eigener Befund — kein Grund, den Guard zu entschaerfen. Erwartet wird
@@ -299,9 +419,9 @@ gegen sie kein Schutz.
 
 | Datei | Bei erneutem Lauf im erreichten Zustand | Bei gemischtem oder gedriftetem Zustand |
 |---|---|---|
-| `02` | No-Op, wenn beide Backup-Tabellen existieren und exakt den bekannten Vorzustand enthalten | Abbruch — auch bei nur einer der beiden Tabellen, falscher Zeilenzahl, veraendertem Inhalt oder geoeffneten Rechten |
-| `04` | No-Op, wenn alle neun Zeilen exakt im Zielzustand stehen — **kein UPDATE, kein neues `updated_at`** | Abbruch |
-| `06` | No-Op, wenn alle neun Zeilen exakt dem Backup entsprechen | Abbruch |
+| `02` | No-Op, wenn beide Backup-Tabellen existieren, exakt den bekannten Vorzustand enthalten und die sechs lastmod-Zeitstempel nicht NULL sind | Abbruch — auch bei nur einer der beiden Tabellen, falscher Zeilenzahl, veraendertem Inhalt, NULL-Zeitstempel oder geoeffneten Rechten |
+| `04` | No-Op, wenn alle zehn Zeilen exakt im Zielzustand stehen und alle sechs lastmod-Zeitstempel nach dem Backup liegen — **kein UPDATE, kein neues `updated_at`** | Abbruch |
+| `06` | No-Op, wenn alle zehn Zeilen exakt dem Backup entsprechen und weder Quelle noch Backup einen NULL-lastmod-Zeitstempel tragen | Abbruch |
 
 ---
 
@@ -310,45 +430,71 @@ gegen sie kein Schutz.
 Der Audit-Befund D7 betraf zwei Produktzeilen, die auf den ersten Blick wie
 Dubletten aussehen:
 
-| Slug | ASIN / Link | Preis | Bild | Klassifizierung |
+| Slug | ASIN / Link | Preis | aktuelles Bild | Klassifizierung |
 |---|---|---|---|---|
-| `tosy-flying-disc-108-rgb-leds-leuchtfrisbee` | `B0B1YMNGS2` (`import_products_batch8.sql`) | 3599 | `51+3VUFiE8L` (`fix_batch8_images.sql`) | `babo / lifestyle / gadgets` (`reassign_all_categories.sql` Z. 286) |
-| `tosy-flying-disc-wiederaufladbar` | eigener Kurzlink (`manual_affiliate_fix.sql`) | 2999 (`products_update.sql` Z. 63) | `81vsAxy1YLL` | `miniboss / spass / outdoor` (`reassign_all_categories.sql` Z. 754) |
+| `tosy-flying-disc-108-rgb-leds-leuchtfrisbee` | `B0B1YMNGS2`, **direkt im Repo** (`import_products_batch8.sql` Z. 49) | 3599 (`import_products_batch8.sql` Z. 46) | `51QWMABiNIL` (`fix_batch8_images.sql` Z. 5) | `babo / lifestyle / gadgets` (`reassign_all_categories.sql` Z. 286) |
+| `tosy-flying-disc-wiederaufladbar` | eigener Kurzlink `amzn.to/3QtubCJ` (`manual_affiliate_fix.sql` Z. 44) — die ASIN steht **nicht** im Repo | 2999 (`products_update.sql` Z. 63) | `81vsAxy1YLL` (`products_update.sql` Z. 63) | `miniboss / spass / outdoor` (`reassign_all_categories.sql` Z. 754) |
 
-Das Repo belegt **zwei verschiedene ASINs, zwei verschiedene Preise, zwei
-verschiedene Bilder** und eine **bewusst kommentierte** Variantenklassifizierung:
-`reassign_all_categories.sql` Z. 752 traegt den Kommentar
-`Flying Disc (wiederaufladbar — Miniboss-Version)`.
+#### Was das Repo belegt — und was nicht
 
-Das ist kein Datenfehler, sondern eine **beabsichtigte redaktionelle Trennung**
-zweier Artikel. Der Befund wird damit geschlossen. **Es gibt keine SQL-Aenderung
-fuer D7, und dieses Paket fasst die beiden Zeilen nicht an.** `01` und `05`
-fuehren den Punkt nur als `INFO`-Zeile.
+**Aus dem Repo direkt belegt:**
+
+* zwei **getrennte Slugs** mit getrennten Datensaetzen,
+* zwei **verschiedene Preise**: 3599 und 2999,
+* zwei **verschiedene aktuelle Bilder**: `51QWMABiNIL` und `81vsAxy1YLL`,
+* zwei **verschiedene redaktionelle Klassifizierungen**, dazu der ausdrueckliche
+  Kommentar `Flying Disc (wiederaufladbar — Miniboss-Version)` in
+  `reassign_all_categories.sql` Z. 752,
+* **eine** ASIN im Klartext: `B0B1YMNGS2` fuer die 108-RGB-Variante.
+
+**NICHT aus dem Repo belegt:** die zweite ASIN `B0C3ZTKRGX`. Der Datensatz
+`tosy-flying-disc-wiederaufladbar` traegt im Repo nur einen Amazon-Kurzlink.
+`B0C3ZTKRGX` stammt aus dem **externen read-only Redirect-Abgleich des aktuellen
+Production-Kurzlinks am 2026-08-30** — einer Ausserquelle mit eigenem
+Zeitbezug, nicht aus dem Repository. Ein Kurzlink kann umgehaengt werden; die
+Aussage gilt fuer den Stand vom 2026-08-30.
+
+> **Korrektur gegenueber der frueheren Fassung dieses Runbooks.** Dort stand
+> `51+3VUFiE8L` als aktuelles Bild mit Quelle `fix_batch8_images.sql`. Beides
+> zusammen war falsch: `51+3VUFiE8L` ist der **Import**-Wert aus
+> `import_products_batch8.sql` Z. 48 und wurde von `fix_batch8_images.sql` Z. 5
+> ueberschrieben. Der aktuelle Wert ist `51QWMABiNIL`. Ebenso stand dort, das
+> Repo belege „zwei verschiedene ASINs“ — es belegt eine.
+
+Die Trennung bleibt damit belegt: sie steht auf getrennten Slugs, getrennten
+Preisen, getrennten Bildern und einem ausdruecklichen Redaktionskommentar. Sie
+haengt **nicht** an der zweiten ASIN. Das ist kein Datenfehler, sondern eine
+**beabsichtigte redaktionelle Trennung** zweier Artikel. Der Befund wird damit
+geschlossen. **Es gibt keine SQL-Aenderung fuer D7, und dieses Paket fasst die
+beiden Zeilen nicht an.** `01` und `05` fuehren den Punkt nur als `INFO`-Zeile.
 
 ---
 
 ## 7. Ausfuehrung — Schritt fuer Schritt
 
-Jeder Schritt setzt seine eigene, frisch erteilte Freigabe voraus.
+Jeder Schritt setzt seine eigene, frisch erteilte Freigabe voraus. Das lokale
+Harness-Gate aus Abschnitt 4.4 ist erfuellt; offen bleiben die
+Production-Freigaben und die unmittelbar vor `04` zu wiederholenden
+Preis-/Bildpruefungen.
 
 1. **Freigabe #1 einholen.** Zielprojekt sichtbar pruefen.
-   `01_preflight_read_only.sql` ausfuehren. Erwartet: 26 Zeilen, 20 PASS,
+   `01_preflight_read_only.sql` ausfuehren. Erwartet: 28 Zeilen, 22 PASS,
    6 INFO, **0 FAIL**. Jede FAIL-Zeile beendet den Vorgang hier.
 2. **Preis nachpruefen** (Abschnitt 4.2). Bei Abweichung: Stopp und
    Neu-Audit.
 3. **Freigabe #2 einholen.** `02_backup_quality_fixes.sql` ausfuehren.
-   Erwartet: `backup_produkt_zeilen = 6`, `backup_listen_zeilen = 3`.
+   Erwartet: `backup_produkt_zeilen = 7`, `backup_listen_zeilen = 3`.
 4. **Freigabe #3 einholen.** `03_verify_backup_read_only.sql` ausfuehren.
    Erwartet: 23 Zeilen, 16 PASS, 7 INFO, **0 FAIL**.
 5. **Freigabe #4 einholen.** `04_apply_quality_fixes.sql` ausfuehren.
    Erwartet: kein Fehler, keine Ausgabe.
 6. **Freigabe #5 einholen.** `05_verify_read_only.sql` ausfuehren.
-   Erwartet: 27 Zeilen, 22 PASS, 5 INFO, **0 FAIL**.
+   Erwartet: 28 Zeilen, 23 PASS, 5 INFO, **0 FAIL**.
 7. **Nachlauf ohne Datenbankbezug** (getrennt zu bewerten, nicht Teil dieses
-   Pakets): Die sechs Produktseiten und die drei Listenseiten tragen ein neues
-   `lastmod`. Ob und wann eine Sitemap-Einreichung erfolgt, ist eine eigene
-   Entscheidung mit eigener Freigabe (`AGENTS.md` §7, Search-Console-
-   Schreibaktionen).
+   Pakets): Die sechs sichtbar geaenderten Produktseiten tragen ein neues
+   `lastmod`; die A4-Produktzeile behaelt ihren historischen Zeitstempel. Ob und
+   wann eine Sitemap-Einreichung erfolgt, ist eine eigene Entscheidung mit
+   eigener Freigabe (`AGENTS.md` §7, Search-Console-Schreibaktionen).
 
 Rollback: **Freigabe #6 einholen**, dann `06_restore_quality_fixes.sql`. Danach
 `05` erneut ausfuehren — es muss dann FAIL-Zeilen melden, denn der Zielzustand
@@ -360,13 +506,18 @@ ist wieder aufgehoben. Das ist der korrekte Ausgang, kein Fehler.
 
 | Gate | Wer | Stand |
 |---|---|---|
-| Lokaler PostgreSQL-Harness `test/run_local_postgres_test.sh` | Codex | **119/119 PASS, 0 Abweichungen, Exit 0** |
-| Unabhaengiges Codex-Audit der sechs SQL-Dateien (`--profile deep`) | Codex | **abgeschlossen; geerbte Rechte in `02` zusaetzlich fail-closed gehaertet** |
+| Lokaler PostgreSQL-Harness `test/run_local_postgres_test.sh` | Codex | **145/145 PASS**, 0 Abweichungen, Exit 0 (PostgreSQL 16.15, 2026-08-30) |
+| Historie: Harness-Lauf vor der Erweiterung | Codex | 119/119 PASS, 0 Abweichungen, Exit 0 (2026-08-30) — gilt **nicht** fuer den aktuellen Stand |
+| Unabhaengiges Codex-Audit der sechs SQL-Dateien (`--profile deep`) | Codex | **abgeschlossen**; A4-lastmod getrennt, drei No-Op-Zeitstempelpfade nachgehaertet, Harness-Gate gruen |
 | Erneute Preispruefung ASIN `B07HHXWN3C` unmittelbar vor `04` | Codex/Benutzer | **offen** |
 | Erneute Erreichbarkeitspruefung der neun Bild-URLs unmittelbar vor `04` | Codex/Benutzer | **offen** |
 | Freigabe #1 bis #5 (Production) | Benutzer | **offen** |
 | Freigabe #6 (Rollback) | Benutzer | **offen, nur bei Bedarf** |
 | Sitemap-/Search-Console-Nachlauf | Benutzer | **offen, eigener Vorgang** |
+
+Keine Production-Checkbox fuer **A4, A5, B2, B5 oder D6** ist abgehakt. **D7**
+bleibt als sachlich geklaert markiert — er braucht keine Datenaenderung und
+damit auch keine Production-Ausfuehrung.
 
 ---
 
@@ -374,11 +525,11 @@ ist wieder aufgehoben. Das ist der korrekte Ausgang, kein Fehler.
 
 ```
 production_quality_fixes_20260830/
-├── 01_preflight_read_only.sql        read-only, ein WITH … SELECT, 26 Zeilen
+├── 01_preflight_read_only.sql        read-only, ein WITH … SELECT, 28 Zeilen
 ├── 02_backup_quality_fixes.sql       schreibend, legt den Snapshot an
 ├── 03_verify_backup_read_only.sql    read-only, prueft den Snapshot, 23 Zeilen
 ├── 04_apply_quality_fixes.sql        schreibend, die eigentliche Korrektur
-├── 05_verify_read_only.sql           read-only, Abschlusspruefung, 27 Zeilen
+├── 05_verify_read_only.sql           read-only, Abschlusspruefung, 28 Zeilen
 ├── 06_restore_quality_fixes.sql      schreibend, Rollback aus dem Snapshot
 ├── RUNBOOK.md                        diese Datei
 └── test/

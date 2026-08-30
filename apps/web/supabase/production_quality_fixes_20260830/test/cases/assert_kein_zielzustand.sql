@@ -2,7 +2,7 @@
 -- ASSERT — keine einzige Zeile steht im Zielzustand
 -- ============================================================================
 -- Nach jedem erwarteten Abbruch: die Korrektur darf nicht teilweise
--- durchgesickert sein. Geprueft werden alle neun Zielmerkmale einzeln.
+-- durchgesickert sein. Geprueft werden alle zehn Zielmerkmale einzeln.
 --
 -- Diese Datei setzt bewusst NICHT den kompletten Vorzustand voraus — sie wird
 -- auch in Faellen benutzt, in denen ein Setup-Skript absichtlich einen Vorwert
@@ -27,6 +27,9 @@ begin
     + (select count(*) from public.products
         where slug = 'cream-noise-machine-baby-tragbar'
           and name = 'White Noise Machine Baby Tragbar')
+    + (select count(*) from public.products
+        where slug = 'plasmakugel-8-zoll-beruehrungsempfindlich'
+          and shop_sub_category = 'gadgets')
     + (select count(*) from public.lists
         where slug = 'verrueckte-amazon-gadgets'
           and product_slugs[4] = 'plasmakugel-8-zoll-beruehrungsempfindlich')

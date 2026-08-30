@@ -110,6 +110,22 @@ begin
     raise exception 'Vorzustand A5: % Eintraege, davon % eindeutig (erwartet 16/13).', n, m;
   end if;
 
+  -- A4 (Kategorie): die siebte Zielzeile steht im belegten Vorzustand.
+  -- Persona, Hauptkategorie und Tags sind hier Vorwerte und bleiben spaeter
+  -- unveraendert; nur shop_sub_category wird von 'basteln' auf 'gadgets'
+  -- korrigiert.
+  select count(*) into n
+  from public.products
+  where slug = 'plasmakugel-8-zoll-beruehrungsempfindlich'
+    and shop_persona = 'babo'
+    and shop_main_category = 'tech'
+    and shop_sub_category = 'basteln'
+    and shop_tags = array['babo:tech','preis:unter50','preis:unter100']
+    and is_published is true;
+  if n <> 1 then
+    raise exception 'Vorzustand A4-Kategorie: %/1 Zeile auf babo/tech/basteln.', n;
+  end if;
+
   -- Die beiden korrekten Zielprodukte existieren, die Fehlerslugs nicht.
   select count(*) into n
   from public.products
@@ -128,13 +144,24 @@ begin
     raise exception 'Vorzustand A4: % Produkte tragen einen Fehlerslug.', n;
   end if;
 
-  -- Sechs verschiedene historische updated_at-Werte: der Restore muss sie
+  -- Sieben verschiedene historische updated_at-Werte: der Restore muss sie
   -- einzeln treffen und kann sich nicht auf einen Einheitswert stuetzen.
   select count(distinct p.updated_at) into n
   from public.products p
   join cbb_test.zielprodukte z on z.slug = p.slug;
-  if n <> 6 then
-    raise exception 'Fixture: nur % verschiedene updated_at bei den sechs Zielprodukten.', n;
+  if n <> 7 then
+    raise exception 'Fixture: nur % verschiedene updated_at bei den sieben Zielprodukten.', n;
+  end if;
+
+  -- Kein Zielprodukt darf updated_at IS NULL tragen. Sonst waere der
+  -- Negativtest fuer den updated_at-Guard nicht von der Ausgangslage
+  -- unterscheidbar.
+  select count(*) into n
+  from public.products p
+  join cbb_test.zielprodukte z on z.slug = p.slug
+  where p.updated_at is null;
+  if n <> 0 then
+    raise exception 'Fixture: % Zielprodukte haben updated_at IS NULL.', n;
   end if;
 
   raise notice 'Vorzustand vollstaendig bestaetigt.';

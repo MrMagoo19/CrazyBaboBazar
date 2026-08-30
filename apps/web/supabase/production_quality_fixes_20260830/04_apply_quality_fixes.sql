@@ -4,9 +4,9 @@
 -- NICHT AUSFUEHREN ohne eigene Benutzerfreigabe und sichtbare Zielpruefung:
 --   project/ydiihvzcxaaoqhmgoqvu
 --
--- WAS GENAU PASSIERT — neun Zeilen, sonst nichts
+-- WAS GENAU PASSIERT — zehn Zeilen, sonst nichts
 --
---   public.products, sechs Zeilen:
+--   public.products, sieben Zeilen:
 --     B2  fingerabdruck-vorhaengeschloss-eseesmart,
 --         flauschige-handschuhe-weihnachten,
 --         pizza-socks-box-pepperoni
@@ -18,6 +18,10 @@
 --         -> image_url, image_urls, updated_at
 --     D6  cream-noise-machine-baby-tragbar
 --         -> name, description, editorial_note, updated_at
+--     A4  plasmakugel-8-zoll-beruehrungsempfindlich
+--         -> nur shop_sub_category
+--         Persona (babo), Hauptkategorie (tech), shop_tags und updated_at
+--         bleiben unveraendert und sind Teil der Vollzeilenpruefung.
 --
 --   public.lists, drei Zeilen, jeweils nur product_slugs:
 --     A4  verrueckte-amazon-gadgets   Position 4  Schreibfehler korrigiert
@@ -34,23 +38,34 @@
 --   D7 (die beiden TOSY-Flying-Disc-Produkte) wird NICHT angefasst. Begruendung
 --   in RUNBOOK.md, Abschnitt 6.
 --
--- updated_at = now() ist Absicht und wird ausdruecklich mitgeschrieben. Der
+-- updated_at = now() ist bei den sechs sichtbaren Produktseiten Absicht und
+-- wird ausdruecklich mitgeschrieben. Der
 -- Trigger products_set_updated_at (supabase/seo_updated_at_trigger.sql)
--- ueberschreibt einen ausdruecklich gesetzten Wert nicht. Alle vier
--- Produktaenderungen sind sichtbare Seitenaenderungen: Persona und
+-- ueberschreibt einen ausdruecklich gesetzten Wert nicht. Vier der fuenf
+-- Aenderungsgruppen sind sichtbare Seitenaenderungen: Persona und
 -- Hauptkategorie bauen Breadcrumb und interne Links, image_url ist das
 -- primaere Produktbild, name und description sind Titel und Fliesstext, und
 -- price_cents wechselt hier von "kein Preis" auf ein sichtbares Preisband.
+-- Die reine A4-Unterkategorie wird nicht gerendert und ist von der Triggerliste
+-- ausdruecklich ausgenommen; ihr historisches updated_at bleibt unveraendert.
+--
+-- A4 ist die Ausnahme und wird deshalb ausdruecklich benannt:
+-- shop_sub_category kommt im Rendering der Produktseite nicht vor (Beleg:
+-- Kommentar in supabase/seo_updated_at_trigger.sql sowie die einzige
+-- Verwendung in lib/db-types.ts als Typfeld). Aus demselben Grund steht
+-- shop_sub_category nicht in der Triggerliste. Das Paket folgt diesem
+-- Aufnahmekriterium und laesst A4.updated_at unveraendert; die Nachbedingungen
+-- pruefen genau das. Details stehen in RUNBOOK.md Abschnitt 2.3.
 --
 -- WIEDERHOLBARKEIT
---   Stehen alle neun Zeilen bereits exakt im Zielzustand, ist dieser Lauf ein
---   No-Op: kein UPDATE, kein neues updated_at. Stehen alle neun exakt im
+--   Stehen alle zehn Zeilen bereits exakt im Zielzustand, ist dieser Lauf ein
+--   No-Op: kein UPDATE, kein neues updated_at. Stehen alle zehn exakt im
 --   Vorzustand, wird korrigiert. Jeder gemischte oder gedriftete Zustand
 --   bricht die Transaktion ab.
 --
 -- FAIL CLOSED GEGEN NEBENLAEUFIGKEIT
 --   Die sperrfreie Vorpruefung ist nur ein Vorfilter. Verbindlich ist die
---   Pruefung NACH dem Row-Lock: gesperrt werden alle sechs Produktzeilen und
+--   Pruefung NACH dem Row-Lock: gesperrt werden alle sieben Produktzeilen und
 --   alle drei Listenzeilen zusammen mit ihren Backup-Zeilen, danach werden
 --   Zustandsklassifizierung und Driftfreiheit vollstaendig wiederholt. Eine
 --   konkurrierende Aenderung, die vor dem Lock committet, wird dadurch erkannt
@@ -111,8 +126,8 @@ begin
   from cbb_private_backup.quality_fixes_20260830_products_v1;
   select count(*) into backup_listen_zeilen
   from cbb_private_backup.quality_fixes_20260830_lists_v1;
-  if backup_produkt_zeilen <> 6 or backup_listen_zeilen <> 3 then
-    raise exception 'QF-Korrektur abgebrochen: Backup hat %/6 Produkt- und %/3 Listenzeilen.',
+  if backup_produkt_zeilen <> 7 or backup_listen_zeilen <> 3 then
+    raise exception 'QF-Korrektur abgebrochen: Backup hat %/7 Produkt- und %/3 Listenzeilen.',
       backup_produkt_zeilen, backup_listen_zeilen;
   end if;
 
@@ -286,6 +301,27 @@ insert into cbb_qf_d6 values (
   'Die tragbare White-Noise-Machine für Kinderwagen, Auto oder Reise. Klein, wiederaufladbar, mehrere Geräusche. Für alle, die gemerkt haben, dass Schlaf des Babys = Ruhe der Eltern = Frieden im Haus.'
 );
 
+-- A4 (Kategorie) — plasmakugel-8-zoll-beruehrungsempfindlich.
+-- Vorzustand read-only auf Production verifiziert (2026-08-30):
+-- babo / tech / basteln, shop_tags ['babo:tech','preis:unter50',
+-- 'preis:unter100'], published, updated_at 2026-07-04T00:00:00+00.
+-- Zielzustand: NUR shop_sub_category = 'gadgets'.
+create temporary table cbb_qf_a4_kategorie (
+  slug text primary key,
+  pre_persona text not null,
+  pre_main text not null,
+  pre_sub text not null,
+  pre_tags text[] not null,
+  ziel_sub text not null
+) on commit drop;
+
+insert into cbb_qf_a4_kategorie values (
+  'plasmakugel-8-zoll-beruehrungsempfindlich',
+  'babo', 'tech', 'basteln',
+  array['babo:tech','preis:unter50','preis:unter100'],
+  'gadgets'
+);
+
 create temporary table cbb_qf_listen (
   slug text primary key,
   pre_slugs text[] not null,
@@ -394,7 +430,7 @@ insert into cbb_qf_listen values
      'dealkit-3d-labyrinth-wuerfel'
    ]);
 
--- Die sechs Zielprodukte mit der Liste der Spalten, die an ihnen geaendert
+-- Die sieben Zielprodukte mit der Liste der Spalten, die an ihnen geaendert
 -- werden duerfen. Sie ist die Grundlage des Beweises "an einer Zielzeile wurde
 -- NUR das geaendert".
 create temporary table cbb_qf_produkte (
@@ -415,7 +451,9 @@ insert into cbb_qf_produkte values
   ('divoom-minitoo-retro-pc-lautsprecher-pixel', 'B5b',
    array['image_url','image_urls','updated_at']),
   ('cream-noise-machine-baby-tragbar', 'D6',
-   array['name','description','editorial_note','updated_at']);
+   array['name','description','editorial_note','updated_at']),
+  ('plasmakugel-8-zoll-beruehrungsempfindlich', 'A4',
+   array['shop_sub_category']);
 
 -- ---------------------------------------------------------------------------
 -- Fingerabdruck ALLER Nichtzielzeilen, aufgenommen VOR dem Schreibvorgang.
@@ -439,9 +477,9 @@ where not exists (select 1 from cbb_qf_listen e where e.slug = l.slug);
 --   Guard 2 liest ohne Sperre. Zwischen Guard 2 und dem Row-Lock darf eine
 --   konkurrierende Transaktion jederzeit committen — ihre Aenderung wuerde vom
 --   UPDATE sonst kommentarlos ueberschrieben und waere verloren. Deshalb:
---     1. Alle neun Zielzeilen gemeinsam mit ihren Backup-Zeilen sperren.
+--     1. Alle zehn Zielzeilen gemeinsam mit ihren Backup-Zeilen sperren.
 --     2. Nach erfolgreichem Lock erneut pruefen:
---        (a) in welchem Zustand die neun Zeilen stehen (Vorzustand, Zielzustand
+--        (a) in welchem Zustand die zehn Zeilen stehen (Vorzustand, Zielzustand
 --            oder gemischt),
 --        (b) dass das Backup exakt der bekannte Vorzustand ist,
 --        (c) dass Backup und Quelle im Vorzustandsfall vollstaendig driftfrei
@@ -465,6 +503,7 @@ declare
   gamer_laenge integer;
   gamer_eindeutig integer;
   tote_slugs integer;
+  updated_at_null integer;
 begin
   -- ---- Backup gegen den bekannten Vorzustand (Manipulationsschutz) --------
   select
@@ -486,6 +525,12 @@ begin
        where b.name is not distinct from e.pre_name
          and b.description is not distinct from e.pre_description
          and b.editorial_note is not distinct from e.pre_note)
+    + (select count(*) from cbb_private_backup.quality_fixes_20260830_products_v1 b
+        join cbb_qf_a4_kategorie e on e.slug = b.slug
+       where b.shop_persona is not distinct from e.pre_persona
+         and b.shop_main_category is not distinct from e.pre_main
+         and b.shop_sub_category is not distinct from e.pre_sub
+         and b.shop_tags is not distinct from e.pre_tags)
   into backup_pre_produkte;
 
   select count(*) into backup_pre_listen
@@ -493,8 +538,8 @@ begin
   join cbb_qf_listen e on e.slug = b.slug
   where b.product_slugs is not distinct from e.pre_slugs;
 
-  if backup_pre_produkte <> 6 or backup_pre_listen <> 3 then
-    raise exception 'QF-Korrektur abgebrochen: Backup entspricht nicht dem bekannten Vorzustand (%/6 Produkte, %/3 Listen).',
+  if backup_pre_produkte <> 7 or backup_pre_listen <> 3 then
+    raise exception 'QF-Korrektur abgebrochen: Backup entspricht nicht dem bekannten Vorzustand (%/7 Produkte, %/3 Listen).',
       backup_pre_produkte, backup_pre_listen;
   end if;
 
@@ -514,6 +559,11 @@ begin
        where p.name is not distinct from e.pre_name
          and p.description is not distinct from e.pre_description
          and p.editorial_note is not distinct from e.pre_note)
+    + (select count(*) from public.products p join cbb_qf_a4_kategorie e on e.slug = p.slug
+       where p.shop_persona is not distinct from e.pre_persona
+         and p.shop_main_category is not distinct from e.pre_main
+         and p.shop_sub_category is not distinct from e.pre_sub
+         and p.shop_tags is not distinct from e.pre_tags)
   into produkte_pre;
 
   select
@@ -531,6 +581,11 @@ begin
        where p.name is not distinct from e.ziel_name
          and p.description is not distinct from e.ziel_description
          and p.editorial_note is not distinct from e.ziel_note)
+    + (select count(*) from public.products p join cbb_qf_a4_kategorie e on e.slug = p.slug
+       where p.shop_persona is not distinct from e.pre_persona
+         and p.shop_main_category is not distinct from e.pre_main
+         and p.shop_sub_category is not distinct from e.ziel_sub
+         and p.shop_tags is not distinct from e.pre_tags)
   into produkte_ziel;
 
   select count(*) into listen_pre
@@ -541,13 +596,13 @@ begin
   from public.lists l join cbb_qf_listen e on e.slug = l.slug
   where l.product_slugs is not distinct from e.ziel_slugs;
 
-  if not ((produkte_pre = 6 and listen_pre = 3)
-          or (produkte_ziel = 6 and listen_ziel = 3)) then
-    raise exception 'QF-Korrektur abgebrochen: gemischter oder gedrifteter Zustand (Vorzustand %/6 Produkte und %/3 Listen, Zielzustand %/6 und %/3).',
+  if not ((produkte_pre = 7 and listen_pre = 3)
+          or (produkte_ziel = 7 and listen_ziel = 3)) then
+    raise exception 'QF-Korrektur abgebrochen: gemischter oder gedrifteter Zustand (Vorzustand %/7 Produkte und %/3 Listen, Zielzustand %/7 und %/3).',
       produkte_pre, listen_pre, produkte_ziel, listen_ziel;
   end if;
 
-  -- ---- Sperre auf allen neun Zielzeilen samt Backup-Zeilen ---------------
+  -- ---- Sperre auf allen zehn Zielzeilen samt Backup-Zeilen ---------------
   -- READ COMMITTED: blockiert FOR UPDATE, wird nach dem fremden COMMIT auf der
   -- NEUEN Zeilenversion neu ausgewertet. Passt id/slug dann nicht mehr oder ist
   -- die Zeile geloescht, kommen weniger Zeilen zurueck.
@@ -557,8 +612,8 @@ begin
     on b.id = p.id and b.slug = p.slug
   for update of p, b;
   get diagnostics gesperrt = row_count;
-  if gesperrt <> 6 then
-    raise exception 'QF-Korrektur abgebrochen: %/6 Produkt-Zeilenpaare aus products und Backup gesperrt.',
+  if gesperrt <> 7 then
+    raise exception 'QF-Korrektur abgebrochen: %/7 Produkt-Zeilenpaare aus products und Backup gesperrt.',
       gesperrt;
   end if;
 
@@ -589,6 +644,11 @@ begin
        where p.name is not distinct from e.pre_name
          and p.description is not distinct from e.pre_description
          and p.editorial_note is not distinct from e.pre_note)
+    + (select count(*) from public.products p join cbb_qf_a4_kategorie e on e.slug = p.slug
+       where p.shop_persona is not distinct from e.pre_persona
+         and p.shop_main_category is not distinct from e.pre_main
+         and p.shop_sub_category is not distinct from e.pre_sub
+         and p.shop_tags is not distinct from e.pre_tags)
   into produkte_pre;
 
   select
@@ -606,6 +666,11 @@ begin
        where p.name is not distinct from e.ziel_name
          and p.description is not distinct from e.ziel_description
          and p.editorial_note is not distinct from e.ziel_note)
+    + (select count(*) from public.products p join cbb_qf_a4_kategorie e on e.slug = p.slug
+       where p.shop_persona is not distinct from e.pre_persona
+         and p.shop_main_category is not distinct from e.pre_main
+         and p.shop_sub_category is not distinct from e.ziel_sub
+         and p.shop_tags is not distinct from e.pre_tags)
   into produkte_ziel;
 
   select count(*) into listen_pre
@@ -617,8 +682,8 @@ begin
   where l.product_slugs is not distinct from e.ziel_slugs;
 
   -- ---- Fall A: bereits im Zielzustand -> No-Op ---------------------------
-  if produkte_ziel = 6 and listen_ziel = 3 then
-    -- Auch der No-Op belegt, dass an den neun Zeilen ausserhalb der erlaubten
+  if produkte_ziel = 7 and listen_ziel = 3 then
+    -- Auch der No-Op belegt, dass an den zehn Zeilen ausserhalb der erlaubten
     -- Spalten nichts gedriftet ist.
     select count(*) into drift
     from public.products p
@@ -643,13 +708,28 @@ begin
         drift;
     end if;
 
-    raise notice 'QF-Korrektur: alle neun Zeilen stehen bereits exakt im Zielzustand — No-Op, kein UPDATE, kein neues updated_at.';
+    -- Ein fachlicher Zielzustand allein ist kein gueltiger No-Op: die sechs
+    -- sichtbaren Seiten muessen auch ihr nachweislich neues lastmod tragen.
+    -- Sonst koennte ein NULL-, alter oder zurueckgesetzter Zeitstempel durch
+    -- den fruehen RETURN still als Erfolg gelten.
+    select count(*) into drift
+    from public.products p
+    join cbb_private_backup.quality_fixes_20260830_products_v1 b on b.id = p.id
+    join cbb_qf_produkte g on g.slug = p.slug
+    where 'updated_at' = any(g.geaenderte_spalten)
+      and p.updated_at > b.updated_at;
+    if drift <> 6 then
+      raise exception 'QF-Korrektur abgebrochen: im Zielzustand haben nur %/6 lastmod-Zielprodukte ein neues updated_at.',
+        drift;
+    end if;
+
+    raise notice 'QF-Korrektur: alle zehn Zeilen stehen bereits exakt im Zielzustand — No-Op, kein UPDATE, kein neues updated_at.';
     return;
   end if;
 
   -- ---- Fall B: Vorzustand -> korrigieren ---------------------------------
-  if produkte_pre <> 6 or listen_pre <> 3 then
-    raise exception 'QF-Korrektur abgebrochen: Zielzeilen wurden zwischen Vorpruefung und Sperre veraendert (Vorzustand %/6 Produkte und %/3 Listen, Zielzustand %/6 und %/3).',
+  if produkte_pre <> 7 or listen_pre <> 3 then
+    raise exception 'QF-Korrektur abgebrochen: Zielzeilen wurden zwischen Vorpruefung und Sperre veraendert (Vorzustand %/7 Produkte und %/3 Listen, Zielzustand %/7 und %/3).',
       produkte_pre, listen_pre, produkte_ziel, listen_ziel;
   end if;
 
@@ -677,6 +757,25 @@ begin
   if drift <> 0 then
     raise exception 'QF-Korrektur abgebrochen: % Abweichungen zwischen Backup und public.lists nach dem Lock.',
       drift;
+  end if;
+
+  -- -------------------------------------------------------------------------
+  -- updated_at muss VOR dem Schreibvorgang bei den sechs lastmod-Zielprodukten
+  -- gesetzt sein. Nachbedingung 5 unten belegt das neue lastmod ueber
+  -- "p.updated_at > b.updated_at". Ist der alte Wert NULL, ergibt dieser
+  -- Vergleich NULL — die Zeile zaehlt dann weder als "neu" noch als "nicht
+  -- neu", und der Beweis waere still luecken haft. Auch der Rollback in 06
+  -- haette dann keinen Zeitstempel zurueckzuspielen.
+  -- Fail-closed: lieber gar nicht schreiben als ohne belastbares lastmod.
+  -- -------------------------------------------------------------------------
+  select count(*) into updated_at_null
+  from public.products p
+  join cbb_qf_produkte g on g.slug = p.slug
+  where 'updated_at' = any(g.geaenderte_spalten)
+    and p.updated_at is null;
+  if updated_at_null <> 0 then
+    raise exception 'QF-Korrektur abgebrochen: % der sechs lastmod-Zielprodukte haben updated_at IS NULL — der lastmod-Nachweis waere nicht fuehrbar.',
+      updated_at_null;
   end if;
 
   -- ---- B2: drei Produkte kategorisieren ----------------------------------
@@ -729,6 +828,20 @@ begin
     raise exception 'QF-Korrektur abgebrochen: D6-UPDATE traf %/1 Zeilen.', betroffen;
   end if;
 
+  -- ---- A4: nur die Unterkategorie der Plasmakugel -------------------------
+  -- shop_persona, shop_main_category und shop_tags stehen bewusst NICHT im SET.
+  -- Sie sind Vorzustandswerte und bleiben unangetastet. updated_at bleibt
+  -- ebenfalls historisch: shop_sub_category wird nicht auf der Produktseite
+  -- gerendert und ist im echten Updated-at-Trigger ausdruecklich ausgenommen.
+  update public.products p set
+    shop_sub_category = e.ziel_sub
+  from cbb_qf_a4_kategorie e
+  where p.slug = e.slug;
+  get diagnostics betroffen = row_count;
+  if betroffen <> 1 then
+    raise exception 'QF-Korrektur abgebrochen: A4-Kategorie-UPDATE traf %/1 Zeilen.', betroffen;
+  end if;
+
   -- ---- A4 und A5: drei Listen --------------------------------------------
   update public.lists l set
     product_slugs = e.ziel_slugs
@@ -741,7 +854,7 @@ begin
 
   -- ======================= Nachbedingungen ================================
 
-  -- 1 — alle sechs Produktzeilen tragen exakt den Zielzustand.
+  -- 1 — alle sieben Produktzeilen tragen exakt den Zielzustand.
   select
     (select count(*) from public.products p join cbb_qf_b2 e on e.slug = p.slug
      where p.shop_persona is not distinct from e.ziel_persona
@@ -757,9 +870,14 @@ begin
        where p.name is not distinct from e.ziel_name
          and p.description is not distinct from e.ziel_description
          and p.editorial_note is not distinct from e.ziel_note)
+    + (select count(*) from public.products p join cbb_qf_a4_kategorie e on e.slug = p.slug
+       where p.shop_persona is not distinct from e.pre_persona
+         and p.shop_main_category is not distinct from e.pre_main
+         and p.shop_sub_category is not distinct from e.ziel_sub
+         and p.shop_tags is not distinct from e.pre_tags)
   into produkte_ziel;
-  if produkte_ziel <> 6 then
-    raise exception 'QF-Korrektur inkonsistent: nur %/6 Produktzeilen im Zielzustand.', produkte_ziel;
+  if produkte_ziel <> 7 then
+    raise exception 'QF-Korrektur inkonsistent: nur %/7 Produktzeilen im Zielzustand.', produkte_ziel;
   end if;
 
   -- 2 — alle drei Listenzeilen tragen exakt den Zielzustand.
@@ -795,13 +913,15 @@ begin
       drift;
   end if;
 
-  -- 5 — neues lastmod fuer genau diese sechs Seiten.
+  -- 5 — neues lastmod fuer genau die sechs sichtbar geaenderten Seiten.
   select count(*) into drift
   from public.products p
   join cbb_private_backup.quality_fixes_20260830_products_v1 b on b.id = p.id
-  where p.updated_at > b.updated_at;
+  join cbb_qf_produkte g on g.slug = p.slug
+  where 'updated_at' = any(g.geaenderte_spalten)
+    and p.updated_at > b.updated_at;
   if drift <> 6 then
-    raise exception 'QF-Korrektur inkonsistent: updated_at wurde nur bei %/6 Zielprodukten neu gesetzt.', drift;
+    raise exception 'QF-Korrektur inkonsistent: updated_at wurde nur bei %/6 lastmod-Zielprodukten neu gesetzt.', drift;
   end if;
 
   -- 6 — keine andere Produktzeile veraendert (gemessen, nicht behauptet).
@@ -856,13 +976,19 @@ begin
        where b.name is not distinct from e.pre_name
          and b.description is not distinct from e.pre_description
          and b.editorial_note is not distinct from e.pre_note)
+    + (select count(*) from cbb_private_backup.quality_fixes_20260830_products_v1 b
+        join cbb_qf_a4_kategorie e on e.slug = b.slug
+       where b.shop_persona is not distinct from e.pre_persona
+         and b.shop_main_category is not distinct from e.pre_main
+         and b.shop_sub_category is not distinct from e.pre_sub
+         and b.shop_tags is not distinct from e.pre_tags)
   into backup_pre_produkte;
   select count(*) into backup_pre_listen
   from cbb_private_backup.quality_fixes_20260830_lists_v1 b
   join cbb_qf_listen e on e.slug = b.slug
   where b.product_slugs is not distinct from e.pre_slugs;
-  if backup_pre_produkte <> 6 or backup_pre_listen <> 3 then
-    raise exception 'QF-Korrektur inkonsistent: das Backup wurde veraendert (%/6 Produkte, %/3 Listen).',
+  if backup_pre_produkte <> 7 or backup_pre_listen <> 3 then
+    raise exception 'QF-Korrektur inkonsistent: das Backup wurde veraendert (%/7 Produkte, %/3 Listen).',
       backup_pre_produkte, backup_pre_listen;
   end if;
 

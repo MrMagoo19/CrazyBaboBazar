@@ -10,6 +10,16 @@
 --         (verrueckte-amazon-gadgets Position 4, witzige-geschenke-maenner
 --         Position 2). Die korrekten Produkte existieren, die Listeneintraege
 --         zeigen ins Leere.
+--         Derselbe Tippfehler hat eine siebte Produktzeile hinterlassen:
+--         reassign_all_categories.sql Z. 144-162 stellt einen Block
+--         ausdruecklich auf babo / tech / gadgets, fuehrt in seiner Slug-Liste
+--         (Z. 158) aber den Tippfehler-Slug
+--         plasmakugel-8-zoll-beruehlungsempfindlich. Das echte Produkt
+--         plasmakugel-8-zoll-beruehrungsempfindlich wurde davon nie getroffen
+--         und steht deshalb bis heute auf shop_sub_category = 'basteln'.
+--         Korrigiert wird an dieser Zeile ausschliesslich shop_sub_category
+--         -> 'gadgets'. Persona (babo), Hauptkategorie (tech) und shop_tags
+--         bleiben unveraendert.
 --     A5  geschenke-fuer-gamer traegt 16 statt 13 Eintraege: die letzten drei
 --         sind exakte Wiederholungen der Positionen 11 bis 13
 --         (Quelle: supabase/update_list_add_gamer_products.sql, zweimal gelaufen).
@@ -37,7 +47,7 @@
 --   * Die beiden Backup-Tabellen dieses Pakets duerfen hier noch NICHT
 --     existieren und werden deshalb nur weich ueber to_regclass geprueft.
 --
--- ERWARTETES ERGEBNIS: 26 Zeilen — 20 harte PASS-Zeilen (Sortierung 30 bis 220)
+-- ERWARTETES ERGEBNIS: 28 Zeilen — 22 harte PASS-Zeilen (Sortierung 30 bis 220)
 -- und 6 INFO-Zeilen (10, 20, 230 bis 260). Jede FAIL-Zeile ist ein Befund und
 -- keine Freigabe fuer Schritt 02.
 -- ============================================================================
@@ -123,6 +133,26 @@ d6_erwartet(slug, pre_name, ziel_name, pre_description, ziel_description, pre_no
     'Tragbare White Noise Machine für Kinderwagen, Auto oder Reisen. Klein, wiederaufladbar via USB, mehrere Sound-Modi (weißes Rauschen, Regen, Herzschlag). Karabinerhaken für Kinderwagen. Für Eltern, die gemerkt haben: Schlaf des Babys = Ruhe des Hauses. Basic für unterwegs-schlafende Kinder.'::text,
     'Die tragbare Cream-Noise-Machine für Kinderwagen, Auto oder Reise. Klein, wiederaufladbar, mehrere Geräusche. Für alle, die gemerkt haben, dass Schlaf des Babys = Ruhe der Eltern = Frieden im Haus.'::text,
     'Die tragbare White-Noise-Machine für Kinderwagen, Auto oder Reise. Klein, wiederaufladbar, mehrere Geräusche. Für alle, die gemerkt haben, dass Schlaf des Babys = Ruhe der Eltern = Frieden im Haus.'::text
+  )
+),
+
+-- ---------------------------------------------------------------------------
+-- A4 (Kategorie) — plasmakugel-8-zoll-beruehrungsempfindlich.
+--   Vorzustand read-only auf Production verifiziert (2026-08-30):
+--   babo / tech / basteln, shop_tags ['babo:tech','preis:unter50',
+--   'preis:unter100'], is_published = true, updated_at 2026-07-04T00:00:00+00.
+--   Repo-Beleg fuer die beabsichtigte Zielkategorie:
+--   reassign_all_categories.sql Z. 144-162 (Block babo/tech/gadgets) mit dem
+--   Tippfehler-Slug in Z. 158.
+--   Geaendert wird NUR shop_sub_category. Persona, Hauptkategorie und Tags
+--   bleiben Bestandteil der Vorzustandspruefung und damit unveraendert.
+-- ---------------------------------------------------------------------------
+a4_kategorie_erwartet(slug, pre_persona, pre_main, pre_sub, pre_tags, ziel_sub) as (
+  values (
+    'plasmakugel-8-zoll-beruehrungsempfindlich'::text,
+    'babo'::text, 'tech'::text, 'basteln'::text,
+    array['babo:tech','preis:unter50','preis:unter100']::text[],
+    'gadgets'::text
   )
 ),
 
@@ -260,6 +290,17 @@ alle_zielslugs(slug) as (
   union all select slug from b5_preis_erwartet
   union all select slug from b5_bilder_erwartet
   union all select slug from d6_erwartet
+  union all select slug from a4_kategorie_erwartet
+),
+
+-- Nur diese sechs Produktseiten erhalten in 04 ein neues lastmod. Die
+-- A4-Unterkategorie wird nicht gerendert; ihr historisches updated_at bleibt
+-- deshalb bewusst unveraendert.
+lastmod_zielslugs(slug) as (
+  select slug from b2_erwartet
+  union all select slug from b5_preis_erwartet
+  union all select slug from b5_bilder_erwartet
+  union all select slug from d6_erwartet
 ),
 
 fingerprint as (
@@ -296,7 +337,13 @@ ziel_state as (
       join a4_zielprodukte a on a.slug = p.slug
      where p.is_published is true)::integer as a4_produkte_published,
     (select count(*) from public.products p
-      join a4_fehlerslugs a on a.slug = p.slug)::integer as a4_fehlerprodukte
+      join a4_fehlerslugs a on a.slug = p.slug)::integer as a4_fehlerprodukte,
+    -- Fail-closed-Vorbedingung fuer den lastmod-Nachweis in 04/05 und fuer den
+    -- exakten Restore in 06: ein NULL-Zeitstempel liesse jeden spaeteren
+    -- Vergleich "neu > alt" still auf NULL laufen, also weder wahr noch falsch.
+    (select count(*) from public.products p
+      join lastmod_zielslugs z on z.slug = p.slug
+     where p.updated_at is not null)::integer as lastmod_zielprodukte_updated_at
 ),
 
 vorzustand as (
@@ -320,6 +367,12 @@ vorzustand as (
      where p.name is not distinct from e.pre_name
        and p.description is not distinct from e.pre_description
        and p.editorial_note is not distinct from e.pre_note)::integer as d6_pre,
+    (select count(*) from public.products p
+      join a4_kategorie_erwartet e on e.slug = p.slug
+     where p.shop_persona is not distinct from e.pre_persona
+       and p.shop_main_category is not distinct from e.pre_main
+       and p.shop_sub_category is not distinct from e.pre_sub
+       and p.shop_tags is not distinct from e.pre_tags)::integer as a4_kat_pre,
     (select count(*) from public.lists l
       join listen_erwartet e on e.slug = l.slug
      where l.slug = 'verrueckte-amazon-gadgets'
@@ -356,6 +409,12 @@ zielzustand as (
        where p.name is not distinct from e.ziel_name
          and p.description is not distinct from e.ziel_description
          and p.editorial_note is not distinct from e.ziel_note)::integer
+    + (select count(*) from public.products p
+        join a4_kategorie_erwartet e on e.slug = p.slug
+       where p.shop_persona is not distinct from e.pre_persona
+         and p.shop_main_category is not distinct from e.pre_main
+         and p.shop_sub_category is not distinct from e.ziel_sub
+         and p.shop_tags is not distinct from e.pre_tags)::integer
     + (select count(*) from public.lists l
         join listen_erwartet e on e.slug = l.slug
        where l.product_slugs is not distinct from e.ziel_slugs)::integer
@@ -394,11 +453,11 @@ checks as (
   select 50, 'pilot_artefakte', pilot_artefakte::text, '0',
     case when pilot_artefakte = 0 then 'PASS' else 'FAIL' end from summary
   union all
-  select 60, 'zielprodukte_vorhanden', zielprodukte::text, '6',
-    case when zielprodukte = 6 then 'PASS' else 'FAIL' end from summary
+  select 60, 'zielprodukte_vorhanden', zielprodukte::text, '7',
+    case when zielprodukte = 7 then 'PASS' else 'FAIL' end from summary
   union all
-  select 70, 'zielprodukte_published', zielprodukte_published::text, '6',
-    case when zielprodukte_published = 6 then 'PASS' else 'FAIL' end from summary
+  select 70, 'zielprodukte_published', zielprodukte_published::text, '7',
+    case when zielprodukte_published = 7 then 'PASS' else 'FAIL' end from summary
   union all
   select 80, 'ziellisten_vorhanden', ziellisten::text, '3',
     case when ziellisten = 3 then 'PASS' else 'FAIL' end from summary
@@ -423,10 +482,17 @@ checks as (
   select 140, 'd6_vorzustand_cream', d6_pre::text, '1',
     case when d6_pre = 1 then 'PASS' else 'FAIL' end from summary
   union all
+  select 145, 'a4_kategorie_vorzustand_basteln', a4_kat_pre::text, '1',
+    case when a4_kat_pre = 1 then 'PASS' else 'FAIL' end from summary
+  union all
   select 150, 'produkte_vorzustand_gesamt',
-    (b2_pre + b5_preis_pre + b5_bilder_pre + d6_pre)::text, '6',
-    case when (b2_pre + b5_preis_pre + b5_bilder_pre + d6_pre) = 6
+    (b2_pre + b5_preis_pre + b5_bilder_pre + d6_pre + a4_kat_pre)::text, '7',
+    case when (b2_pre + b5_preis_pre + b5_bilder_pre + d6_pre + a4_kat_pre) = 7
       then 'PASS' else 'FAIL' end from summary
+  union all
+  select 155, 'lastmod_zielprodukte_updated_at_nicht_null',
+    lastmod_zielprodukte_updated_at::text, '6',
+    case when lastmod_zielprodukte_updated_at = 6 then 'PASS' else 'FAIL' end from summary
   union all
   select 160, 'a4_liste_verrueckte_vorzustand', l_verrueckte_pre::text, '1',
     case when l_verrueckte_pre = 1 then 'PASS' else 'FAIL' end from summary

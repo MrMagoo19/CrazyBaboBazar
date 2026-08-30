@@ -20,7 +20,7 @@
 #   2026-08-30 nach. Sie entsteht aus
 #     * test/fixture/00_roles.sql   Supabase-aehnliche Rollen
 #     * test/fixture/01_schema.sql  Production-aehnliches Schema
-#     * test/fixture/02_seed.sql    sechs Zielprodukte, drei Ziellisten,
+#     * test/fixture/02_seed.sql    sieben Zielprodukte, drei Ziellisten,
 #                                   beide A4-Zielprodukte, >= 300 Produkte
 #     * supabase/seo_updated_at_trigger.sql   der ECHTE Trigger, unveraendert
 #     * test/fixture/03_baseline.sql          Fingerabdruck des Vorzustands
@@ -30,7 +30,7 @@
 #   * Ein erwarteter Abbruch gilt NUR dann als PASS, wenn psql mit Exit 3
 #     zurueckkommt UND die konkrete erwartete Servermeldung im Output steht.
 #     Ein anderer Fehler ist FAIL, kein PASS. "Irgendein Exit != 0" reicht nie.
-#   * report_table verlangt EXAKTE PASS-Zahlen: 01 -> 20, 03 -> 16, 05 -> 22,
+#   * report_table verlangt EXAKTE PASS-Zahlen: 01 -> 22, 03 -> 16, 05 -> 23,
 #     jeweils bei 0 FAIL-Zeilen. Eine geschrumpfte Pruefliste faellt damit auf.
 #   * report_table_expect_fail verlangt umgekehrt eine benannte FAIL-Zeile.
 #   * Der Lock-Test verlangt Exit 3, die Meldung
@@ -911,7 +911,7 @@ fi
 # CASE A — Happy Path 01 -> 05 in der vorgesehenen Reihenfolge, plus Idempotenz
 # ===========================================================================
 new_case case_a_happy_path "01 bis 05 in Reihenfolge, danach 02 und 04 wiederholt"
-report_table case_a_happy_path a_01_preflight "$SQL_DIR/01_preflight_read_only.sql" 20
+report_table case_a_happy_path a_01_preflight "$SQL_DIR/01_preflight_read_only.sql" 22
 step         case_a_happy_path ok a_02_backup "$SQL_DIR/02_backup_quality_fixes.sql"
 report_table case_a_happy_path a_03_verify_backup "$SQL_DIR/03_verify_backup_read_only.sql" 16
 # 02 ein zweites Mal: identischer Snapshot -> No-Op, kein Abbruch.
@@ -919,7 +919,7 @@ step         case_a_happy_path ok a_02_wiederholung "$SQL_DIR/02_backup_quality_
 report_table case_a_happy_path a_03_nach_wiederholung "$SQL_DIR/03_verify_backup_read_only.sql" 16
 step         case_a_happy_path ok a_base_noch_da "$HERE/cases/assert_base_state.sql"
 step         case_a_happy_path ok a_04_apply "$SQL_DIR/04_apply_quality_fixes.sql"
-report_table case_a_happy_path a_05_verify "$SQL_DIR/05_verify_read_only.sql" 22
+report_table case_a_happy_path a_05_verify "$SQL_DIR/05_verify_read_only.sql" 23
 step         case_a_happy_path ok a_04_assert "$HERE/cases/assert_after_04.sql"
 # Nach der Korrektur darf 01 nicht mehr still PASS melden.
 report_table_expect_fail case_a_happy_path a_01_nach_fix \
@@ -928,7 +928,7 @@ report_table_expect_fail case_a_happy_path a_01_nach_fix \
 step case_a_happy_path ok a_snapshot        "$HERE/cases/snapshot_nach_04.sql"
 step case_a_happy_path ok a_04_wiederholung "$SQL_DIR/04_apply_quality_fixes.sql"
 step case_a_happy_path ok a_04_noop_assert  "$HERE/cases/assert_04_unveraendert.sql"
-report_table case_a_happy_path a_05_nach_wiederholung "$SQL_DIR/05_verify_read_only.sql" 22
+report_table case_a_happy_path a_05_nach_wiederholung "$SQL_DIR/05_verify_read_only.sql" 23
 
 # ===========================================================================
 # CASE B — Reihenfolge-Verstoesse und fehlendes Backup
@@ -983,7 +983,7 @@ step case_c3_fremdspalte ok c3_kein_zielzustand "$HERE/cases/assert_kein_zielzus
 # ===========================================================================
 # CASE C4 — gemischter Zustand
 # ===========================================================================
-new_case case_c4_gemischt "eine Zeile steht bereits im Zielzustand, acht nicht"
+new_case case_c4_gemischt "eine Zeile steht bereits im Zielzustand, neun nicht"
 step case_c4_gemischt ok   c4_02_backup "$SQL_DIR/02_backup_quality_fixes.sql"
 step case_c4_gemischt ok   c4_setup     "$HERE/cases/setup_gemischter_zustand.sql"
 step case_c4_gemischt fail c4_04_abbruch \
@@ -994,7 +994,7 @@ step case_c4_gemischt ok c4_assert "$HERE/cases/assert_nur_gemischte_zeile.sql"
 # ===========================================================================
 # CASE C5 — fehlende Zielzeile
 # ===========================================================================
-new_case case_c5_fehlende_zeile "eine der sechs Zielzeilen existiert nicht mehr"
+new_case case_c5_fehlende_zeile "eine der sieben Zielproduktzeilen existiert nicht mehr"
 step case_c5_fehlende_zeile ok   c5_setup "$HERE/cases/setup_fehlende_zielzeile.sql"
 step case_c5_fehlende_zeile fail c5_02_abbruch \
   "$SQL_DIR/02_backup_quality_fixes.sql" \
@@ -1030,13 +1030,13 @@ step case_d2_backup_leer ok   d2_02_backup "$SQL_DIR/02_backup_quality_fixes.sql
 step case_d2_backup_leer ok   d2_leeren    "$HERE/cases/setup_empty_backup.sql"
 step case_d2_backup_leer fail d2_04_abbruch \
   "$SQL_DIR/04_apply_quality_fixes.sql" \
-  'QF-Korrektur abgebrochen: Backup hat 0/6 Produkt- und 3/3 Listenzeilen.'
+  'QF-Korrektur abgebrochen: Backup hat 0/7 Produkt- und 3/3 Listenzeilen.'
 step case_d2_backup_leer fail d2_06_abbruch \
   "$SQL_DIR/06_restore_quality_fixes.sql" \
-  'QF-Restore abgebrochen: Backup hat 0/6 Produkt- und 3/3 Listenzeilen.'
+  'QF-Restore abgebrochen: Backup hat 0/7 Produkt- und 3/3 Listenzeilen.'
 step case_d2_backup_leer fail d2_02_abbruch \
   "$SQL_DIR/02_backup_quality_fixes.sql" \
-  'QF-Backup abgebrochen: vorhandenes Backup hat 0/6 Produkt- und 3/3 Listenzeilen.'
+  'QF-Backup abgebrochen: vorhandenes Backup hat 0/7 Produkt- und 3/3 Listenzeilen.'
 step case_d2_backup_leer ok d2_kein_zielzustand "$HERE/cases/assert_kein_zielzustand.sql"
 
 # ===========================================================================
@@ -1102,6 +1102,43 @@ step case_d5_rechte_geerbt ok d5_kein_zielzustand "$HERE/cases/assert_kein_zielz
 step case_d5_rechte_geerbt ok d5_teardown "$HERE/cases/teardown_hilfsrolle.sql"
 
 # ===========================================================================
+# CASE I — eine App-Rolle fehlt, die Rechtepruefung ist damit blind
+# ===========================================================================
+# Alle Rechte-Zaehler in 02, 04 und 06 laufen ueber
+#   pg_roles ... where rolname in ('anon', 'authenticated', 'service_role')
+# Fehlt eine der beiden App-Rollen, faellt sie aus dem Join und der Zaehler
+# meldet still 0 — kein Beleg fuer "keine Rechte", nur einer fuer "keine
+# Rolle". 04 und 06 hatten dafuer bereits eine harte Vorbedingung; 02 nicht.
+# Ausgerechnet der No-Op-Zweig von 02 (Backup existiert bereits) haette so eine
+# Backup-Tabelle als sicher durchgewunken, deren Rechtelage gar nicht gemessen
+# wurde. Der Fall belegt, dass alle drei schreibenden Dateien jetzt abbrechen.
+#
+# Die Rolle wird umbenannt statt geloescht: ACL-Eintraege haengen an der OID,
+# ein DROP ROLE scheiterte an den Rechten in allen bereits angelegten
+# Fall-Datenbanken. Rollen sind cluster-weit — Teardown ist deshalb Pflicht.
+new_case case_i_rolle_fehlt "authenticated ist nicht mehr unter ihrem Namen vorhanden"
+step case_i_rolle_fehlt ok i_02_backup "$SQL_DIR/02_backup_quality_fixes.sql"
+step case_i_rolle_fehlt ok i_setup     "$HERE/cases/setup_rolle_authenticated_geparkt.sql"
+step case_i_rolle_fehlt fail i_02_abbruch \
+  "$SQL_DIR/02_backup_quality_fixes.sql" \
+  'QF-Backup abgebrochen: 1/2 App-Rollen (anon, authenticated) vorhanden'
+# 03 muss denselben Befund als FAIL-Zeile melden, nicht still als PASS.
+report_table_expect_fail case_i_rolle_fehlt i_03_meldet_fail \
+  "$SQL_DIR/03_verify_backup_read_only.sql" app_rollen_vorhanden
+step case_i_rolle_fehlt fail i_04_abbruch \
+  "$SQL_DIR/04_apply_quality_fixes.sql" \
+  'QF-Korrektur abgebrochen: 1/2 App-Rollen (anon, authenticated) vorhanden'
+step case_i_rolle_fehlt fail i_06_abbruch \
+  "$SQL_DIR/06_restore_quality_fixes.sql" \
+  'QF-Restore abgebrochen: 1/2 App-Rollen (anon, authenticated) vorhanden'
+step case_i_rolle_fehlt ok i_kein_zielzustand "$HERE/cases/assert_kein_zielzustand.sql"
+step case_i_rolle_fehlt ok i_teardown "$HERE/cases/teardown_rolle_authenticated.sql"
+# Und der Gegenbeweis: mit wiederhergestellter Rolle laeuft 02 wieder durch
+# (identischer Snapshot -> No-Op). Ohne diesen Schritt bliebe offen, ob das
+# Teardown den Cluster wirklich sauber zurueckgestellt hat.
+step case_i_rolle_fehlt ok i_02_nach_teardown "$SQL_DIR/02_backup_quality_fixes.sql"
+
+# ===========================================================================
 # CASE D6 — manipuliertes Backup gegen 06, nachdem 04 gelaufen ist
 # ===========================================================================
 # Das Backup ist hier die DATENQUELLE des Schreibvorgangs. 06 muss den Inhalt
@@ -1131,7 +1168,66 @@ step case_e_restore ok e_base_state      "$HERE/cases/assert_base_state.sql"
 # Nach dem Restore ist der Vorzustand wieder da: 04 darf erneut laufen.
 step case_e_restore ok e_04_erneut       "$SQL_DIR/04_apply_quality_fixes.sql"
 step case_e_restore ok e_04_assert_2     "$HERE/cases/assert_after_04.sql"
-report_table case_e_restore e_05_verify  "$SQL_DIR/05_verify_read_only.sql" 22
+report_table case_e_restore e_05_verify  "$SQL_DIR/05_verify_read_only.sql" 23
+
+# ===========================================================================
+# CASE J — updated_at IS NULL vor 02
+# ===========================================================================
+# schema.sql definiert updated_at nur als DEFAULT now(), nicht als NOT NULL.
+# Ein NULL-Zeitstempel macht jeden spaeteren Vergleich "neu > alt" zu NULL —
+# also weder wahr noch falsch — und nimmt 06 den Wert, den es zurueckspielen
+# soll. 02 darf so einen Zustand nicht in den Snapshot uebernehmen.
+new_case case_j_updated_at_null "eine Zielzeile hat updated_at IS NULL, bevor 02 laeuft"
+step case_j_updated_at_null ok   j_setup "$HERE/cases/setup_updated_at_null_quelle.sql"
+step case_j_updated_at_null fail j_02_abbruch \
+  "$SQL_DIR/02_backup_quality_fixes.sql" \
+  'QF-Backup abgebrochen: 1 der sechs lastmod-Zielprodukte haben updated_at IS NULL'
+step case_j_updated_at_null ok j_backup_absent    "$HERE/cases/assert_backup_absent.sql"
+step case_j_updated_at_null ok j_kein_zielzustand "$HERE/cases/assert_kein_zielzustand.sql"
+
+# ===========================================================================
+# CASE J2 — updated_at IS NULL in Quelle UND Backup, vor 04
+# ===========================================================================
+# Der gefaehrlichere Zwischenstand: weil beide Seiten denselben NULL-Wert
+# tragen, findet der vollstaendige to_jsonb-Vergleich KEINE Abweichung. Ohne
+# eigenen Guard wuerde 04 schreiben und erst an der lastmod-Nachbedingung mit
+# einer irrefuehrenden Meldung scheitern.
+new_case case_j2_updated_at_null_vor_04 "updated_at IS NULL in Quelle und Backup"
+step case_j2_updated_at_null_vor_04 ok j2_02_backup "$SQL_DIR/02_backup_quality_fixes.sql"
+step case_j2_updated_at_null_vor_04 ok j2_setup \
+  "$HERE/cases/setup_updated_at_null_quelle_und_backup.sql"
+step case_j2_updated_at_null_vor_04 fail j2_04_abbruch \
+  "$SQL_DIR/04_apply_quality_fixes.sql" \
+  'QF-Korrektur abgebrochen: 1 der sechs lastmod-Zielprodukte haben updated_at IS NULL'
+step case_j2_updated_at_null_vor_04 ok j2_kein_zielzustand \
+  "$HERE/cases/assert_kein_zielzustand.sql"
+
+# ===========================================================================
+# CASE J3 — updated_at IS NULL nur im Backup, vor 06
+# ===========================================================================
+# In 06 ist das Backup die Datenquelle. Ein NULL-Zeitstempel dort wuerde beim
+# Restore zu einer Produktzeile ganz ohne lastmod fuehren — der versprochene
+# exakte Round-Trip waere in Wahrheit ein Datenverlust.
+new_case case_j3_updated_at_null_vor_06 "updated_at IS NULL nur im Backup, nach 04"
+step case_j3_updated_at_null_vor_06 ok j3_02_backup "$SQL_DIR/02_backup_quality_fixes.sql"
+step case_j3_updated_at_null_vor_06 ok j3_04_apply  "$SQL_DIR/04_apply_quality_fixes.sql"
+step case_j3_updated_at_null_vor_06 ok j3_04_assert "$HERE/cases/assert_after_04.sql"
+step case_j3_updated_at_null_vor_06 ok j3_setup \
+  "$HERE/cases/setup_updated_at_null_nur_backup.sql"
+step case_j3_updated_at_null_vor_06 fail j3_02_wiederholung_abbruch \
+  "$SQL_DIR/02_backup_quality_fixes.sql" \
+  'QF-Backup abgebrochen: vorhandenes Backup hat 1 der sechs lastmod-Zielprodukte mit updated_at IS NULL'
+step case_j3_updated_at_null_vor_06 fail j3_06_abbruch \
+  "$SQL_DIR/06_restore_quality_fixes.sql" \
+  'QF-Restore abgebrochen: updated_at IS NULL bei 0 der sechs lastmod-Zielprodukte in public.products und bei 1 im Backup'
+step case_j3_updated_at_null_vor_06 ok j3_setup_ziel_und_backup \
+  "$HERE/cases/setup_updated_at_null_ziel_und_backup.sql"
+step case_j3_updated_at_null_vor_06 fail j3_04_noop_abbruch \
+  "$SQL_DIR/04_apply_quality_fixes.sql" \
+  'QF-Korrektur abgebrochen: im Zielzustand haben nur 5/6 lastmod-Zielprodukte ein neues updated_at'
+step case_j3_updated_at_null_vor_06 fail j3_06_noop_abbruch \
+  "$SQL_DIR/06_restore_quality_fixes.sql" \
+  'QF-Restore abgebrochen: updated_at IS NULL bei 1 der sechs lastmod-Zielprodukte in public.products und bei 1 im Backup'
 
 # ===========================================================================
 # CASE G — echter Konkurrenztest fuer 02

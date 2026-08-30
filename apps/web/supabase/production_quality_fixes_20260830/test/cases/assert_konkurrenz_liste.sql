@@ -25,15 +25,15 @@ begin
     raise exception 'Die konkurrierende Aenderung an product_slugs fehlt (%/1).', n;
   end if;
 
-  -- Die uebrigen acht Zielzeilen stehen weiterhin im Vorzustand: 04 hat
+  -- Die uebrigen neun Zielzeilen stehen weiterhin im Vorzustand: 04 hat
   -- nichts teilweise geschrieben.
   select count(*) into n
   from public.products p
   join cbb_private_backup.quality_fixes_20260830_products_v1 b
     on b.id = p.id and b.slug = p.slug
   where to_jsonb(p) is not distinct from to_jsonb(b);
-  if n <> 6 then
-    raise exception 'Nur %/6 Produktzeilen sind unveraendert — 04 hat teilweise geschrieben.', n;
+  if n <> 7 then
+    raise exception 'Nur %/7 Produktzeilen sind unveraendert — 04 hat teilweise geschrieben.', n;
   end if;
 
   select count(*) into n

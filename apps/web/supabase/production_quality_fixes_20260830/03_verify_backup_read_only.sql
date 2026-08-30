@@ -76,6 +76,16 @@ b5_bilder_erwartet(slug, pre_image_url, pre_image_urls) as (
     array['https://divoom.com/cdn/shop/files/minitoo-1.jpg']::text[]
   )
 ),
+-- A4 (Kategorie) — die siebte Produktzeile. Vorzustand babo / tech / basteln
+-- mit den unveraendert bleibenden shop_tags; 04 aendert dort nur
+-- shop_sub_category.
+a4_kategorie_erwartet(slug, pre_persona, pre_main, pre_sub, pre_tags) as (
+  values (
+    'plasmakugel-8-zoll-beruehrungsempfindlich'::text,
+    'babo'::text, 'tech'::text, 'basteln'::text,
+    array['babo:tech','preis:unter50','preis:unter100']::text[]
+  )
+),
 d6_erwartet(slug, pre_name, pre_description, pre_note) as (
   values (
     'cream-noise-machine-baby-tragbar'::text,
@@ -150,6 +160,7 @@ alle_zielslugs(slug) as (
   union all select slug from b5_preis_erwartet
   union all select slug from b5_bilder_erwartet
   union all select slug from d6_erwartet
+  union all select slug from a4_kategorie_erwartet
 ),
 
 -- ---------------------------------------------------------------------------
@@ -217,6 +228,12 @@ inhalt as (
          where b.name is not distinct from e.pre_name
            and b.description is not distinct from e.pre_description
            and b.editorial_note is not distinct from e.pre_note)
+      + (select count(*) from cbb_private_backup.quality_fixes_20260830_products_v1 b
+          join a4_kategorie_erwartet e on e.slug = b.slug
+         where b.shop_persona is not distinct from e.pre_persona
+           and b.shop_main_category is not distinct from e.pre_main
+           and b.shop_sub_category is not distinct from e.pre_sub
+           and b.shop_tags is not distinct from e.pre_tags)
     )::integer as produkt_vorzustand,
     (select count(*) from cbb_private_backup.quality_fixes_20260830_lists_v1 b
       join listen_erwartet e on e.slug = b.slug
@@ -428,8 +445,8 @@ checks as (
   union all
   select 20, 'current_database', current_database()::text, 'INFO', 'INFO'
   union all
-  select 30, 'backup_produkt_zeilen', produkt_zeilen::text, '6',
-    case when produkt_zeilen = 6 then 'PASS' else 'FAIL' end from summary
+  select 30, 'backup_produkt_zeilen', produkt_zeilen::text, '7',
+    case when produkt_zeilen = 7 then 'PASS' else 'FAIL' end from summary
   union all
   select 40, 'backup_listen_zeilen', listen_zeilen::text, '3',
     case when listen_zeilen = 3 then 'PASS' else 'FAIL' end from summary
@@ -437,8 +454,8 @@ checks as (
   select 50, 'backup_produkt_zielmenge',
     produkt_zeilen::text || ' Zeilen, davon erwartete Slugs '
       || produkt_slugtreffer::text,
-    '6 Zeilen, davon erwartete Slugs 6',
-    case when produkt_zeilen = 6 and produkt_slugtreffer = 6
+    '7 Zeilen, davon erwartete Slugs 7',
+    case when produkt_zeilen = 7 and produkt_slugtreffer = 7
       then 'PASS' else 'FAIL' end
   from summary
   union all
@@ -460,8 +477,8 @@ checks as (
     case when backup_spalten_gesamt > 0 then 'PASS' else 'FAIL' end
   from summary
   union all
-  select 90, 'backup_produkt_inhalt_vorzustand', produkt_vorzustand::text, '6',
-    case when produkt_vorzustand = 6 then 'PASS' else 'FAIL' end from summary
+  select 90, 'backup_produkt_inhalt_vorzustand', produkt_vorzustand::text, '7',
+    case when produkt_vorzustand = 7 then 'PASS' else 'FAIL' end from summary
   union all
   select 100, 'backup_listen_inhalt_vorzustand', listen_vorzustand::text, '3',
     case when listen_vorzustand = 3 then 'PASS' else 'FAIL' end from summary

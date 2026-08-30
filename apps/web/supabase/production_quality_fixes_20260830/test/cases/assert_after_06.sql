@@ -41,8 +41,8 @@ begin
   from cbb_private_backup.quality_fixes_20260830_products_v1 b
   join public.products p on p.id = b.id and p.slug = b.slug
   where to_jsonb(p) is not distinct from to_jsonb(b);
-  if n <> 6 then
-    raise exception 'Nach 06: nur %/6 Produktzeilen exakt wie im Backup.', n;
+  if n <> 7 then
+    raise exception 'Nach 06: nur %/7 Produktzeilen exakt wie im Backup.', n;
   end if;
 
   select count(*) into n

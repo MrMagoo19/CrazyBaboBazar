@@ -4,9 +4,10 @@
 -- Nur mit neuer ausdruecklicher Benutzerfreigabe ausfuehren.
 -- Sichtbares Ziel: project/ydiihvzcxaaoqhmgoqvu
 --
--- Stellt exakt die in 02 gesicherten Felder der sechs Produktzeilen und der
+-- Stellt exakt die in 02 gesicherten Felder der sieben Produktzeilen und der
 -- drei Listenzeilen wieder her — einschliesslich des historischen updated_at
--- der Produkte. Danach ist der Stand vor der Korrektur wiederhergestellt,
+-- der sechs lastmod-Zielprodukte. Die A4-Kategorie hatte ihren Zeitstempel nie
+-- geaendert. Danach ist der Stand vor der Korrektur wiederhergestellt,
 -- inklusive der alten lastmod-Werte fuer die Sitemap. public.lists hat keine
 -- Spalte updated_at.
 --
@@ -99,8 +100,8 @@ begin
   from cbb_private_backup.quality_fixes_20260830_products_v1;
   select count(*) into backup_listen_zeilen
   from cbb_private_backup.quality_fixes_20260830_lists_v1;
-  if backup_produkt_zeilen <> 6 or backup_listen_zeilen <> 3 then
-    raise exception 'QF-Restore abgebrochen: Backup hat %/6 Produkt- und %/3 Listenzeilen.',
+  if backup_produkt_zeilen <> 7 or backup_listen_zeilen <> 3 then
+    raise exception 'QF-Restore abgebrochen: Backup hat %/7 Produkt- und %/3 Listenzeilen.',
       backup_produkt_zeilen, backup_listen_zeilen;
   end if;
 
@@ -108,8 +109,8 @@ begin
   select count(*) into paare
   from cbb_private_backup.quality_fixes_20260830_products_v1 b
   join public.products p on p.id = b.id and p.slug = b.slug;
-  if paare <> 6 then
-    raise exception 'QF-Restore abgebrochen: Produkt-Backup passt zu %/6 Produktzeilen.', paare;
+  if paare <> 7 then
+    raise exception 'QF-Restore abgebrochen: Produkt-Backup passt zu %/7 Produktzeilen.', paare;
   end if;
 
   select count(*) into paare
@@ -291,6 +292,25 @@ insert into cbb_qf_d6 values (
   'Die tragbare White-Noise-Machine für Kinderwagen, Auto oder Reise. Klein, wiederaufladbar, mehrere Geräusche. Für alle, die gemerkt haben, dass Schlaf des Babys = Ruhe der Eltern = Frieden im Haus.'
 );
 
+-- A4 (Kategorie) — plasmakugel-8-zoll-beruehrungsempfindlich. Vorzustand
+-- babo / tech / basteln mit unveraenderten shop_tags; 04 setzt dort nur
+-- shop_sub_category auf 'gadgets'.
+create temporary table cbb_qf_a4_kategorie (
+  slug text primary key,
+  pre_persona text not null,
+  pre_main text not null,
+  pre_sub text not null,
+  pre_tags text[] not null,
+  ziel_sub text not null
+) on commit drop;
+
+insert into cbb_qf_a4_kategorie values (
+  'plasmakugel-8-zoll-beruehrungsempfindlich',
+  'babo', 'tech', 'basteln',
+  array['babo:tech','preis:unter50','preis:unter100'],
+  'gadgets'
+);
+
 create temporary table cbb_qf_listen (
   slug text primary key,
   pre_slugs text[] not null,
@@ -417,7 +437,9 @@ insert into cbb_qf_produkte values
   ('divoom-minitoo-retro-pc-lautsprecher-pixel', 'B5b',
    array['image_url','image_urls','updated_at']),
   ('cream-noise-machine-baby-tragbar', 'D6',
-   array['name','description','editorial_note','updated_at']);
+   array['name','description','editorial_note','updated_at']),
+  ('plasmakugel-8-zoll-beruehrungsempfindlich', 'A4',
+   array['shop_sub_category']);
 
 -- Fingerabdruck ALLER Nichtzielzeilen, aufgenommen VOR dem Schreibvorgang.
 create temporary table cbb_qf_fremde_produkte on commit drop as
@@ -433,7 +455,7 @@ where not exists (select 1 from cbb_qf_listen e where e.slug = l.slug);
 -- ---------------------------------------------------------------------------
 -- Guard 2, Sperre, Guard 3 und der Restore.
 --
--- Gesperrt werden alle neun Zielzeilen gemeinsam mit ihren Backup-Zeilen. Erst
+-- Gesperrt werden alle zehn Zielzeilen gemeinsam mit ihren Backup-Zeilen. Erst
 -- danach sind Backup-Inhalt und Identitaet stabil; ohne diesen zweiten Beweis
 -- koennte eine konkurrierende Transaktion das Backup zwischen Vorpruefung und
 -- UPDATE noch veraendern, und der Restore wuerde fremden Inhalt als
@@ -452,6 +474,8 @@ declare
   betroffen integer;
   fremd_abweichungen integer;
   fremd_anzahl integer;
+  updated_at_null_quelle integer;
+  updated_at_null_backup integer;
 begin
   -- ---- Backup gegen den bekannten Vorzustand (Manipulationsschutz) --------
   select
@@ -473,6 +497,12 @@ begin
        where b.name is not distinct from e.pre_name
          and b.description is not distinct from e.pre_description
          and b.editorial_note is not distinct from e.pre_note)
+    + (select count(*) from cbb_private_backup.quality_fixes_20260830_products_v1 b
+        join cbb_qf_a4_kategorie e on e.slug = b.slug
+       where b.shop_persona is not distinct from e.pre_persona
+         and b.shop_main_category is not distinct from e.pre_main
+         and b.shop_sub_category is not distinct from e.pre_sub
+         and b.shop_tags is not distinct from e.pre_tags)
   into backup_pre_produkte;
 
   select count(*) into backup_pre_listen
@@ -480,20 +510,20 @@ begin
   join cbb_qf_listen e on e.slug = b.slug
   where b.product_slugs is not distinct from e.pre_slugs;
 
-  if backup_pre_produkte <> 6 or backup_pre_listen <> 3 then
-    raise exception 'QF-Restore abgebrochen: Backup entspricht nicht dem bekannten Vorzustand (%/6 Produkte, %/3 Listen).',
+  if backup_pre_produkte <> 7 or backup_pre_listen <> 3 then
+    raise exception 'QF-Restore abgebrochen: Backup entspricht nicht dem bekannten Vorzustand (%/7 Produkte, %/3 Listen).',
       backup_pre_produkte, backup_pre_listen;
   end if;
 
-  -- ---- Sperre auf allen neun Zielzeilen samt Backup-Zeilen ---------------
+  -- ---- Sperre auf allen zehn Zielzeilen samt Backup-Zeilen ---------------
   perform p.id
   from public.products p
   join cbb_private_backup.quality_fixes_20260830_products_v1 b
     on b.id = p.id and b.slug = p.slug
   for update of p, b;
   get diagnostics gesperrt = row_count;
-  if gesperrt <> 6 then
-    raise exception 'QF-Restore abgebrochen: %/6 Produkt-Zeilenpaare gesperrt.', gesperrt;
+  if gesperrt <> 7 then
+    raise exception 'QF-Restore abgebrochen: %/7 Produkt-Zeilenpaare gesperrt.', gesperrt;
   end if;
 
   perform l.id
@@ -527,6 +557,12 @@ begin
        where b.name is not distinct from e.pre_name
          and b.description is not distinct from e.pre_description
          and b.editorial_note is not distinct from e.pre_note)
+    + (select count(*) from cbb_private_backup.quality_fixes_20260830_products_v1 b
+        join cbb_qf_a4_kategorie e on e.slug = b.slug
+       where b.shop_persona is not distinct from e.pre_persona
+         and b.shop_main_category is not distinct from e.pre_main
+         and b.shop_sub_category is not distinct from e.pre_sub
+         and b.shop_tags is not distinct from e.pre_tags)
   into backup_pre_produkte;
 
   select count(*) into backup_pre_listen
@@ -534,9 +570,30 @@ begin
   join cbb_qf_listen e on e.slug = b.slug
   where b.product_slugs is not distinct from e.pre_slugs;
 
-  if backup_pre_produkte <> 6 or backup_pre_listen <> 3 then
-    raise exception 'QF-Restore abgebrochen: Backup wurde zwischen Vorpruefung und Sperre veraendert (%/6 Produkte, %/3 Listen).',
+  if backup_pre_produkte <> 7 or backup_pre_listen <> 3 then
+    raise exception 'QF-Restore abgebrochen: Backup wurde zwischen Vorpruefung und Sperre veraendert (%/7 Produkte, %/3 Listen).',
       backup_pre_produkte, backup_pre_listen;
+  end if;
+
+  -- -------------------------------------------------------------------------
+  -- updated_at ist bei den sechs lastmod-Zielprodukten der
+  -- zurueckzuschreibende Wert. Der Guard steht bewusst VOR der No-Op-
+  -- Verzweigung: Sind Quelle und Backup beide NULL, waeren die Zeilen formal
+  -- identisch und ein spaeterer Guard unerreichbar.
+  -- -------------------------------------------------------------------------
+  select
+    (select count(*) from public.products p
+      join cbb_qf_produkte g on g.slug = p.slug
+     where 'updated_at' = any(g.geaenderte_spalten)
+       and p.updated_at is null),
+    (select count(*) from cbb_private_backup.quality_fixes_20260830_products_v1 b
+      join cbb_qf_produkte g on g.slug = b.slug
+     where 'updated_at' = any(g.geaenderte_spalten)
+       and b.updated_at is null)
+  into updated_at_null_quelle, updated_at_null_backup;
+  if updated_at_null_quelle <> 0 or updated_at_null_backup <> 0 then
+    raise exception 'QF-Restore abgebrochen: updated_at IS NULL bei % der sechs lastmod-Zielprodukte in public.products und bei % im Backup — der historische Zeitstempel waere nicht wiederherstellbar.',
+      updated_at_null_quelle, updated_at_null_backup;
   end if;
 
   -- ---- Fall A: bereits vollstaendig im Vorzustand -> No-Op ---------------
@@ -552,8 +609,8 @@ begin
     on b.id = l.id and b.slug = l.slug
   where to_jsonb(l) is not distinct from to_jsonb(b);
 
-  if produkte_wie_backup = 6 and listen_wie_backup = 3 then
-    raise notice 'QF-Restore: alle neun Zeilen entsprechen bereits exakt dem Backup — No-Op, kein UPDATE.';
+  if produkte_wie_backup = 7 and listen_wie_backup = 3 then
+    raise notice 'QF-Restore: alle zehn Zeilen entsprechen bereits exakt dem Backup — No-Op, kein UPDATE.';
     return;
   end if;
 
@@ -573,14 +630,19 @@ begin
        where p.name is not distinct from e.ziel_name
          and p.description is not distinct from e.ziel_description
          and p.editorial_note is not distinct from e.ziel_note)
+    + (select count(*) from public.products p join cbb_qf_a4_kategorie e on e.slug = p.slug
+       where p.shop_persona is not distinct from e.pre_persona
+         and p.shop_main_category is not distinct from e.pre_main
+         and p.shop_sub_category is not distinct from e.ziel_sub
+         and p.shop_tags is not distinct from e.pre_tags)
   into produkte_ziel;
 
   select count(*) into listen_ziel
   from public.lists l join cbb_qf_listen e on e.slug = l.slug
   where l.product_slugs is not distinct from e.ziel_slugs;
 
-  if produkte_ziel <> 6 or listen_ziel <> 3 then
-    raise exception 'QF-Restore abgebrochen: gemischter oder gedrifteter Zustand (wie Backup %/6 und %/3, im Zielzustand %/6 und %/3).',
+  if produkte_ziel <> 7 or listen_ziel <> 3 then
+    raise exception 'QF-Restore abgebrochen: gemischter oder gedrifteter Zustand (wie Backup %/7 und %/3, im Zielzustand %/7 und %/3).',
       produkte_wie_backup, listen_wie_backup, produkte_ziel, listen_ziel;
   end if;
 
@@ -664,6 +726,19 @@ begin
     raise exception 'QF-Restore abgebrochen: D6-Restore traf %/1 Zeilen.', betroffen;
   end if;
 
+  -- ---- A4-Kategorie zurueckrollen ----------------------------------------
+  -- Nur shop_sub_category. Persona, Hauptkategorie, Tags und updated_at hat 04
+  -- nie angefasst; sie stehen deshalb auch hier nicht im SET.
+  update public.products p set
+    shop_sub_category = b.shop_sub_category
+  from cbb_private_backup.quality_fixes_20260830_products_v1 b
+  join cbb_qf_a4_kategorie e on e.slug = b.slug
+  where p.id = b.id and p.slug = b.slug;
+  get diagnostics betroffen = row_count;
+  if betroffen <> 1 then
+    raise exception 'QF-Restore abgebrochen: A4-Kategorie-Restore traf %/1 Zeilen.', betroffen;
+  end if;
+
   -- ---- Listen zurueckrollen ----------------------------------------------
   update public.lists l set
     product_slugs = b.product_slugs
@@ -676,7 +751,7 @@ begin
 
   -- ======================= Nachbedingungen ================================
 
-  -- 1 — alle sechs Produktzeilen sind vollstaendig identisch mit dem Backup,
+  -- 1 — alle sieben Produktzeilen sind vollstaendig identisch mit dem Backup,
   --     updated_at eingeschlossen. Damit ist auch der historische lastmod-Wert
   --     wieder da und ein doch gefeuerter Trigger faellt hier auf.
   select count(*) into produkte_wie_backup
@@ -684,8 +759,8 @@ begin
   join cbb_private_backup.quality_fixes_20260830_products_v1 b
     on b.id = p.id and b.slug = p.slug
   where to_jsonb(p) is not distinct from to_jsonb(b);
-  if produkte_wie_backup <> 6 then
-    raise exception 'QF-Restore inkonsistent: nur %/6 Produktzeilen exakt wie im Backup.',
+  if produkte_wie_backup <> 7 then
+    raise exception 'QF-Restore inkonsistent: nur %/7 Produktzeilen exakt wie im Backup.',
       produkte_wie_backup;
   end if;
 
@@ -752,13 +827,19 @@ begin
        where b.name is not distinct from e.pre_name
          and b.description is not distinct from e.pre_description
          and b.editorial_note is not distinct from e.pre_note)
+    + (select count(*) from cbb_private_backup.quality_fixes_20260830_products_v1 b
+        join cbb_qf_a4_kategorie e on e.slug = b.slug
+       where b.shop_persona is not distinct from e.pre_persona
+         and b.shop_main_category is not distinct from e.pre_main
+         and b.shop_sub_category is not distinct from e.pre_sub
+         and b.shop_tags is not distinct from e.pre_tags)
   into backup_pre_produkte;
   select count(*) into backup_pre_listen
   from cbb_private_backup.quality_fixes_20260830_lists_v1 b
   join cbb_qf_listen e on e.slug = b.slug
   where b.product_slugs is not distinct from e.pre_slugs;
-  if backup_pre_produkte <> 6 or backup_pre_listen <> 3 then
-    raise exception 'QF-Restore inkonsistent: das Backup wurde veraendert (%/6 Produkte, %/3 Listen).',
+  if backup_pre_produkte <> 7 or backup_pre_listen <> 3 then
+    raise exception 'QF-Restore inkonsistent: das Backup wurde veraendert (%/7 Produkte, %/3 Listen).',
       backup_pre_produkte, backup_pre_listen;
   end if;
 end $$;

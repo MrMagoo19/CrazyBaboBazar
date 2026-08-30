@@ -2,15 +2,28 @@
 
 ## Status
 
-**`Hinweise der abschliessenden Opus-Pruefung nachgehaertet, lokales Gate
-170/170 bestanden, nichts auf Production ausgefuehrt`**
+**`Production-Qualitaetsfixes abgeschlossen und verifiziert: 28 Zeilen,
+23 PASS, 5 INFO, 0 FAIL, Exit 0`**
 
-Keine Datei dieses Verzeichnisses wurde gegen `project/ydiihvzcxaaoqhmgoqvu`
-(Production) oder `project/nmzuycveumyfvtxdcnuc` (Pilot) ausgefuehrt. Es gab
-keinen Production-Write, keinen Pilot-Write, keinen Push und kein Deploy.
-Codex hat den Production-Vorzustand der Zielzeilen per read-only REST-GET
-geprueft und Preis, ASIN sowie Bild-Erreichbarkeit extern read-only
-gegengeprueft.
+`01_preflight_read_only.sql` wurde am **2026-08-30** nach sichtbarer
+Zielpruefung gegen `project/ydiihvzcxaaoqhmgoqvu` (Production,
+`CrazyBaboBazar Project`, `ACTIVE_HEALTHY`) ausgefuehrt: **29 Zeilen,
+23 PASS, 6 INFO, 0 FAIL, Exit 0**. Nach eigener Freigabe #2 wurde anschliessend
+`02_backup_quality_fixes.sql` genau einmal gegen dasselbe Ziel ausgefuehrt:
+**7 Produkt-Backupzeilen, 3 Listen-Backupzeilen, Exit 0**. Freigabe #3 wurde
+mit `03_verify_backup_read_only.sql` verbraucht: **23 Zeilen, 16 PASS, 7 INFO,
+0 FAIL, Exit 0**. Der private Production-Snapshot ist damit vollstaendig,
+inhaltlich identisch und fuer App-Rollen abgeschirmt. Nach bestaetigtem Preis-
+und Bild-Gate wurde `04_apply_quality_fixes.sql` mit eigener Freigabe #4 genau
+einmal gegen dasselbe Production-Ziel ausgefuehrt: **Exit 0, erwartungsgemaess
+0 Ergebniszeilen und keine Exception**. Die Transaktion ist damit committed.
+`05_verify_read_only.sql` bestaetigte nach eigener Freigabe #5 den vollstaendigen
+Zielzustand: **28 Zeilen, 23 PASS, 5 INFO, 0 FAIL, Exit 0**. Der anschliessende
+oeffentliche Live-Smoke bestand fuer alle zehn Zielseiten mit HTTP 200, HTML
+und ohne Redirect; die sichtbaren White-Noise-, Bild-, Listenslug- und
+13-eindeutige-Gamer-Link-Proben sind korrekt. `06` wurde nicht ausgefuehrt,
+weil kein Rollback erforderlich ist. Gegen `project/nmzuycveumyfvtxdcnuc`
+(Pilot) lief nichts. Es gab keinen Push und kein Deploy.
 
 > [!success] Das lokale Gate ist fuer diesen Stand **ERFUELLT**:
 > **170/170 PASS**, 0 Abweichungen, Records=170, STEP=170,
@@ -344,11 +357,11 @@ Jeder Negativzustand muss die benannte FAIL-Zeile liefern.
 
 | Schritt | Datei | Art | Freigabe | Stand Production |
 |---|---|---|---|---|
-| 1 | `01_preflight_read_only.sql` | read-only | **eigene Freigabe #1 — erforderlich** | nicht ausgefuehrt |
-| 2 | `02_backup_quality_fixes.sql` | **schreibend** | **eigene Freigabe #2 — erforderlich** | nicht ausgefuehrt |
-| 3 | `03_verify_backup_read_only.sql` | read-only | **eigene Freigabe #3 — erforderlich** | nicht ausgefuehrt |
-| 4 | `04_apply_quality_fixes.sql` | **schreibend** | **eigene Freigabe #4 — erforderlich** | nicht ausgefuehrt |
-| 5 | `05_verify_read_only.sql` | read-only | **eigene Freigabe #5 — erforderlich** | nicht ausgefuehrt |
+| 1 | `01_preflight_read_only.sql` | read-only | **Freigabe #1 erteilt und verbraucht** | **2026-08-30: 29 Zeilen, 23 PASS, 6 INFO, 0 FAIL, Exit 0** |
+| 2 | `02_backup_quality_fixes.sql` | **schreibend** | **Freigabe #2 erteilt und verbraucht** | **2026-08-30: 7 Produkt- und 3 Listen-Backupzeilen, Exit 0** |
+| 3 | `03_verify_backup_read_only.sql` | read-only | **Freigabe #3 erteilt und verbraucht** | **2026-08-30: 23 Zeilen, 16 PASS, 7 INFO, 0 FAIL, Exit 0** |
+| 4 | `04_apply_quality_fixes.sql` | **schreibend** | **Freigabe #4 erteilt und verbraucht** | **2026-08-30: atomare Transaktion committed, Exit 0, 0 Ergebniszeilen, keine Exception; durch `05` verifiziert** |
+| 5 | `05_verify_read_only.sql` | read-only | **Freigabe #5 erteilt und verbraucht** | **2026-08-30: 28 Zeilen, 23 PASS, 5 INFO, 0 FAIL, Exit 0** |
 | (R) | `06_restore_quality_fixes.sql` | **schreibend** | **eigene Freigabe #6 — erforderlich** | nicht ausgefuehrt — reiner Rollbackpfad |
 
 Regeln:
@@ -703,20 +716,32 @@ Preis-/Bildpruefungen.
 0. **Vorbedingung lokales Gate — erfuellt.** Der aktuelle Vollauf ergab
    **170/170**, Records=STEP=170, 0 Abweichungen, Exit 0 und die Zeile
    `[PASS] coverage_schrittzahl`.
-1. **Freigabe #1 einholen.** Zielprojekt sichtbar pruefen.
-   `01_preflight_read_only.sql` ausfuehren. Erwartet: 29 Zeilen, 23 PASS,
-   6 INFO, **0 FAIL**. Jede FAIL-Zeile beendet den Vorgang hier — auch
-   `products_updated_at_triggervertrag`.
-2. **Preis nachpruefen** (Abschnitt 4.2). Bei Abweichung: Stopp und
-   Neu-Audit.
-3. **Freigabe #2 einholen.** `02_backup_quality_fixes.sql` ausfuehren.
-   Erwartet: `backup_produkt_zeilen = 7`, `backup_listen_zeilen = 3`.
-4. **Freigabe #3 einholen.** `03_verify_backup_read_only.sql` ausfuehren.
-   Erwartet: 23 Zeilen, 16 PASS, 7 INFO, **0 FAIL**.
-5. **Freigabe #4 einholen.** `04_apply_quality_fixes.sql` ausfuehren.
-   Erwartet: kein Fehler, keine Ausgabe.
-6. **Freigabe #5 einholen.** `05_verify_read_only.sql` ausfuehren.
-   Erwartet: 28 Zeilen, 23 PASS, 5 INFO, **0 FAIL**.
+1. **Erledigt am 2026-08-30.** Nach Freigabe #1 und sichtbarer Zielpruefung
+   wurde `01_preflight_read_only.sql` gegen Production ausgefuehrt: 29 Zeilen,
+   23 PASS, 6 INFO, **0 FAIL**, Exit 0. Auch
+   `products_updated_at_triggervertrag` meldete PASS.
+2. **Aktuell bestaetigt am 2026-08-30.** Der Benutzer hat auf der offiziellen
+   Amazon-Seite fuer ASIN `B07HHXWN3C` exakt **42,49 EUR** bestaetigt. Dieser
+   Tagespreis wurde fuer den unmittelbar danach ausgefuehrten Schritt `04`
+   verwendet.
+3. **Erledigt am 2026-08-30.** Nach Freigabe #2 wurde
+   `02_backup_quality_fixes.sql` genau einmal gegen Production ausgefuehrt:
+   `backup_produkt_zeilen = 7`, `backup_listen_zeilen = 3`, Exit 0.
+4. **Erledigt am 2026-08-30.** Nach Freigabe #3 wurde
+   `03_verify_backup_read_only.sql` gegen Production ausgefuehrt: 23 Zeilen,
+   16 PASS, 7 INFO, **0 FAIL**, Exit 0. Alle neun Zielbild-URLs wurden danach
+   per vollstaendigem GET mit HTTP 200, `image/jpeg` und nichtleerem Inhalt
+   erneut bestaetigt.
+5. **Erledigt am 2026-08-30.** Nach Freigabe #4 wurde
+   `04_apply_quality_fixes.sql` genau einmal gegen Production ausgefuehrt:
+   Exit 0, 0 Ergebniszeilen, keine Exception. Die atomare Transaktion wurde
+   committed; die Zielzustandspruefung durch `05` war zu diesem Zeitpunkt noch
+   offen.
+6. **Erledigt am 2026-08-30.** Nach Freigabe #5 wurde
+   `05_verify_read_only.sql` gegen Production ausgefuehrt: 28 Zeilen,
+   23 PASS, 5 INFO, **0 FAIL**, Exit 0. Der anschliessende Live-Smoke bestaetigte
+   10/10 Zielseiten mit HTTP 200 sowie die sichtbaren Text-, Bild-, Slug- und
+   Gamer-Listenproben.
 7. **Nachlauf ohne Datenbankbezug** (getrennt zu bewerten, nicht Teil dieses
    Pakets): Die sechs sichtbar geaenderten Produktseiten tragen ein neues
    `lastmod`; die A4-Produktzeile behaelt ihren historischen Zeitstempel. Ob und
@@ -743,15 +768,26 @@ ist wieder aufgehoben. Das ist der korrekte Ausgang, kein Fehler.
 | Zweite Opus-Endpruefung (struktureller Triggervertrag, Kommentarbereinigung, D7-Zeile) | Claude/Codex | Befunde umgesetzt; unabhaengiges Audit und lokaler 164er-Lauf **abgeschlossen** (Stand `179ef1f`) |
 | Dritte Opus-Endpruefung (regexp_count-Versionsabhaengigkeit, positionsunabhaengige Zuweisungszaehlung, Reihenfolge der Kommentarbereinigung, minimaler Guard, Beschreibungen, Sollzahl) | Claude/Codex | alle sechs Befunde **umgesetzt**; unabhaengiges Audit und 166er-Vollauf **abgeschlossen** (Stand `8cc2d8f`) |
 | Abschliessende Opus-Pruefung (positiver Setup-Fall fuer den minimalen Guard, `OR`-Haertung des Triggervertrags) | Claude/Codex | beide Hinweise **umgesetzt**; unabhaengiges Audit und 170er-Vollauf **abgeschlossen** |
-| Erneute Preispruefung ASIN `B07HHXWN3C` unmittelbar vor `04` | Codex/Benutzer | **offen** |
-| Erneute Erreichbarkeitspruefung der neun Bild-URLs unmittelbar vor `04` | Codex/Benutzer | **offen** |
-| Freigabe #1 bis #5 (Production) | Benutzer | **offen** |
+| Production-Preflight `01_preflight_read_only.sql` gegen `project/ydiihvzcxaaoqhmgoqvu` | Benutzer/Codex | **2026-08-30 abgeschlossen: 29 Zeilen, 23 PASS, 6 INFO, 0 FAIL, Exit 0; Zielprojekt `CrazyBaboBazar Project`, `ACTIVE_HEALTHY`** |
+| Production-Backup `02_backup_quality_fixes.sql` gegen `project/ydiihvzcxaaoqhmgoqvu` | Benutzer/Codex | **2026-08-30 abgeschlossen: 7 Produkt- und 3 Listen-Backupzeilen, Exit 0; Live-Zielzeilen noch unveraendert** |
+| Production-Backup-Pruefung `03_verify_backup_read_only.sql` gegen `project/ydiihvzcxaaoqhmgoqvu` | Benutzer/Codex | **2026-08-30 abgeschlossen: 23 Zeilen, 16 PASS, 7 INFO, 0 FAIL, Exit 0; Inhalt, Driftfreiheit, Struktur, RLS und App-Rechte erwartungskonform** |
+| Production-Korrektur `04_apply_quality_fixes.sql` gegen `project/ydiihvzcxaaoqhmgoqvu` | Benutzer/Codex | **2026-08-30 atomar committed: Exit 0, 0 Ergebniszeilen, keine Exception; durch `05` verifiziert** |
+| Production-Abschlusspruefung `05_verify_read_only.sql` gegen `project/ydiihvzcxaaoqhmgoqvu` | Benutzer/Codex | **2026-08-30 abgeschlossen: 28 Zeilen, 23 PASS, 5 INFO, 0 FAIL, Exit 0; alle sieben Produkt- und drei Listenziele exakt, Backup unveraendert** |
+| Oeffentlicher Live-Smoke der sieben Produkt- und drei Listenseiten | Codex | **2026-08-30 abgeschlossen: 10/10 HTTP 200, HTML, 0 Redirects; White-Noise-, Amazon-Bild-, korrekte-Slugs- und 13-eindeutige-Gamer-Links-Proben bestanden** |
+| Erneute Preispruefung ASIN `B07HHXWN3C` unmittelbar vor `04` | Codex/Benutzer | **2026-08-30 durch Benutzer mit 42,49 EUR bestaetigt und fuer den unmittelbar folgenden Schritt `04` verwendet** |
+| Erneute Erreichbarkeitspruefung der neun Bild-URLs unmittelbar vor `04` | Codex | **2026-08-30 abgeschlossen: 9/9 HTTP 200, `image/jpeg`, vollstaendige GET-Inhalte mit 125178 bis 239916 Bytes** |
+| Freigabe #1 (Production-Preflight) | Benutzer | **erteilt, ausgefuehrt und verbraucht** |
+| Freigabe #2 (Production-Backup) | Benutzer | **erteilt, ausgefuehrt und verbraucht** |
+| Freigabe #3 (Production-Backup-Pruefung) | Benutzer | **erteilt, ausgefuehrt und verbraucht** |
+| Freigabe #4 (Production-Korrektur) | Benutzer | **erteilt, ausgefuehrt und verbraucht** |
+| Freigabe #5 (Production-Abschlusspruefung) | Benutzer | **erteilt, ausgefuehrt und verbraucht** |
 | Freigabe #6 (Rollback) | Benutzer | **offen, nur bei Bedarf** |
 | Sitemap-/Search-Console-Nachlauf | Benutzer | **offen, eigener Vorgang** |
 
-Keine Production-Checkbox fuer **A4, A5, B2, B5 oder D6** ist abgehakt. **D7**
-bleibt als sachlich geklaert markiert — er braucht keine Datenaenderung und
-damit auch keine Production-Ausfuehrung.
+Die Production-Qualitaetsfixes **A4, A5, B2, B5 und D6** sind abgeschlossen,
+read-only verifiziert und im Live-Smoke bestaetigt. **D7** bleibt als sachlich
+geklaert markiert — er brauchte keine Datenaenderung. `06` bleibt der
+unbenutzte, separat freigabepflichtige Rollbackpfad.
 
 ---
 

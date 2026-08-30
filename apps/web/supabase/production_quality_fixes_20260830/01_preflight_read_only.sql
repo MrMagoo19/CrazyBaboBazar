@@ -463,15 +463,22 @@ gamer_info as (
 --     2. vertragstrigger  Dieser eine Trigger heisst products_set_updated_at,
 --        haengt an public.products_touch_updated_at, hat keine WHEN-Klausel und
 --        traegt genau die erwartete Definition.
---     3. ohne_sub_category  Der von Zeilenkommentaren bereinigte
+--     3. ohne_sub_category  Der von Block- und Zeilenkommentaren bereinigte
 --        Funktionsrumpf nennt shop_sub_category nirgends. Damit kann die
 --        A4-Aenderung keinen Bump ausloesen; ein reiner Pflegekommentar sperrt
 --        den Preflight nicht.
---     4. explizit_gesetzt_bleibt  Der Rumpf setzt updated_at genau einmal, und
---        nur unter der Bedingung, dass der Aufrufer die Spalte NICHT selbst
---        geschrieben hat. Guard, THEN, Zuweisung und END IF muessen in dieser
---        Reihenfolge stehen; sowohl := als auch = werden als PL/pgSQL-
---        Zuweisungsoperator gezaehlt.
+--     4. explizit_gesetzt_bleibt  Der von Block- und Zeilenkommentaren
+--        bereinigte Rumpf setzt updated_at genau einmal, und nur unter der
+--        Bedingung, dass der Aufrufer die Spalte NICHT selbst geschrieben hat.
+--        Guard, THEN, Zuweisung und END IF muessen in dieser Reihenfolge
+--        stehen; sowohl := als auch = werden als PL/pgSQL-Zuweisungsoperator
+--        gezaehlt. Gezaehlt wird OHNE Ruecksicht auf die Statementposition:
+--        jedes new.updated_at := / = im bereinigten Rumpf ist ein Treffer,
+--        egal ob es nach begin, then, else, loop oder einem Semikolon steht.
+--        Ein Vergleich der Form  new.updated_at = ...  faellt dabei bewusst
+--        mit in die Zaehlung — das ist fail-closed und sperrt hoechstens einen
+--        ungewoehnlichen, aber harmlosen Rumpf, statt einen gefaehrlichen
+--        durchzulassen.
 --     5. fremde_updated_at_trigger  Keine andere aktive Triggerfunktion auf
 --        public.products fasst updated_at ueberhaupt an.
 --
@@ -480,7 +487,7 @@ gamer_info as (
 --   dem Soll und die Pruefzeile meldet FAIL. Das ist die Freigabesperre fuer
 --   Schritt 04.
 -- ---------------------------------------------------------------------------
-trigger_kandidaten as (
+trigger_roh as (
   select
     t.tgname::text as tgname,
     (t.tgtype & 1) <> 0 as fuer_jede_zeile,
@@ -489,26 +496,7 @@ trigger_kandidaten as (
     t.tgqual is null as ohne_when_klausel,
     (p.pronamespace::regnamespace)::text || '.' || p.proname::text as funktion,
     pg_catalog.pg_get_triggerdef(t.oid) as triggerdef,
-    -- Erst Block- und Zeilenkommentare entfernen, solange die Zeilenumbrueche
-    -- noch da sind; erst danach Whitespace normalisieren. So kann Kommentartext
-    -- weder einen Vertragsbeleg vortaeuschen noch shop_sub_category faelschlich
-    -- als ausgefuehrten Code erscheinen lassen.
-    regexp_replace(
-      regexp_replace(
-        regexp_replace(
-          pg_catalog.pg_get_functiondef(p.oid),
-          '/\*([^*]|\*+[^*/])*\*+/',
-          ' ',
-          'g'
-        ),
-        '--[^\n\r]*',
-        ' ',
-        'g'
-      ),
-      '\s+',
-      ' ',
-      'g'
-    ) as funktionsdef
+    pg_catalog.pg_get_functiondef(p.oid) as rohdef
   from pg_catalog.pg_trigger t
   join pg_catalog.pg_proc p on p.oid = t.tgfoid
   where t.tgrelid = 'public.products'::regclass
@@ -516,12 +504,95 @@ trigger_kandidaten as (
     and t.tgenabled in ('O', 'A')
 ),
 
+trigger_kandidaten as (
+  select
+    r.tgname,
+    r.fuer_jede_zeile,
+    r.vor_der_aenderung,
+    r.bei_update,
+    r.ohne_when_klausel,
+    r.funktion,
+    r.triggerdef,
+    -- Block- und Zeilenkommentare raus, solange die Zeilenumbrueche noch da
+    -- sind; erst danach Whitespace normalisieren. So kann Kommentartext weder
+    -- einen Vertragsbeleg vortaeuschen noch shop_sub_category faelschlich als
+    -- ausgefuehrten Code erscheinen lassen.
+    --
+    -- DIE REIHENFOLGE IST HIER DER GANZE PUNKT: ZUERST die Zeilenkommentare,
+    -- DANACH die Blockkommentare. Umgekehrt liesse sich echter Code verstecken.
+    -- Ein Rumpf mit
+    --     -- Pflegehinweis: /*
+    --     ...gefaehrlicher Code...
+    --     -- Ende des Pflegehinweises: */
+    -- enthaelt ein /* und ein */, die BEIDE nur Kommentartext sind. Wer erst
+    -- Blockkommentare entfernt, loescht alles dazwischen — der gefaehrliche
+    -- Code verschwindet aus der Pruefung und der Vertrag meldet faelschlich
+    -- PASS. Wer erst die Zeilenkommentare entfernt, loescht beide Marker
+    -- mitsamt ihrer Zeile; der Code dazwischen bleibt sichtbar und faellt auf.
+    -- Der Negativfall setup_trigger_bumpt_sub_category.sql baut genau diese
+    -- Falle nach.
+    --
+    -- Echte verschachtelte Blockkommentare deckt das absichtlich nicht ab: ein
+    -- inneres */ beendet den Ausdruck hier zu frueh, es bleiben Reste stehen —
+    -- und Reste lassen den Vertragscheck fehlschlagen, nicht durchgehen. Auch
+    -- das ist fail-closed.
+    regexp_replace(
+      regexp_replace(
+        regexp_replace(
+          r.rohdef,
+          '--[^\n\r]*',
+          ' ',
+          'g'
+        ),
+        '/\*([^*]|\*+[^*/])*\*+/',
+        ' ',
+        'g'
+      ),
+      '\s+',
+      ' ',
+      'g'
+    ) as funktionsdef
+  from trigger_roh r
+),
+
+-- Zaehlungen im bereinigten Rumpf. Bewusst ueber regexp_matches(..., 'g') in
+-- einem LATERAL statt ueber regexp_count(): regexp_count gibt es erst ab
+-- PostgreSQL 15. regexp_matches mit dem g-Flag ist seit Jahren vorhanden und
+-- laeuft damit auch auf aelteren Supabase-Instanzen — ohne dass dieses Paket
+-- eine Mindestversion voraussetzen muesste, die nirgends belegt ist.
+-- Beide Zaehlungen sind read-only.
+trigger_messung as (
+  select
+    k.*,
+    z.anzahl as updated_at_zuweisungen,
+    e.anzahl as end_if_bloecke
+  from trigger_kandidaten k
+  -- Jedes new.updated_at := / = im bereinigten Rumpf, unabhaengig davon, an
+  -- welcher Statementposition es steht (begin, then, else, loop, nach einem
+  -- Semikolon ...). Ein Vergleich  new.updated_at = ...  wird bewusst
+  -- mitgezaehlt: fail-closed ist hier richtig.
+  cross join lateral (
+    select count(*)::integer as anzahl
+    from pg_catalog.regexp_matches(
+           k.funktionsdef,
+           'new\.updated_at[[:space:]]*(:=|=)',
+           'gi')
+  ) z
+  cross join lateral (
+    select count(*)::integer as anzahl
+    from pg_catalog.regexp_matches(
+           k.funktionsdef,
+           'end[[:space:]]+if;',
+           'gi')
+  ) e
+),
+
 trigger_vertrag as (
   select
-    (select count(*) from trigger_kandidaten
+    (select count(*) from trigger_messung
       where fuer_jede_zeile and vor_der_aenderung and bei_update)::integer
       as aktive_before_update_trigger,
-    (select count(*) from trigger_kandidaten
+    (select count(*) from trigger_messung
       where fuer_jede_zeile and vor_der_aenderung and bei_update
         and ohne_when_klausel
         and tgname = 'products_set_updated_at'
@@ -530,28 +601,39 @@ trigger_vertrag as (
                           || 'FOR EACH ROW EXECUTE FUNCTION '
                           || '(public\.)?products_touch_updated_at\(\)$'))::integer
       as vertragstrigger,
-    (select count(*) from trigger_kandidaten
+    (select count(*) from trigger_messung
       where tgname = 'products_set_updated_at'
         and funktionsdef !~* 'shop_sub_category')::integer
       as ohne_sub_category,
-    (select count(*) from trigger_kandidaten
+    (select count(*) from trigger_messung
       where tgname = 'products_set_updated_at'
         -- Nicht nur Guard und Zuweisung irgendwo im Text finden: die einzige
         -- Zuweisung muss zwischen THEN und dem einzigen END IF desselben
         -- geordneten Guard-Blocks stehen. Kommentare sind oben entfernt.
+        --
+        -- Zwischen Guard und THEN steht ".*" fuer die zusaetzliche
+        -- Tupelbedingung des echten Triggers. Sie darf auch LEER sein: der
+        -- minimale gueltige Guard
+        --   if new.updated_at is not distinct from old.updated_at
+        --   then new.updated_at := now(); end if;
+        -- muss ebenso PASS liefern wie die reale Funktion mit AND-Tupel.
+        -- Deshalb steht das Trennzeichen vor THEN als eigene
+        -- [[:space:]]-Klasse hinter dem ".*" und nicht als fester Anteil des
+        -- Guard-Literals. Die verlangte Reihenfolge
+        -- Guard -> THEN -> Zuweisung -> END IF bleibt dabei unveraendert hart.
         and funktionsdef ~* (
-          'if new\.updated_at is not distinct from old\.updated_at '
-          || '.* then new\.updated_at *(:=|=) *now\(\); *end if;'
+          'if new\.updated_at is not distinct from old\.updated_at'
+          || '.*[[:space:]]then[[:space:]]+new\.updated_at[[:space:]]*(:=|=)'
+          || '[[:space:]]*now\(\);[[:space:]]*end[[:space:]]+if;'
         )
-        and pg_catalog.regexp_count(
-              funktionsdef,
-              '(^|;|then|begin)[[:space:]]+new\.updated_at[[:space:]]*(:=|=)',
-              1,
-              'i'
-            ) = 1
-        and pg_catalog.regexp_count(funktionsdef, 'end[[:space:]]+if;', 1, 'i') = 1)::integer
+        -- Genau eine Zuweisung im ganzen bereinigten Rumpf. Eine zweite,
+        -- bedingungslose Zuweisung — auch in einer LOOP, einem ELSE-Zweig oder
+        -- hinter einem Semikolon — hebt den Guard praktisch auf und muss
+        -- deshalb sperren.
+        and updated_at_zuweisungen = 1
+        and end_if_bloecke = 1)::integer
       as explizit_gesetzt_bleibt,
-    (select count(*) from trigger_kandidaten
+    (select count(*) from trigger_messung
       where tgname <> 'products_set_updated_at'
         and funktionsdef ~* 'updated_at')::integer
       as fremde_updated_at_trigger

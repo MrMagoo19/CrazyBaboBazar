@@ -2,8 +2,8 @@
 
 ## Status
 
-**`nach zweiter Opus-Endpruefung nachgehaertet, lokales Gate 164/164 bestanden,
-nichts auf Production ausgefuehrt`**
+**`Befunde der dritten Opus-Endpruefung nachgehaertet, lokales Gate 166/166
+bestanden, nichts auf Production ausgefuehrt`**
 
 Keine Datei dieses Verzeichnisses wurde gegen `project/ydiihvzcxaaoqhmgoqvu`
 (Production) oder `project/nmzuycveumyfvtxdcnuc` (Pilot) ausgefuehrt. Es gab
@@ -12,9 +12,17 @@ Codex hat den Production-Vorzustand der Zielzeilen per read-only REST-GET
 geprueft und Preis, ASIN sowie Bild-Erreichbarkeit extern read-only
 gegengeprueft.
 
-> [!success] Das lokale Gate ist fuer diesen Stand **erfuellt**:
-> **164/164 PASS**, 0 Abweichungen, Records=164, STEP=164,
+> [!success] Das lokale Gate ist fuer diesen Stand **ERFUELLT**:
+> **166/166 PASS**, 0 Abweichungen, Records=166, STEP=166,
 > Coverage-Assertion PASS, Exit 0, PostgreSQL **16.15**. Ergebnisdatei:
+> `/tmp/cbb-qftest.TBdYphBg/results.tsv`; Einzelprotokolle:
+> `/tmp/cbb-qftest.TBdYphBg/logs/`. Der Cluster wurde sauber gestoppt; PGDATA
+> und Socketverzeichnis wurden entfernt.
+
+> [!note] Historie, gilt **nicht** fuer den aktuellen Stand
+> Der 164er-Lauf belegt genau Commit `179ef1f`: **164/164 PASS**,
+> 0 Abweichungen, Records=164, STEP=164, Coverage-Assertion PASS, Exit 0,
+> PostgreSQL **16.15**. Ergebnisdatei:
 > `/tmp/cbb-qftest.v85MjgLU/results.tsv`; Einzelprotokolle:
 > `/tmp/cbb-qftest.v85MjgLU/logs/`. Der Cluster wurde sauber gestoppt; PGDATA
 > und Socketverzeichnis wurden entfernt.
@@ -24,8 +32,8 @@ der Erweiterung dokumentiert.
 
 Jeder spaetere Schritt ist **einzeln** freigabepflichtig. Es gibt keine
 Sammelfreigabe fuer dieses Paket. Die Freigabetabelle steht in
-[Abschnitt 3](#3-reihenfolge-und-freigabegrenzen); die offenen Gates stehen in
-[Abschnitt 8](#8-noch-nicht-ausgefuehrte-gates).
+[Abschnitt 3](#3-reihenfolge-und-freigabegrenzen); der aktuelle Gate- und
+Freigabestatus steht in [Abschnitt 8](#8-gate--und-freigabestatus).
 
 ---
 
@@ -240,8 +248,22 @@ gleichzeitig:
 | `aktive BEFORE UPDATE ROW Trigger` | 1 | ein zweiter, unbekannter Schreiber auf `NEW` |
 | `vertragskonform` | 1 | falscher Name, fremde Funktion, `WHEN`-Klausel, abweichende Triggerdefinition |
 | `ohne shop_sub_category` | 1 | ein Bump durch die A4-Aenderung |
-| `explizites updated_at bleibt` | 1 | ein fehlender Guard, der den von `04` gesetzten Wert ueberschreibt |
+| `explizites updated_at bleibt` | 1 | ein fehlender Guard, der den von `04` gesetzten Wert ueberschreibt — **und** jede zweite Zuweisung an `NEW.updated_at` irgendwo im Rumpf, auch in einer `LOOP` oder einem `ELSE`-Zweig |
 | `fremde updated_at-Trigger` | 0 | eine andere aktive Triggerfunktion, die `updated_at` anfasst |
+
+Gemessen wird auf dem von **Block- und Zeilenkommentaren** bereinigten
+Funktionsrumpf. Die Reihenfolge ist dabei Teil der Zusage: **erst** die
+Zeilenkommentare, **dann** die Blockkommentare. Andernfalls koennte ein Rumpf
+mit `-- … /*` und spaeter `-- … */` echten Code zwischen zwei reinen
+Kommentarmarkern verstecken — der Blockausdruck wuerde alles dazwischen
+fressen und `01` meldete faelschlich PASS. Verschachtelte Blockkommentare
+deckt der Ausdruck bewusst nicht ab; dort bleiben Reste stehen, und Reste
+lassen den Vertragscheck fehlschlagen statt durchgehen.
+
+Die Zaehlungen laufen ueber `regexp_matches(…, 'g')` in einem
+`CROSS JOIN LATERAL`, nicht ueber `regexp_count()` — letzteres gibt es erst ab
+PostgreSQL 15, und eine solche Mindestversion ist fuer die Zieldatenbank
+nirgends belegt.
 
 **Fail-closed:** fehlt der Vertrag oder weicht er ab, meldet die Zeile `FAIL` —
 und nach der Regel aus [Abschnitt 3](#3-reihenfolge-und-freigabegrenzen) ist
@@ -251,8 +273,20 @@ Der lokale Harness prueft genau diesen Katalogvertrag und nicht eine
 Nachbildung: die Fixture laedt die Originaldatei
 `supabase/seo_updated_at_trigger.sql`. `case_k_triggervertrag` belegt zuerst,
 dass ein reiner `shop_sub_category`-Kommentar PASS bleibt, und bricht den
-Vertrag danach viermal unterschiedlich: Bump auf `shop_sub_category`, fehlender
-Guard, Dummy-Guard mit bedingungsloser `=`-Zuweisung und entfernter Trigger.
+Vertrag danach **fuenfmal** unterschiedlich:
+
+1. Bump auf `shop_sub_category` — versteckt zwischen `-- … /*` und `-- … */`
+   und damit zugleich die Gegenprobe auf die Reihenfolge der
+   Kommentarbereinigung: bei falscher Reihenfolge wuerde der gefaehrliche Code
+   verschwinden und `01` faelschlich PASS melden.
+2. fehlender Guard,
+3. Dummy-Guard mit bedingungsloser `=`-Zuweisung dahinter,
+4. korrekter Guard mit korrekter Zuweisung **plus** einer zweiten,
+   bedingungslosen `new.updated_at = now()` in einer `LOOP` — geordnete Regex
+   und `END IF`-Zaehlung passen hier weiterhin, nur die positionsunabhaengige
+   Zaehlung der Zuweisungen sieht den zweiten Schreiber,
+5. entfernter Trigger.
+
 Jeder Negativzustand muss die benannte FAIL-Zeile liefern.
 
 ---
@@ -338,24 +372,57 @@ alle uebrigen Produktbilder des Shops.
 
 ### 4.4 Lokaler Harness — Gate fuer den aktuellen Stand BESTANDEN
 
-Der aktuelle Vollauf bestand am 2026-08-30 gegen PostgreSQL **16.15** mit
-**164/164 PASS**, 0 Abweichungen, Records=164, STEP=164, Coverage PASS und Exit
-0. Ergebnisdatei: `/tmp/cbb-qftest.v85MjgLU/results.tsv`; Einzelprotokolle:
-`/tmp/cbb-qftest.v85MjgLU/logs/`.
+Der unabhaengige Vollauf bestand am 2026-08-30 gegen PostgreSQL **16.15** mit
+**166/166 PASS**, 0 Abweichungen, Records=166, STEP=166, Coverage PASS und Exit
+0. Ergebnisdatei: `/tmp/cbb-qftest.TBdYphBg/results.tsv`; Einzelprotokolle:
+`/tmp/cbb-qftest.TBdYphBg/logs/`. Der Cluster wurde sauber gestoppt; PGDATA und
+Socketverzeichnis wurden entfernt.
 
-Gegenueber dem vorherigen 145er-Lauf sind abgedeckt:
+**Historie:** der 164er-Lauf vom 2026-08-30 gegen PostgreSQL **16.15**
+(**164/164 PASS**, 0 Abweichungen, Records=164, STEP=164, Coverage PASS,
+Exit 0; `/tmp/cbb-qftest.v85MjgLU/results.tsv`, Logs unter
+`/tmp/cbb-qftest.v85MjgLU/logs/`) belegt genau Commit `179ef1f` — nicht diesen
+Stand.
+
+Gegenueber dem 145er-Lauf sind seither abgedeckt:
 
 * die Katalogpruefung `products_updated_at_triggervertrag` in `01`
   (`01` jetzt 23 statt 22 PASS, siehe Abschnitt 2.5),
 * der Fall `case_k_triggervertrag` (damals 9 Schritte),
 * die Identitaetspruefung ueber `id` UND `slug` im No-Op-Zweig von `02` und der
   Fall `case_di_backup_identitaet` (6 Schritte, siehe Abschnitt 5.6),
-* die Coverage-Assertion auf `ERWARTETE_SCHRITTE=160` am Ende des Harness.
+* die Coverage-Assertion am Ende des Harness, die Records **und** `STEP` gegen
+  `ERWARTETE_SCHRITTE` prueft — aktuell gegen **166**.
 
 Nach der zweiten Opus-Pruefung kamen ein positiver Kommentarfall und ein
-negativer Dummy-Guard mit bedingungsloser `=`-Zuweisung hinzu. Die
-Coverage-Assertion prueft nun Records und `STEP`. Der Vollauf bestaetigte alle
-**164 Schritte** und beide Zaehler exakt.
+negativer Dummy-Guard mit bedingungsloser `=`-Zuweisung hinzu (Soll 164).
+
+Die dritte Opus-Pruefung hat sechs Befunde ergeben; alle sechs sind
+eingearbeitet:
+
+1. `01` haengt nicht mehr an `pg_catalog.regexp_count()` (erst ab
+   PostgreSQL 15, im Paket nirgends als Mindestversion belegt). Beide
+   Zaehlungen laufen read-only ueber `regexp_matches(…, 'g')` in einem
+   `CROSS JOIN LATERAL` — auf PostgreSQL 16.15 unveraendert lauffaehig, ohne
+   neue Mindestversion.
+2. Die `updated_at`-Zuweisungen werden **positionsunabhaengig** gezaehlt. Neuer
+   Negativfall in `case_k_triggervertrag`: korrekter Guard mit korrekter
+   Zuweisung, danach eine zweite bedingungslose `new.updated_at = now()` in
+   einer `LOOP`. `01` muss FAIL liefern. **+2 Schritte.**
+3. Zeilenkommentare werden **vor** Blockkommentaren entfernt. Der bestehende
+   Sub-Category-Negativfall versteckt seinen gefaehrlichen Code jetzt zwischen
+   `-- … /*` und `-- … */`: bei falscher Reihenfolge meldete `01` faelschlich
+   PASS, bei richtiger meldet es weiterhin FAIL. Verschachtelte
+   Blockkommentare bleiben bewusst fail-closed.
+4. Die geordnete Regex akzeptiert jetzt auch den minimal gueltigen Guard ohne
+   zusaetzliche AND-Bedingung; die reale Funktion mit Tupelbedingung bleibt
+   PASS. Die Reihenfolge Guard → `THEN` → Zuweisung → `END IF` ist unveraendert
+   hart.
+5. Die Beschreibungen in `01` und `test/README.md` nennen korrekt **Block- und
+   Zeilenkommentare**; die stale Zahl `ERWARTETE_SCHRITTE=160` in diesem
+   Abschnitt ist auf die neue Sollzahl gezogen.
+6. Sollzahl, Records- und `STEP`-Coverage und alle Angaben in `RUNBOOK.md`,
+   `LOCAL_TEST_REPORT.md` und `test/README.md` stehen auf **166**.
 
 ---
 
@@ -553,12 +620,12 @@ beiden Zeilen nicht an.** `01` und `05` fuehren den Punkt nur als `INFO`-Zeile.
 ## 7. Ausfuehrung — Schritt fuer Schritt
 
 Jeder Schritt setzt seine eigene, frisch erteilte Freigabe voraus. Das lokale
-Harness-Gate aus Abschnitt 4.4 ist fuer den aktuellen Stand **erfuellt**.
-Offen bleiben die Production-Freigaben und die unmittelbar vor `04` zu
-wiederholenden Preis-/Bildpruefungen.
+Harness-Gate aus Abschnitt 4.4 ist fuer den aktuellen Stand **ERFUELLT**. Offen
+bleiben die Production-Freigaben und die unmittelbar vor `04` zu wiederholenden
+Preis-/Bildpruefungen.
 
-0. **Vorbedingung lokales Gate — erfuellt.** Der aktuelle Lauf ergab
-   **164/164**, 0 Abweichungen, Exit 0 und die Zeile
+0. **Vorbedingung lokales Gate — erfuellt.** Der aktuelle Vollauf ergab
+   **166/166**, Records=STEP=166, 0 Abweichungen, Exit 0 und die Zeile
    `[PASS] coverage_schrittzahl`.
 1. **Freigabe #1 einholen.** Zielprojekt sichtbar pruefen.
    `01_preflight_read_only.sql` ausfuehren. Erwartet: 29 Zeilen, 23 PASS,
@@ -586,16 +653,18 @@ ist wieder aufgehoben. Das ist der korrekte Ausgang, kein Fehler.
 
 ---
 
-## 8. Noch nicht ausgefuehrte Gates
+## 8. Gate- und Freigabestatus
 
 | Gate | Wer | Stand |
 |---|---|---|
-| Lokaler PostgreSQL-Harness `test/run_local_postgres_test.sh` fuer den **aktuellen** Stand | Codex | **164/164 PASS, 0 Abweichungen, Records=STEP=164, Coverage PASS, Exit 0, PostgreSQL 16.15** (`/tmp/cbb-qftest.v85MjgLU/results.tsv`) |
+| Lokaler PostgreSQL-Harness `test/run_local_postgres_test.sh` fuer den **aktuellen** Stand | Codex | **166/166 PASS, 0 Abweichungen, Records=STEP=166, Coverage PASS, Exit 0, PostgreSQL 16.15** (`/tmp/cbb-qftest.TBdYphBg/results.tsv`) |
+| Historie: Harness-Lauf auf Commit `179ef1f` | Codex | 164/164 PASS, 0 Abweichungen, Records=STEP=164, Coverage PASS, Exit 0 (PostgreSQL 16.15) — Artefakt `/tmp/cbb-qftest.v85MjgLU/results.tsv`, gilt **nicht** fuer den aktuellen Stand |
 | Historie: Harness-Lauf auf Commit `250ad42` | Codex | 160/160 PASS, 0 Abweichungen, Coverage PASS, Exit 0 (PostgreSQL 16.15) — gilt **nicht** fuer den aktuellen Stand |
 | Historie: Harness-Lauf nach der A4-Erweiterung | Codex | 145/145 PASS, 0 Abweichungen, Exit 0 (PostgreSQL 16.15, 2026-08-30) — gilt **nicht** fuer den aktuellen Stand |
 | Historie: Harness-Lauf vor der Erweiterung | Codex | 119/119 PASS, 0 Abweichungen, Exit 0 (2026-08-30) — gilt **nicht** fuer den aktuellen Stand |
 | Unabhaengiges Codex-Audit der sechs SQL-Dateien (`--profile deep`) | Codex | **abgeschlossen**; A4-lastmod getrennt, No-Op-Zeitstempel- und Backup-Identitaetspfade nachgehaertet, Triggervertrag geprueft |
-| Zweite Opus-Endpruefung (struktureller Triggervertrag, Kommentarbereinigung, D7-Zeile) | Claude/Codex | Befunde umgesetzt; unabhaengiges Audit und lokaler 164er-Lauf **abgeschlossen** |
+| Zweite Opus-Endpruefung (struktureller Triggervertrag, Kommentarbereinigung, D7-Zeile) | Claude/Codex | Befunde umgesetzt; unabhaengiges Audit und lokaler 164er-Lauf **abgeschlossen** (Stand `179ef1f`) |
+| Dritte Opus-Endpruefung (regexp_count-Versionsabhaengigkeit, positionsunabhaengige Zuweisungszaehlung, Reihenfolge der Kommentarbereinigung, minimaler Guard, Beschreibungen, Sollzahl) | Claude/Codex | alle sechs Befunde **umgesetzt**; unabhaengiges Audit und 166er-Vollauf **abgeschlossen** |
 | Erneute Preispruefung ASIN `B07HHXWN3C` unmittelbar vor `04` | Codex/Benutzer | **offen** |
 | Erneute Erreichbarkeitspruefung der neun Bild-URLs unmittelbar vor `04` | Codex/Benutzer | **offen** |
 | Freigabe #1 bis #5 (Production) | Benutzer | **offen** |

@@ -204,10 +204,10 @@ CURRENT_CASE="-"
 # Zusammensetzung (jede Einheit schreibt genau einen Record):
 #   13  case_0_statisch (1 appnamen, 3 set_local, 3 read_only, 6 kein_drop)
 #    6  fixture
-#  143  Fallstufen inkl. der beiden Konkurrenzlaeufe
+#  145  Fallstufen inkl. der beiden Konkurrenzlaeufe
 #    2  die beiden inline gefuehrten F-Stufen
 #       (f_02_unter_sperre, f_locker_terminiert)
-ERWARTETE_SCHRITTE=164
+ERWARTETE_SCHRITTE=166
 
 printf 'case\tstep\tlabel\tfile\texpect\texit\tverdict\tdetail\n' > "$RESULTS"
 
@@ -986,6 +986,15 @@ report_table_expect_fail case_k_triggervertrag k_01_ohne_guard \
 step case_k_triggervertrag ok k_setup_guard_dummy_zuweisung_danach \
   "$HERE/cases/setup_trigger_guard_dummy_zuweisung_danach.sql"
 report_table_expect_fail case_k_triggervertrag k_01_guard_dummy_zuweisung_danach \
+  "$SQL_DIR/01_preflight_read_only.sql" products_updated_at_triggervertrag
+# Korrekter Guard mit korrekter Zuweisung — und danach eine zweite,
+# bedingungslose Zuweisung in einer LOOP. Geordnete Regex und END-IF-Zaehlung
+# passen weiterhin; nur die positionsunabhaengige Zaehlung der Zuweisungen
+# sieht den zweiten Schreiber. Eine Zaehlung, die an Statementpositionen
+# haengt, wuerde diesen Rumpf durchlassen.
+step case_k_triggervertrag ok k_setup_zweite_zuweisung_in_schleife \
+  "$HERE/cases/setup_trigger_zweite_zuweisung_in_schleife.sql"
+report_table_expect_fail case_k_triggervertrag k_01_zweite_zuweisung_in_schleife \
   "$SQL_DIR/01_preflight_read_only.sql" products_updated_at_triggervertrag
 step case_k_triggervertrag ok k_setup_trigger_entfernt \
   "$HERE/cases/setup_trigger_entfernt.sql"

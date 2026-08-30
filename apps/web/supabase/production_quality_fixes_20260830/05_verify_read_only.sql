@@ -1,6 +1,9 @@
 -- ============================================================================
 -- PRODUCTION QUALITY-FIXES 2026-08-30 — 05 READ-ONLY ABSCHLUSSPRUEFUNG
 -- ============================================================================
+-- Zielprojekt ausserhalb von SQL sichtbar pruefen:
+--   project/ydiihvzcxaaoqhmgoqvu
+--
 -- Laeuft NACH 04_apply_quality_fixes.sql.
 --
 -- FORM
@@ -493,8 +496,13 @@ checks as (
     'INFO: 16 vor der Korrektur, 13 danach', 'INFO'
   from summary
   union all
-  select 310, 'd7_tosy_flying_disc', 'nicht Teil dieses Pakets',
-    'INFO: bewusste redaktionelle Trennung zweier ASINs, siehe RUNBOOK Abschnitt 6',
+  -- D7 bleibt eine absichtliche redaktionelle Variante und wurde von 04 nicht
+  -- angefasst. Belegt sind getrennte Slugs, Preise, Bilder und Einordnung; im
+  -- Klartext belegt das Repo nur EINE ASIN (B0B1YMNGS2, 108-RGB-Variante). Die
+  -- fruehere Aussage "zwei verschiedene ASINs" ist damit zurueckgenommen.
+  select 310, 'd7_tosy_flying_disc', 'nicht Teil dieses Pakets, kein DML',
+    'INFO: bewusste redaktionelle Variante — getrennte Slugs, Preise, Bilder '
+      || 'und Einordnung; das Repo belegt nur eine ASIN. Siehe RUNBOOK Abschnitt 6',
     'INFO'
   from summary
   union all

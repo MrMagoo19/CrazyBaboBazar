@@ -1,6 +1,9 @@
 -- ============================================================================
 -- PRODUCTION QUALITY-FIXES 2026-08-30 — 03 READ-ONLY PRUEFUNG DES BACKUPS
 -- ============================================================================
+-- Zielprojekt ausserhalb von SQL sichtbar pruefen:
+--   project/ydiihvzcxaaoqhmgoqvu
+--
 -- Laeuft NACH 02_backup_quality_fixes.sql und VOR 04_apply_quality_fixes.sql.
 --
 -- FORM

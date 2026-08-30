@@ -18,12 +18,13 @@
 --
 -- WIEDERHOLBARKEIT
 --   Existieren beide Backup-Tabellen bereits UND enthalten sie exakt den
---   bekannten Vorzustand (Zeilenzahl, Slug-Menge, alle Vorwerte, RLS, 0
+--   bekannten Vorzustand (Zeilenzahl, Zeilenidentitaet ueber id UND slug,
+--   Slug-Menge, alle Vorwerte, updated_at nicht NULL, RLS, 0
 --   Policies, keine direkten oder geerbten App-Rechte auf Schema und Tabellen),
 --   ist dieser Lauf ein No-Op: er schreibt nichts
 --   und meldet das. Jede Abweichung — nur eine der beiden Tabellen vorhanden,
---   falsche Zeilenzahl, veraenderter Inhalt, geoeffnete Rechte — bricht die
---   Transaktion ab. Es wird nie ein zweites Mal ueber einen bereits
+--   falsche Zeilenzahl, fremde id, veraenderter Inhalt, geoeffnete Rechte —
+--   bricht die Transaktion ab. Es wird nie ein zweites Mal ueber einen bereits
 --   korrigierten Stand gesichert.
 --
 -- FAIL CLOSED GEGEN NEBENLAEUFIGKEIT
@@ -368,9 +369,10 @@ join cbb_qf_listen e on e.slug = l.slug;
 -- Ablauf:
 --   1. Ist genau eine der beiden Backup-Tabellen vorhanden -> Abbruch.
 --      Ein halbes Backup ist kein Backup.
---   2. Sind BEIDE vorhanden -> vollstaendig pruefen (Zeilenzahl, Slug-Menge,
---      Inhalt gegen den bekannten Vorzustand, RLS, Policies, Rechte). Bestehen
---      sie die Pruefung, ist dieser Lauf ein No-Op. Sonst Abbruch.
+--   2. Sind BEIDE vorhanden -> vollstaendig pruefen (Zeilenzahl, Zeilenidentitaet
+--      ueber id UND slug, Inhalt gegen den bekannten Vorzustand, updated_at
+--      nicht NULL, RLS, Policies, Rechte). Bestehen sie die Pruefung, ist dieser
+--      Lauf ein No-Op. Sonst Abbruch.
 --   3. Ist keine vorhanden -> Vorzustand sperrfrei pruefen, dann alle zehn
 --      Zielzeilen sperren, den Vorzustand NACH dem Lock erneut vollstaendig
 --      pruefen, und erst danach den Snapshot anlegen und absichern.
@@ -423,6 +425,29 @@ begin
     if backup_produkt_zeilen <> 7 or backup_listen_zeilen <> 3 then
       raise exception 'QF-Backup abgebrochen: vorhandenes Backup hat %/7 Produkt- und %/3 Listenzeilen.',
         backup_produkt_zeilen, backup_listen_zeilen;
+    end if;
+
+    -- ---- Zeilenidentitaet des vorhandenen Snapshots -----------------------
+    -- Der Neuanlage-Pfad sichert ueber cbb_qf_identitaet_* ausdruecklich
+    -- DIESELBEN Zeilen (id UND slug, siehe die beiden
+    -- "create table cbb_private_backup..."-Bloecke weiter unten); 04 sperrt spaeter
+    -- Zeilenpaare ueber b.id = p.id and b.slug = p.slug, und 06 schreibt ueber
+    -- die id zurueck. Der No-Op-Zweig verglich bisher nur Inhalte je slug. Ein
+    -- Snapshot mit passendem Inhalt, aber fremder id waere damit still als
+    -- gueltiger Rollback-Pfad durchgegangen, obwohl 06 ihn nirgends mehr
+    -- zuordnen kann. Deshalb hier dieselbe Identitaetspruefung, fail-closed und
+    -- VOR jedem fruehen RETURN.
+    select count(*) into identitaet_produkte
+    from cbb_private_backup.quality_fixes_20260830_products_v1 b
+    join cbb_qf_identitaet_produkte i on i.id = b.id and i.slug = b.slug;
+
+    select count(*) into identitaet_listen
+    from cbb_private_backup.quality_fixes_20260830_lists_v1 b
+    join cbb_qf_identitaet_listen i on i.id = b.id and i.slug = b.slug;
+
+    if identitaet_produkte <> 7 or identitaet_listen <> 3 then
+      raise exception 'QF-Backup abgebrochen: vorhandenes Backup beschreibt nicht dieselben Zeilen wie public.products/public.lists (Identitaet ueber id und slug: %/7 Produkte, %/3 Listen).',
+        identitaet_produkte, identitaet_listen;
     end if;
 
     select

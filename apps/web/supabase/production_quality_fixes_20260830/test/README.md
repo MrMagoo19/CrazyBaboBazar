@@ -2,16 +2,50 @@
 
 ## Status
 
-**`145/145 PASS, 0 Abweichungen, Exit 0`.**
+> [!success] AKTUELLER STAND: **BESTANDEN**
+> Der unabhaengige Vollauf des aktuellen Paketstands bestand am 2026-08-30
+> gegen PostgreSQL **16.15** mit **160/160 PASS**, **0 Abweichungen**,
+> Coverage-Assertion PASS und Exit **0**. Ergebnisdatei:
+> `/tmp/cbb-qftest.549lsB6T/results.tsv`; Einzelprotokolle:
+> `/tmp/cbb-qftest.549lsB6T/logs/`. Der Cluster wurde danach sauber gestoppt;
+> PGDATA und Socketverzeichnis wurden entfernt.
 
-Codex hat den erweiterten Stand am 2026-08-30 gegen PostgreSQL **16.15**
+### Was seit dem 145er-Lauf hinzugekommen ist
+
+* **Neue Pruefzeile in `01`:** `products_updated_at_triggervertrag`
+  (Sortierung 156). Sie liest den **Systemkatalog** (`pg_trigger`, `pg_proc`,
+  `pg_get_triggerdef`, `pg_get_functiondef`) und belegt den deployten
+  `updated_at`-Vertrag auf `public.products`: genau ein aktiver
+  `BEFORE UPDATE FOR EACH ROW` Trigger `products_set_updated_at` auf
+  `public.products_touch_updated_at`, kein `shop_sub_category` im
+  Funktionsrumpf, ein ausdruecklich gesetztes `NEW.updated_at` bleibt stehen,
+  und keine andere aktive Triggerfunktion fasst `updated_at` an. Fehlt der
+  Vertrag oder weicht er ab, meldet die Zeile FAIL — und `04` darf nicht
+  laufen. Die exakte PASS-Erwartung fuer `01` steigt damit von **22 auf 23**.
+* **Neuer Fall `case_k_triggervertrag`** (9 Schritte): bricht den Vertrag
+  dreimal unterschiedlich (Bump auf `shop_sub_category`, fehlender
+  `updated_at`-Guard, Trigger entfernt) und verlangt jedes Mal die FAIL-Zeile.
+  Zwei Kontrollschritte mit dem echten, unveraenderten Trigger davor und
+  danach zeigen, dass die FAILs von der Manipulation kommen.
+* **Neuer Fall `case_di_backup_identitaet`** (6 Schritte): der
+  No-Op-Zweig von `02` prueft die Zeilenidentitaet jetzt ueber **`id` UND
+  `slug`** — symmetrisch zum Neuanlage-Pfad und zu `04`/`06`. Der Fall
+  manipuliert eine Backup-**id** bei unveraendertem Inhalt.
+* **Coverage-Assertion am Ende des Harness:** die Soll-Schrittzahl
+  `ERWARTETE_SCHRITTE=160` wird gegen die tatsaechlich nach `results.tsv`
+  geschriebenen Records geprueft. Eine spaeter entfernte Teststufe kann damit
+  nicht mehr als `GESAMT: PASS` durchgehen. Die Assertion legt selbst **keinen**
+  Record an.
+
+### Der vorherige Vollauf (`145/145`, Paketstand davor)
+
+Codex hat diesen Stand am 2026-08-30 gegen PostgreSQL **16.15**
 vollstaendig ausgefuehrt. Ergebnisdatei:
 `/tmp/cbb-qftest.AgI5UJsx/results.tsv`; Einzelprotokolle:
 `/tmp/cbb-qftest.AgI5UJsx/logs/`. Der Cluster wurde danach sauber gestoppt,
-PGDATA und Socketverzeichnis wurden entfernt. Die dauerhafte Zusammenfassung
-steht in [`../LOCAL_TEST_REPORT.md`](../LOCAL_TEST_REPORT.md).
+PGDATA und Socketverzeichnis wurden entfernt.
 
-Was sich geaendert hat:
+Was sich zu diesem Lauf geaendert hatte:
 
 * **Siebtes Zielprodukt** `plasmakugel-8-zoll-beruehrungsempfindlich` (A4,
   Kategorie). Die Zielzeilenzaehler sind von `6` auf `7` gestiegen. Die
@@ -19,8 +53,9 @@ Was sich geaendert hat:
   gerenderte Unterkategorie und behaelt sein historisches `updated_at`.
 * **Zwei neue Diagnosezeilen in `01`** (`a4_kategorie_vorzustand_basteln`,
   `lastmod_zielprodukte_updated_at_nicht_null`) und **eine in `05`**
-  (`a4_kategorie_zielzustand_gadgets`). Die exakten PASS-Erwartungen sind
-  deshalb jetzt **01 → 22**, **03 → 16**, **05 → 23**.
+  (`a4_kategorie_zielzustand_gadgets`). Die exakten PASS-Erwartungen waren
+  damit **01 → 22**, **03 → 16**, **05 → 23**; seit der Triggervertrags-Zeile
+  gilt **01 → 23**.
 * **Vier neue Faelle** in sechs neuen Case-Dateien: `case_i_rolle_fehlt`,
   `case_j_updated_at_null`, `case_j2_updated_at_null_vor_04`,
   `case_j3_updated_at_null_vor_06`.
@@ -50,8 +85,9 @@ Ergebnisdatei dieses historischen Laufs:
 `/tmp/cbb-qftest.qWvTWbdG/logs/`. Der lokale Cluster wurde danach sauber
 gestoppt; PGDATA und Socketverzeichnis wurden entfernt.
 
-**Diese 119/119 sind kein Nachweis fuer den heutigen Paketstand.** Der
-verbindliche Nachweis ist der oben dokumentierte definitive 145er-Vollauf.
+**Weder die 119/119 noch die 145/145 sind ein Nachweis fuer den heutigen
+Paketstand.** Diesen Nachweis liefert der aktuelle 160/160-Lauf mit eigener
+Coverage-Assertion.
 
 ## Was er testet
 
@@ -120,7 +156,7 @@ Die Vorlage-Datenbank `cbb_fixture` bildet den Production-Vorzustand vom
 | `fixture/00_roles.sql` | `anon`, `authenticated`, `service_role` (letztere mit `BYPASSRLS`) — ohne sie scheitern die `REVOKE`-Statements in `02`, und die Rechte-Guards in `02`/`04`/`06` brechen an ihrer harten Rollen-Vorbedingung ab |
 | `fixture/01_schema.sql` | Production-aehnliches Schema inklusive der Spaltendefaults `unknown / sonstiges / ungeordnet`, die den B2-Vorzustand ueberhaupt erklaeren; `products` mit RLS und zwei Policies; App-Rollen mit vollen Rechten auf `public` |
 | `fixture/02_seed.sql` | sieben Zielprodukte im belegten Vorzustand, drei Ziellisten mit den exakten Arrays, beide A4-Zielprodukte (eines davon ist zugleich das siebte Zielprodukt), 320 Fuellzeilen (> 300er-Grenze), zwei Nichtziel-Listen |
-| `../../seo_updated_at_trigger.sql` | der echte Trigger, unveraendert |
+| `../../seo_updated_at_trigger.sql` | der echte Trigger, unveraendert. Er ist zugleich der Pruefgegenstand der neuen `01`-Zeile `products_updated_at_triggervertrag`: weil hier die Originaldatei geladen wird, prueft der lokale Test denselben Katalogvertrag, der spaeter auf Production stehen muss — keine Nachbildung |
 | `fixture/03_baseline.sql` | `md5(to_jsonb(zeile))` jeder Produkt- und Listenzeile im Hilfsschema `cbb_test` |
 | `cases/assert_base_state.sql` | Gegenprobe: der Vorzustand stimmt wirklich |
 
@@ -149,15 +185,27 @@ sind cluster-weit**. Deshalb haben zwei Faelle ein eigenes Teardown:
 `case_d5` entfernt die Hilfsrolle und stellt `anon` wieder auf `NOINHERIT`,
 `case_i` benennt `authenticated` zurueck (siehe unten).
 
+Die Triggermanipulationen in `case_k_triggervertrag` sind reines DDL und damit
+**datenbanklokal** — sie brauchen kein clusterweites Teardown. Der Fall stellt
+den echten Trigger trotzdem am Ende wieder her, weil der Kontrollschritt danach
+sonst nichts belegen wuerde.
+
 ## Schaerfe der Erwartungen
 
 * Ein erwarteter Abbruch gilt **nur** dann als PASS, wenn `psql` mit **Exit 3**
   zurueckkommt **und** die konkrete erwartete Servermeldung im Output steht.
   „Irgendein Exit ungleich 0“ reicht nie. Ein anderer Fehler als der erwartete
   ist FAIL, nicht PASS.
-* `report_table` verlangt **exakte** PASS-Zahlen — `01` → 22, `03` → 16,
+* `report_table` verlangt **exakte** PASS-Zahlen — `01` → 23, `03` → 16,
   `05` → 23 — bei 0 FAIL-Zeilen. Eine stillschweigend geschrumpfte Pruefliste
   faellt damit auf, statt als PASS durchzugehen.
+* Am Ende steht eine **Coverage-Assertion** auf die Soll-Schrittzahl
+  `ERWARTETE_SCHRITTE=160`. Sie zaehlt die bereits nach `results.tsv`
+  geschriebenen Records (ohne Kopfzeile) und legt selbst keinen an. `FAILURES=0`
+  belegt nur, dass die **ausgefuehrten** Stufen bestanden haben — nicht, dass
+  alle Stufen ausgefuehrt wurden. Faellt eine Stufe weg, endet der Lauf mit
+  `GESAMT: FAIL`. Die Zahl ist bewusst hart verdrahtet und muss bei jeder
+  gewollten Erweiterung mitgezogen werden.
 * `report_table_expect_fail` verlangt umgekehrt eine **namentlich** benannte
   FAIL-Zeile.
 * Der Lock-Test verlangt Exit 3, die Meldung
@@ -193,7 +241,9 @@ nicht aussagekraeftig.
 | `case_c3_fremdspalte` | `tagline` driftet — eine Spalte, die das Paket gar nicht anfasst und die keine Vorzustandspruefung abdeckt. `04` muss trotzdem abbrechen, weil der vollstaendige `to_jsonb`-Vergleich gegen das Backup zusaetzlich laeuft |
 | `case_c4_gemischt` | eine Zeile steht bereits im Zielzustand, neun nicht → `04` bricht ab. Danach weicht **genau eine** Zeile von der Baseline ab: die vom Setup gesetzte |
 | `case_c5_fehlende_zeile` | eine Zielzeile ist geloescht → `02` bricht ab (6/7), `04` findet kein Backup |
+| `case_k_triggervertrag` | der deployte `updated_at`-Vertrag auf `public.products` wird dreimal unterschiedlich gebrochen — Bump auf `shop_sub_category`, fehlender `updated_at`-Guard, Trigger entfernt. `01` muss jedes Mal `products_updated_at_triggervertrag` als FAIL melden. Zwei Kontrollschritte mit dem echten Trigger (23 PASS) davor und danach belegen, dass die FAILs von der Manipulation kommen und nicht vom Fall. Geprueft wird der Systemkatalog, nicht ein Kommentar |
 | `case_d_backup_manipuliert` | veraenderter Backup-Inhalt → `04`, `06` **und** ein Wiederholungslauf von `02` brechen ab |
+| `case_di_backup_identitaet` | der Backup-**Inhalt** ist korrekt, nur eine Zeilen-**id** ist fremd. `06` schreibt ueber die `id` zurueck, `04` sperrt Zeilenpaare ueber `id` UND `slug` — ein reiner Inhaltsvergleich je `slug` sieht davon nichts. Der No-Op-Zweig von `02` haette den Snapshot frueher durchgewunken; jetzt bricht er mit `Identitaet ueber id und slug: 6/7` ab, `04` mit `6/7 Produkt-Zeilenpaare`, `06` mit `Produkt-Backup passt zu 6/7`. Ergaenzt `case_d_backup_manipuliert`, ersetzt ihn nicht |
 | `case_d2_backup_leer` | Tabelle existiert, Inhalt weg → `04`, `06` und `02` brechen mit der exakten Zeilenzahl `0/7` ab. Eine Datei, die nur auf Existenz prueft, waere hier durchgelaufen |
 | `case_d3_halbes_backup` | nur eine der beiden Backup-Tabellen existiert → `02` ergaenzt sie **nicht** stillschweigend, sondern bricht ab |
 | `case_d4_backup_offen` | direkter `GRANT SELECT` an `anon` → `04` und `06` brechen mit `direkt 1, effektiv 1` ab; `03` meldet dieselbe Sache als FAIL-Zeile statt still PASS |

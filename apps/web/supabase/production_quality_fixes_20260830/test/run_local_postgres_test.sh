@@ -30,8 +30,12 @@
 #   * Ein erwarteter Abbruch gilt NUR dann als PASS, wenn psql mit Exit 3
 #     zurueckkommt UND die konkrete erwartete Servermeldung im Output steht.
 #     Ein anderer Fehler ist FAIL, kein PASS. "Irgendein Exit != 0" reicht nie.
-#   * report_table verlangt EXAKTE PASS-Zahlen: 01 -> 22, 03 -> 16, 05 -> 23,
+#   * report_table verlangt EXAKTE PASS-Zahlen: 01 -> 23, 03 -> 16, 05 -> 23,
 #     jeweils bei 0 FAIL-Zeilen. Eine geschrumpfte Pruefliste faellt damit auf.
+#   * Am Ende steht eine maschinelle Coverage-Assertion auf die Soll-Schrittzahl
+#     ERWARTETE_SCHRITTE. Eine spaeter entfernte Teststufe kann damit nicht mehr
+#     als "GESAMT: PASS" durchgehen. Die Assertion zaehlt die bereits
+#     geschriebenen Records in results.tsv und legt selbst keinen an.
 #   * report_table_expect_fail verlangt umgekehrt eine benannte FAIL-Zeile.
 #   * Der Lock-Test verlangt Exit 3, die Meldung
 #     "canceling statement due to lock timeout" und eine Laufzeit um 5 s.
@@ -187,6 +191,23 @@ export PGDATABASE=postgres
 STEP=0
 FAILURES=0
 CURRENT_CASE="-"
+
+# Soll-Schrittzahl dieses Harness. Sie wird ganz am Ende gegen die tatsaechlich
+# nach results.tsv geschriebenen Records geprueft (Coverage-Assertion).
+#
+# Warum es sie gibt: FAILURES=0 beweist nur, dass die AUSGEFUEHRTEN Stufen
+# bestanden haben — nicht, dass alle Stufen ausgefuehrt wurden. Wer eine Stufe
+# entfernt oder auskommentiert, bekaeme sonst weiterhin "GESAMT: PASS". Die
+# Zahl ist deshalb bewusst hart verdrahtet und muss bei jeder gewollten
+# Erweiterung bewusst mitgezogen werden.
+#
+# Zusammensetzung (jede Einheit schreibt genau einen Record):
+#   13  case_0_statisch (1 appnamen, 3 set_local, 3 read_only, 6 kein_drop)
+#    6  fixture
+#  139  Fallstufen inkl. der beiden Konkurrenzlaeufe
+#    2  die beiden inline gefuehrten F-Stufen
+#       (f_02_unter_sperre, f_locker_terminiert)
+ERWARTETE_SCHRITTE=160
 
 printf 'case\tstep\tlabel\tfile\texpect\texit\tverdict\tdetail\n' > "$RESULTS"
 
@@ -911,7 +932,7 @@ fi
 # CASE A — Happy Path 01 -> 05 in der vorgesehenen Reihenfolge, plus Idempotenz
 # ===========================================================================
 new_case case_a_happy_path "01 bis 05 in Reihenfolge, danach 02 und 04 wiederholt"
-report_table case_a_happy_path a_01_preflight "$SQL_DIR/01_preflight_read_only.sql" 22
+report_table case_a_happy_path a_01_preflight "$SQL_DIR/01_preflight_read_only.sql" 23
 step         case_a_happy_path ok a_02_backup "$SQL_DIR/02_backup_quality_fixes.sql"
 report_table case_a_happy_path a_03_verify_backup "$SQL_DIR/03_verify_backup_read_only.sql" 16
 # 02 ein zweites Mal: identischer Snapshot -> No-Op, kein Abbruch.
@@ -929,6 +950,43 @@ step case_a_happy_path ok a_snapshot        "$HERE/cases/snapshot_nach_04.sql"
 step case_a_happy_path ok a_04_wiederholung "$SQL_DIR/04_apply_quality_fixes.sql"
 step case_a_happy_path ok a_04_noop_assert  "$HERE/cases/assert_04_unveraendert.sql"
 report_table case_a_happy_path a_05_nach_wiederholung "$SQL_DIR/05_verify_read_only.sql" 23
+
+# ===========================================================================
+# CASE K — der deployte updated_at-Triggervertrag
+# ===========================================================================
+# Zwei Zusagen des Pakets haengen nicht am Paket-SQL, sondern an einem Vertrag
+# auf der Zieldatenbank (supabase/seo_updated_at_trigger.sql):
+#   * ein von 04 ausdruecklich gesetztes updated_at bleibt stehen,
+#   * shop_sub_category loest keinen Zeitstempel-Bump aus (A4 ohne lastmod).
+# 01 prueft diesen Vertrag seit der Erweiterung direkt im Systemkatalog
+# (pg_trigger, pg_proc, pg_get_triggerdef, pg_get_functiondef). Dieser Fall
+# belegt, dass die Pruefung wirklich am Katalog haengt und nicht an einem
+# Kommentar: der Vertrag wird dreimal auf unterschiedliche Weise gebrochen, und
+# 01 muss jedes Mal genau die Zeile products_updated_at_triggervertrag als FAIL
+# melden. Die beiden Kontrollschritte davor und danach zeigen, dass die FAILs
+# von der Manipulation kommen und nicht vom Fall selbst.
+#
+# Die Fixture traegt den ECHTEN Trigger (fx_real_trigger), die Manipulationen
+# sind DDL und damit auf diese Fall-Datenbank beschraenkt.
+new_case case_k_triggervertrag "01 prueft den deployten updated_at-Triggervertrag fail-closed"
+report_table case_k_triggervertrag k_01_vertrag_intakt \
+  "$SQL_DIR/01_preflight_read_only.sql" 23
+step case_k_triggervertrag ok k_setup_sub_category \
+  "$HERE/cases/setup_trigger_bumpt_sub_category.sql"
+report_table_expect_fail case_k_triggervertrag k_01_sub_category \
+  "$SQL_DIR/01_preflight_read_only.sql" products_updated_at_triggervertrag
+step case_k_triggervertrag ok k_setup_ohne_guard \
+  "$HERE/cases/setup_trigger_ohne_updated_at_guard.sql"
+report_table_expect_fail case_k_triggervertrag k_01_ohne_guard \
+  "$SQL_DIR/01_preflight_read_only.sql" products_updated_at_triggervertrag
+step case_k_triggervertrag ok k_setup_trigger_entfernt \
+  "$HERE/cases/setup_trigger_entfernt.sql"
+report_table_expect_fail case_k_triggervertrag k_01_trigger_fehlt \
+  "$SQL_DIR/01_preflight_read_only.sql" products_updated_at_triggervertrag
+# Gegenprobe: mit dem echten, unveraenderten Trigger meldet 01 wieder 23 PASS.
+step case_k_triggervertrag ok k_vertrag_wiederhergestellt "$TRIGGER_SQL"
+report_table case_k_triggervertrag k_01_wieder_intakt \
+  "$SQL_DIR/01_preflight_read_only.sql" 23
 
 # ===========================================================================
 # CASE B — Reihenfolge-Verstoesse und fehlendes Backup
@@ -1021,6 +1079,33 @@ step case_d_backup_manipuliert fail d_02_abbruch \
   "$SQL_DIR/02_backup_quality_fixes.sql" \
   'QF-Backup abgebrochen: vorhandenes Backup entspricht nicht dem bekannten Vorzustand'
 step case_d_backup_manipuliert ok d_kein_zielzustand "$HERE/cases/assert_kein_zielzustand.sql"
+
+# ===========================================================================
+# CASE DI — Backup mit fremder Zeilen-id (Identitaet statt Inhalt)
+# ===========================================================================
+# Eigenstaendig neben CASE D, nicht als Ersatz: dort ist der INHALT manipuliert,
+# hier ist er korrekt und nur die ZUORDNUNG falsch. 06 schreibt ueber die id
+# zurueck, 04 sperrt Zeilenpaare ueber id UND slug — ein Backup mit fremder id
+# ist als Rollback-Pfad wertlos, faellt bei einem reinen Inhaltsvergleich je
+# slug aber nicht auf.
+#
+# Der No-Op-Zweig von 02 hat genau diese Luecke: er verglich Inhalte je slug und
+# haette den Snapshot als "identisch bereits vorhanden" durchgewunken. Seit der
+# Erweiterung prueft er dieselbe Identitaet wie der Neuanlage-Pfad und wie 04.
+# Der Fall belegt, dass alle drei schreibenden Dateien abbrechen.
+new_case case_di_backup_identitaet "Backup-Inhalt korrekt, aber eine Zeilen-id ist fremd"
+step case_di_backup_identitaet ok di_02_backup "$SQL_DIR/02_backup_quality_fixes.sql"
+step case_di_backup_identitaet ok di_setup "$HERE/cases/setup_backup_id_manipuliert.sql"
+step case_di_backup_identitaet fail di_02_abbruch \
+  "$SQL_DIR/02_backup_quality_fixes.sql" \
+  'QF-Backup abgebrochen: vorhandenes Backup beschreibt nicht dieselben Zeilen wie public.products/public.lists (Identitaet ueber id und slug: 6/7 Produkte, 3/3 Listen).'
+step case_di_backup_identitaet fail di_04_abbruch \
+  "$SQL_DIR/04_apply_quality_fixes.sql" \
+  'QF-Korrektur abgebrochen: 6/7 Produkt-Zeilenpaare aus products und Backup gesperrt.'
+step case_di_backup_identitaet fail di_06_abbruch \
+  "$SQL_DIR/06_restore_quality_fixes.sql" \
+  'QF-Restore abgebrochen: Produkt-Backup passt zu 6/7 Produktzeilen.'
+step case_di_backup_identitaet ok di_kein_zielzustand "$HERE/cases/assert_kein_zielzustand.sql"
 
 # ===========================================================================
 # CASE D2 — Backup existiert, ist aber leer
@@ -1413,8 +1498,34 @@ report_table case_f_lock_timeout f_03_verify_backup \
 # ===========================================================================
 head1 "Zusammenfassung"
 column -t -s $'\t' "$RESULTS" 2>/dev/null || cat "$RESULTS"
+
+# ---------------------------------------------------------------------------
+# Coverage-Assertion — maschinell, nicht als Zusage im Text
+#
+# Gezaehlt werden die bereits nach results.tsv geschriebenen Records (Zeilen
+# ohne die Kopfzeile). Die Assertion legt bewusst KEINEN eigenen Record an: sie
+# prueft den Umfang des Laufs, sie ist keine weitere Teststufe.
+#
+# Wirkung: faellt eine Stufe weg — auskommentiert, versehentlich geloescht oder
+# durch einen frueheren Abbruch nie erreicht — bleibt FAILURES zwar 0, die
+# Recordzahl unterschreitet aber das Soll. Der Lauf endet dann mit
+# "GESAMT: FAIL". Ein stillschweigend geschrumpfter Testumfang kann so nicht
+# mehr als vollstaendiger PASS gelten.
+# ---------------------------------------------------------------------------
+RECORDS_GESCHRIEBEN=$(( $(wc -l < "$RESULTS") - 1 ))
+if [[ $RECORDS_GESCHRIEBEN -eq $ERWARTETE_SCHRITTE ]]; then
+  log ""
+  log "  [PASS] coverage_schrittzahl: $RECORDS_GESCHRIEBEN von $ERWARTETE_SCHRITTE Records geschrieben"
+else
+  mark_fail
+  log ""
+  log "  [FAIL] coverage_schrittzahl: $RECORDS_GESCHRIEBEN Records statt $ERWARTETE_SCHRITTE"
+  log "         (STEP-Zaehler: $STEP). Der Lauf war nicht vollstaendig — kein GESAMT PASS."
+fi
+
 log ""
-log "Schritte gesamt: $STEP"
+log "Schritte gesamt: $STEP (Soll: $ERWARTETE_SCHRITTE)"
+log "Records:         $RECORDS_GESCHRIEBEN"
 log "Abweichungen:    $FAILURES"
 log "Ergebnisdatei:   $RESULTS"
 log "Logverzeichnis:  $LOGDIR"

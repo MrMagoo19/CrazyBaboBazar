@@ -5,7 +5,8 @@
 --   project/ydiihvzcxaaoqhmgoqvu
 --
 -- WOFUER DIESES PAKET DA IST
---   Es korrigiert genau vier belegte Produktionsbefunde und nichts sonst:
+--   Es korrigiert genau fuenf belegte Produktionsbefunde (A4, A5, B2, B5, D6)
+--   und nichts sonst:
 --     A4  zwei Listen verweisen auf einen Produkt-Slug mit Schreibfehler
 --         (verrueckte-amazon-gadgets Position 4, witzige-geschenke-maenner
 --         Position 2). Die korrekten Produkte existieren, die Listeneintraege
@@ -33,9 +34,18 @@
 --
 --   NICHT Teil dieses Pakets ist D7 (die beiden TOSY-Flying-Disc-Produkte).
 --   Der Befund ist nach Repo-Audit KEIN Datenfehler, sondern eine bewusste
---   redaktionelle Trennung zweier Artikel mit verschiedenen ASINs. Begruendung
---   und Beleg stehen in RUNBOOK.md, Abschnitt 6. Dieses Paket fasst die beiden
---   Zeilen nicht an.
+--   redaktionelle Variante. Belegt sind aus dem Repo: getrennte Slugs,
+--   getrennte Preise (3599 / 2999), getrennte aktuelle Bilder
+--   (51QWMABiNIL / 81vsAxy1YLL) und getrennte redaktionelle Einordnung
+--   (babo/lifestyle/gadgets gegen miniboss/spass/outdoor, mit dem
+--   ausdruecklichen Kommentar "Miniboss-Version" in
+--   reassign_all_categories.sql Z. 752). Im Klartext belegt das Repo dagegen
+--   nur EINE ASIN — B0B1YMNGS2 fuer die 108-RGB-Variante
+--   (import_products_batch8.sql Z. 49); die zweite Zeile traegt dort nur einen
+--   Amazon-Kurzlink. Von "zwei verschiedenen ASINs" wird deshalb nicht mehr
+--   ausgegangen; die Trennung haengt nicht daran. Begruendung und Beleg stehen
+--   in RUNBOOK.md, Abschnitt 6. Es gibt kein DML fuer D7, dieses Paket fasst
+--   die beiden Zeilen nicht an.
 --
 -- FORM
 --   Genau ein lesendes WITH ... SELECT. Kein DDL, kein DML, keine
@@ -46,8 +56,11 @@
 --     der beiden, bricht bereits die Planung ab.
 --   * Die beiden Backup-Tabellen dieses Pakets duerfen hier noch NICHT
 --     existieren und werden deshalb nur weich ueber to_regclass geprueft.
+--   * Der deployte updated_at-Triggervertrag auf public.products wird gegen
+--     den Systemkatalog geprueft (Sortierung 156). Fehlt er oder weicht er ab,
+--     meldet diese Zeile FAIL — und Schritt 04 darf nicht laufen.
 --
--- ERWARTETES ERGEBNIS: 28 Zeilen — 22 harte PASS-Zeilen (Sortierung 30 bis 220)
+-- ERWARTETES ERGEBNIS: 29 Zeilen — 23 harte PASS-Zeilen (Sortierung 30 bis 220)
 -- und 6 INFO-Zeilen (10, 20, 230 bis 260). Jede FAIL-Zeile ist ein Befund und
 -- keine Freigabe fuer Schritt 02.
 -- ============================================================================
@@ -428,6 +441,89 @@ gamer_info as (
     as gamer_laenge
 ),
 
+-- ---------------------------------------------------------------------------
+-- Der deployte updated_at-Triggervertrag auf public.products.
+--
+--   Zwei Zusagen dieses Pakets haengen nicht am Paket-SQL, sondern an einem
+--   Vertrag, der auf der Zieldatenbank deployt ist
+--   (supabase/seo_updated_at_trigger.sql):
+--     * die sechs sichtbaren Produktseiten bekommen GENAU den Zeitstempel, den
+--       04 ausdruecklich mitschreibt — der Trigger darf ihn nicht mit now()
+--       ueberschreiben;
+--     * die A4-Unterkategorie bekommt KEIN neues lastmod — shop_sub_category
+--       darf keinen Zeitstempel-Bump ausloesen.
+--   Beides ist auf Production nicht nachlesbar, sondern nur im Systemkatalog
+--   nachweisbar. Deshalb wird hier der Katalog gelesen (pg_trigger, pg_proc,
+--   pg_get_triggerdef, pg_get_functiondef) und nicht eine Repo-Datei.
+--
+--   Geprueft werden fuenf Groessen:
+--     1. aktive_before_update_trigger  Auf public.products liegt genau EIN
+--        nicht-interner, aktiver BEFORE UPDATE FOR EACH ROW Trigger. Mehr als
+--        einer hiesse: ein zweiter, unbekannter Schreiber auf NEW.
+--     2. vertragstrigger  Dieser eine Trigger heisst products_set_updated_at,
+--        haengt an public.products_touch_updated_at, hat keine WHEN-Klausel und
+--        traegt genau die erwartete Definition.
+--     3. ohne_sub_category  Der Funktionsrumpf nennt shop_sub_category
+--        nirgends. Damit kann die A4-Aenderung keinen Bump ausloesen.
+--     4. explizit_gesetzt_bleibt  Der Rumpf setzt updated_at genau einmal, und
+--        nur unter der Bedingung, dass der Aufrufer die Spalte NICHT selbst
+--        geschrieben hat.
+--     5. fremde_updated_at_trigger  Keine andere aktive Triggerfunktion auf
+--        public.products fasst updated_at ueberhaupt an.
+--
+--   Fehlt der Trigger, ist er abgeschaltet, zeigt er auf eine andere Funktion
+--   oder weicht der Rumpf ab, faellt mindestens eine der fuenf Groessen aus
+--   dem Soll und die Pruefzeile meldet FAIL. Das ist die Freigabesperre fuer
+--   Schritt 04.
+-- ---------------------------------------------------------------------------
+trigger_kandidaten as (
+  select
+    t.tgname::text as tgname,
+    (t.tgtype & 1) <> 0 as fuer_jede_zeile,
+    (t.tgtype & 2) <> 0 as vor_der_aenderung,
+    (t.tgtype & 16) <> 0 as bei_update,
+    t.tgqual is null as ohne_when_klausel,
+    (p.pronamespace::regnamespace)::text || '.' || p.proname::text as funktion,
+    pg_catalog.pg_get_triggerdef(t.oid) as triggerdef,
+    regexp_replace(pg_catalog.pg_get_functiondef(p.oid), '\s+', ' ', 'g')
+      as funktionsdef
+  from pg_catalog.pg_trigger t
+  join pg_catalog.pg_proc p on p.oid = t.tgfoid
+  where t.tgrelid = 'public.products'::regclass
+    and t.tgisinternal is false
+    and t.tgenabled in ('O', 'A')
+),
+
+trigger_vertrag as (
+  select
+    (select count(*) from trigger_kandidaten
+      where fuer_jede_zeile and vor_der_aenderung and bei_update)::integer
+      as aktive_before_update_trigger,
+    (select count(*) from trigger_kandidaten
+      where fuer_jede_zeile and vor_der_aenderung and bei_update
+        and ohne_when_klausel
+        and tgname = 'products_set_updated_at'
+        and funktion = 'public.products_touch_updated_at'
+        and triggerdef ~ ('BEFORE UPDATE ON (public\.)?products '
+                          || 'FOR EACH ROW EXECUTE FUNCTION '
+                          || '(public\.)?products_touch_updated_at\(\)$'))::integer
+      as vertragstrigger,
+    (select count(*) from trigger_kandidaten
+      where tgname = 'products_set_updated_at'
+        and funktionsdef !~* 'shop_sub_category')::integer
+      as ohne_sub_category,
+    (select count(*) from trigger_kandidaten
+      where tgname = 'products_set_updated_at'
+        and funktionsdef ~* 'if new\.updated_at is not distinct from old\.updated_at'
+        and array_length(
+              string_to_array(lower(funktionsdef), 'new.updated_at :='), 1) = 2)::integer
+      as explizit_gesetzt_bleibt,
+    (select count(*) from trigger_kandidaten
+      where tgname <> 'products_set_updated_at'
+        and funktionsdef ~* 'updated_at')::integer
+      as fremde_updated_at_trigger
+),
+
 summary as (
   select *
   from fingerprint f
@@ -435,6 +531,7 @@ summary as (
   cross join vorzustand v
   cross join zielzustand zz
   cross join gamer_info g
+  cross join trigger_vertrag tv
 ),
 
 checks as (
@@ -494,6 +591,22 @@ checks as (
     lastmod_zielprodukte_updated_at::text, '6',
     case when lastmod_zielprodukte_updated_at = 6 then 'PASS' else 'FAIL' end from summary
   union all
+  -- Der deployte Triggervertrag. Read-only aus dem Systemkatalog gelesen, nicht
+  -- aus einer Repo-Datei geschlossen. FAIL heisst: 04 darf nicht laufen.
+  select 156, 'products_updated_at_triggervertrag',
+    'aktive BEFORE UPDATE ROW Trigger=' || aktive_before_update_trigger::text
+      || ', vertragskonform=' || vertragstrigger::text
+      || ', ohne shop_sub_category=' || ohne_sub_category::text
+      || ', explizites updated_at bleibt=' || explizit_gesetzt_bleibt::text
+      || ', fremde updated_at-Trigger=' || fremde_updated_at_trigger::text,
+    '1, 1, 1, 1, 0',
+    case when aktive_before_update_trigger = 1
+           and vertragstrigger = 1
+           and ohne_sub_category = 1
+           and explizit_gesetzt_bleibt = 1
+           and fremde_updated_at_trigger = 0
+      then 'PASS' else 'FAIL' end from summary
+  union all
   select 160, 'a4_liste_verrueckte_vorzustand', l_verrueckte_pre::text, '1',
     case when l_verrueckte_pre = 1 then 'PASS' else 'FAIL' end from summary
   union all
@@ -528,8 +641,9 @@ checks as (
   from summary
   union all
   select 260, 'd7_tosy_flying_disc',
-    'nicht Teil dieses Pakets',
-    'INFO: bewusste redaktionelle Trennung zweier ASINs, siehe RUNBOOK Abschnitt 6',
+    'nicht Teil dieses Pakets, kein DML',
+    'INFO: bewusste redaktionelle Variante — getrennte Slugs, Preise, Bilder '
+      || 'und Einordnung; das Repo belegt nur eine ASIN. Siehe RUNBOOK Abschnitt 6',
     'INFO'
   from summary
 )

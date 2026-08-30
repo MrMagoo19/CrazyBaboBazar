@@ -2,20 +2,25 @@
 
 ## Status
 
-**`lokal vollstaendig getestet, nichts auf Production ausgefuehrt`**
+**`korrigiert nach Opus-Endpruefung, lokales Gate 160/160 bestanden,
+nichts auf Production ausgefuehrt`**
 
 Keine Datei dieses Verzeichnisses wurde gegen `project/ydiihvzcxaaoqhmgoqvu`
 (Production) oder `project/nmzuycveumyfvtxdcnuc` (Pilot) ausgefuehrt. Es gab
 keinen Production-Write, keinen Pilot-Write, keinen Push und kein Deploy.
 Codex hat den Production-Vorzustand der Zielzeilen per read-only REST-GET
-geprueft und Preis, ASINs sowie Bild-Erreichbarkeit extern read-only
+geprueft und Preis, ASIN sowie Bild-Erreichbarkeit extern read-only
 gegengeprueft.
 
-Der definitive Codex-Vollauf gegen PostgreSQL **16.15** bestand mit
-**145/145 PASS**, **0 Abweichungen** und Exit **0**. Ergebnisdatei:
-`/tmp/cbb-qftest.AgI5UJsx/results.tsv`; dauerhafte Zusammenfassung:
-[`LOCAL_TEST_REPORT.md`](LOCAL_TEST_REPORT.md). Der fruehere Lauf mit 119/119
-PASS bleibt als Historie fuer den Paketstand vor der Erweiterung dokumentiert.
+> [!success] Das lokale Gate ist fuer diesen Stand **erfuellt**:
+> **160/160 PASS**, **0 Abweichungen**, Coverage-Assertion PASS, Exit **0**,
+> PostgreSQL **16.15**. Ergebnisdatei:
+> `/tmp/cbb-qftest.549lsB6T/results.tsv`; Einzelprotokolle:
+> `/tmp/cbb-qftest.549lsB6T/logs/`. Der wegwerfbare Cluster wurde danach
+> sauber gestoppt; PGDATA und Socketverzeichnis wurden entfernt.
+
+Der fruehere Lauf mit 119/119 PASS bleibt als Historie fuer den Paketstand vor
+der Erweiterung dokumentiert.
 
 Jeder spaetere Schritt ist **einzeln** freigabepflichtig. Es gibt keine
 Sammelfreigabe fuer dieses Paket. Die Freigabetabelle steht in
@@ -173,6 +178,11 @@ Begruendung je Gruppe:
   `updated_at` bleibt bei A4 exakt historisch, und `04`, `05` sowie der
   Harness pruefen diese Nichtaenderung ausdruecklich.
 
+Ein Trigger-**Kommentar** ist allerdings kein Beleg fuer den Zustand der
+Zieldatenbank. Dass der Vertrag dort wirklich so deployt ist, misst `01` seit
+der Opus-Endpruefung im Systemkatalog — siehe
+[Abschnitt 2.5](#25-der-deployte-updated_at-triggervertrag-wird-gemessen-nicht-angenommen).
+
 `06` stellt die **historischen** `updated_at`-Werte der sechs
 lastmod-Zielprodukte aus dem Snapshot wieder her, nicht `now()`. Bei A4 war der
 historische Wert auch im Zielzustand unveraendert.
@@ -203,6 +213,46 @@ Guards mit eigenen Negativfaellen nach
 (`case_j_updated_at_null`, `case_j2_updated_at_null_vor_04`,
 `case_j3_updated_at_null_vor_06`).
 
+### 2.5 Der deployte `updated_at`-Triggervertrag wird gemessen, nicht angenommen
+
+Zwei Zusagen aus [Abschnitt 2.3](#23-updated_at) haengen **nicht** am SQL dieses
+Pakets, sondern an einem Vertrag, der auf der Zieldatenbank deployt sein muss
+(`supabase/seo_updated_at_trigger.sql`):
+
+1. Die sechs sichtbaren Produktseiten tragen genau den Zeitstempel, den `04`
+   ausdruecklich mitschreibt — der Trigger darf ihn **nicht** mit `now()`
+   ueberschreiben.
+2. Die A4-Unterkategorie bekommt **kein** neues lastmod — `shop_sub_category`
+   darf keinen Bump ausloesen.
+
+Bisher stand dieser Vertrag nur als Kommentar in `04`. Ein Kommentar ist kein
+Beleg: waere der Trigger auf Production entfernt, abgeschaltet oder veraendert
+worden, haette `04` ohne Warnung ein falsches lastmod-Bild erzeugt — bei A4
+sogar sichtbar in der Sitemap.
+
+`01` misst den Vertrag deshalb read-only **im Systemkatalog** (`pg_trigger`,
+`pg_proc`, `pg_get_triggerdef`, `pg_get_functiondef`), Pruefzeile
+`products_updated_at_triggervertrag` (Sortierung 156). Sie verlangt fuenf Dinge
+gleichzeitig:
+
+| Groesse | Soll | Was sie ausschliesst |
+|---|---|---|
+| `aktive BEFORE UPDATE ROW Trigger` | 1 | ein zweiter, unbekannter Schreiber auf `NEW` |
+| `vertragskonform` | 1 | falscher Name, fremde Funktion, `WHEN`-Klausel, abweichende Triggerdefinition |
+| `ohne shop_sub_category` | 1 | ein Bump durch die A4-Aenderung |
+| `explizites updated_at bleibt` | 1 | ein fehlender Guard, der den von `04` gesetzten Wert ueberschreibt |
+| `fremde updated_at-Trigger` | 0 | eine andere aktive Triggerfunktion, die `updated_at` anfasst |
+
+**Fail-closed:** fehlt der Vertrag oder weicht er ab, meldet die Zeile `FAIL` —
+und nach der Regel aus [Abschnitt 3](#3-reihenfolge-und-freigabegrenzen) ist
+Schritt 2 damit nicht freigegeben und `04` darf nicht laufen.
+
+Der lokale Harness prueft genau diesen Katalogvertrag und nicht eine
+Nachbildung: die Fixture laedt die Originaldatei
+`supabase/seo_updated_at_trigger.sql`, und `case_k_triggervertrag` bricht den
+Vertrag dreimal unterschiedlich (Bump auf `shop_sub_category`, fehlender
+`updated_at`-Guard, Trigger entfernt) und verlangt jedes Mal die FAIL-Zeile.
+
 ---
 
 ## 3. Reihenfolge und Freigabegrenzen
@@ -231,7 +281,7 @@ Erwartete Ergebnisformen:
 
 | Datei | Zeilen | davon PASS | davon INFO | FAIL |
 |---|---|---|---|---|
-| `01` | 28 | 22 | 6 | 0 |
+| `01` | 29 | 23 | 6 | 0 |
 | `03` | 23 | 16 | 7 | 0 |
 | `05` | 28 | 23 | 5 | 0 |
 
@@ -240,6 +290,11 @@ PASS-Zeilen (`a4_kategorie_vorzustand_basteln`,
   `lastmod_zielprodukte_updated_at_nicht_null`) und in `05` eine
 (`a4_kategorie_zielzustand_gadgets`). `03` bleibt bei 16 PASS-Zeilen; dort
 aendern sich nur die erwarteten Zahlen von 6 auf 7.
+
+Nach der Opus-Endpruefung kam in `01` eine dritte PASS-Zeile hinzu:
+`products_updated_at_triggervertrag` (Sortierung 156, siehe
+[Abschnitt 2.5](#25-der-deployte-updated_at-triggervertrag-wird-gemessen-nicht-angenommen)).
+Damit steht `01` bei 29 Zeilen und 23 PASS.
 
 `02` gibt nach dem Commit `7` und `3` zurueck. `04` und `06` geben nichts
 zurueck; ein erfolgreicher Lauf ist ein Lauf ohne Exception.
@@ -279,16 +334,26 @@ Alle neun URLs wurden am 2026-08-30 mit `GET` geprueft: HTTP 200,
 stabiler als die aktuelle Divoom-Shop-URL, weil sie auf derselben CDN liegen wie
 alle uebrigen Produktbilder des Shops.
 
-### 4.4 Lokaler Harness — Gate erfuellt
-
-**Stand: `145/145 PASS, 0 Abweichungen, Exit 0`.**
+### 4.4 Lokaler Harness — Gate fuer den aktuellen Stand BESTANDEN
 
 `test/run_local_postgres_test.sh` lief am 2026-08-30 gegen PostgreSQL **16.15**
-mit **145/145 PASS**, **0 Abweichungen** und Exit **0**. Darin enthalten sind
-die siebte Zielproduktzeile, die zusaetzlichen Diagnosezeilen, der Rollen-Guard
-in `02`, die drei `updated_at`-Guards sowie vier neue Negativfaelle. Der
-lokale Cluster wurde danach sauber gestoppt; PGDATA und Socketverzeichnis wurden
-entfernt. Details stehen in [`LOCAL_TEST_REPORT.md`](LOCAL_TEST_REPORT.md) und
+mit **160/160 PASS**, **0 Abweichungen**, Coverage-Assertion PASS und Exit
+**0**. Ergebnisdatei: `/tmp/cbb-qftest.549lsB6T/results.tsv`; Einzelprotokolle:
+`/tmp/cbb-qftest.549lsB6T/logs/`. Der lokale Cluster wurde danach sauber
+gestoppt; PGDATA und Socketverzeichnis wurden entfernt.
+
+Gegenueber dem vorherigen 145er-Lauf sind abgedeckt:
+
+* die Katalogpruefung `products_updated_at_triggervertrag` in `01`
+  (`01` jetzt 23 statt 22 PASS, siehe Abschnitt 2.5),
+* der Fall `case_k_triggervertrag` (9 Schritte),
+* die Identitaetspruefung ueber `id` UND `slug` im No-Op-Zweig von `02` und der
+  Fall `case_di_backup_identitaet` (6 Schritte, siehe Abschnitt 5.6),
+* die Coverage-Assertion auf `ERWARTETE_SCHRITTE=160` am Ende des Harness.
+
+Damit steht das Soll bei **160 Schritten**; der Lauf hat alle 160 Records
+geschrieben und die maschinelle Sollzahl bestaetigt. Der ausfuehrliche Nachweis
+steht in [`LOCAL_TEST_REPORT.md`](LOCAL_TEST_REPORT.md) und
 [`test/README.md`](test/README.md).
 
 ---
@@ -419,9 +484,23 @@ wirklich wieder sauber ist.
 
 | Datei | Bei erneutem Lauf im erreichten Zustand | Bei gemischtem oder gedriftetem Zustand |
 |---|---|---|
-| `02` | No-Op, wenn beide Backup-Tabellen existieren, exakt den bekannten Vorzustand enthalten und die sechs lastmod-Zeitstempel nicht NULL sind | Abbruch — auch bei nur einer der beiden Tabellen, falscher Zeilenzahl, veraendertem Inhalt, NULL-Zeitstempel oder geoeffneten Rechten |
+| `02` | No-Op, wenn beide Backup-Tabellen existieren, **dieselben Zeilen beschreiben (`id` UND `slug`)**, exakt den bekannten Vorzustand enthalten und die sechs lastmod-Zeitstempel nicht NULL sind | Abbruch — auch bei nur einer der beiden Tabellen, falscher Zeilenzahl, **fremder `id`**, veraendertem Inhalt, NULL-Zeitstempel oder geoeffneten Rechten |
 | `04` | No-Op, wenn alle zehn Zeilen exakt im Zielzustand stehen und alle sechs lastmod-Zeitstempel nach dem Backup liegen — **kein UPDATE, kein neues `updated_at`** | Abbruch |
 | `06` | No-Op, wenn alle zehn Zeilen exakt dem Backup entsprechen und weder Quelle noch Backup einen NULL-lastmod-Zeitstempel tragen | Abbruch |
+
+**Zeilenidentitaet im No-Op-Zweig von `02`.** Der Neuanlage-Pfad haelt die
+`id`/`slug`-Paare der zehn Zielzeilen in `cbb_qf_identitaet_*` fest und sichert
+ausdruecklich **dieselben** Zeilen; `04` sperrt Zeilenpaare ueber
+`b.id = p.id and b.slug = p.slug`; `06` schreibt ueber die `id` zurueck und
+prueft die Paarung vorher hart. Der No-Op-Zweig verglich bisher nur Inhalte je
+`slug`. Ein vorhandener Snapshot mit korrektem Inhalt, aber fremder `id` waere
+dort still als gueltiger Rollback-Pfad durchgegangen, obwohl `06` ihn nirgends
+mehr zuordnen kann. Er prueft die Identitaet jetzt **vor jedem fruehen
+`RETURN`** und bricht sonst ab:
+`QF-Backup abgebrochen: vorhandenes Backup beschreibt nicht dieselben Zeilen wie public.products/public.lists (Identitaet ueber id und slug: …).`
+Der Harness weist das mit `case_di_backup_identitaet` nach — einem eigenen Fall
+**neben** `case_d_backup_manipuliert`, nicht an dessen Stelle: dort ist der
+Inhalt manipuliert, hier ist er korrekt und nur die Zuordnung falsch.
 
 ---
 
@@ -473,13 +552,17 @@ beiden Zeilen nicht an.** `01` und `05` fuehren den Punkt nur als `INFO`-Zeile.
 ## 7. Ausfuehrung — Schritt fuer Schritt
 
 Jeder Schritt setzt seine eigene, frisch erteilte Freigabe voraus. Das lokale
-Harness-Gate aus Abschnitt 4.4 ist erfuellt; offen bleiben die
-Production-Freigaben und die unmittelbar vor `04` zu wiederholenden
-Preis-/Bildpruefungen.
+Harness-Gate aus Abschnitt 4.4 ist fuer den aktuellen Stand **erfuellt**.
+Offen bleiben die Production-Freigaben und die unmittelbar vor `04` zu
+wiederholenden Preis-/Bildpruefungen.
 
+0. **Vorbedingung lokales Gate — erfuellt.** Der aktuelle Lauf ergab
+   **160/160**, 0 Abweichungen, Exit 0 und die Zeile
+   `[PASS] coverage_schrittzahl`.
 1. **Freigabe #1 einholen.** Zielprojekt sichtbar pruefen.
-   `01_preflight_read_only.sql` ausfuehren. Erwartet: 28 Zeilen, 22 PASS,
-   6 INFO, **0 FAIL**. Jede FAIL-Zeile beendet den Vorgang hier.
+   `01_preflight_read_only.sql` ausfuehren. Erwartet: 29 Zeilen, 23 PASS,
+   6 INFO, **0 FAIL**. Jede FAIL-Zeile beendet den Vorgang hier — auch
+   `products_updated_at_triggervertrag`.
 2. **Preis nachpruefen** (Abschnitt 4.2). Bei Abweichung: Stopp und
    Neu-Audit.
 3. **Freigabe #2 einholen.** `02_backup_quality_fixes.sql` ausfuehren.
@@ -506,9 +589,11 @@ ist wieder aufgehoben. Das ist der korrekte Ausgang, kein Fehler.
 
 | Gate | Wer | Stand |
 |---|---|---|
-| Lokaler PostgreSQL-Harness `test/run_local_postgres_test.sh` | Codex | **145/145 PASS**, 0 Abweichungen, Exit 0 (PostgreSQL 16.15, 2026-08-30) |
+| Lokaler PostgreSQL-Harness `test/run_local_postgres_test.sh` fuer den **aktuellen** Stand | Codex | **160/160 PASS, 0 Abweichungen, Coverage PASS, Exit 0, PostgreSQL 16.15** (`/tmp/cbb-qftest.549lsB6T/results.tsv`) |
+| Historie: Harness-Lauf nach der A4-Erweiterung | Codex | 145/145 PASS, 0 Abweichungen, Exit 0 (PostgreSQL 16.15, 2026-08-30) — gilt **nicht** fuer den aktuellen Stand |
 | Historie: Harness-Lauf vor der Erweiterung | Codex | 119/119 PASS, 0 Abweichungen, Exit 0 (2026-08-30) — gilt **nicht** fuer den aktuellen Stand |
-| Unabhaengiges Codex-Audit der sechs SQL-Dateien (`--profile deep`) | Codex | **abgeschlossen**; A4-lastmod getrennt, drei No-Op-Zeitstempelpfade nachgehaertet, Harness-Gate gruen |
+| Unabhaengiges Codex-Audit der sechs SQL-Dateien (`--profile deep`) | Codex | **abgeschlossen**; A4-lastmod getrennt, No-Op-Zeitstempel- und Backup-Identitaetspfade nachgehaertet, Triggervertrag geprueft |
+| Opus-Endpruefung und deren Korrekturen (Triggervertrag in `01`, Identitaet im No-Op-Zweig von `02`, Coverage-Assertion, D7-/Zaehl-/Zielprojekt-Text) | Claude/Codex | Umsetzung, unabhaengiges Audit und lokaler 160er-Lauf **abgeschlossen** |
 | Erneute Preispruefung ASIN `B07HHXWN3C` unmittelbar vor `04` | Codex/Benutzer | **offen** |
 | Erneute Erreichbarkeitspruefung der neun Bild-URLs unmittelbar vor `04` | Codex/Benutzer | **offen** |
 | Freigabe #1 bis #5 (Production) | Benutzer | **offen** |
@@ -525,7 +610,7 @@ damit auch keine Production-Ausfuehrung.
 
 ```
 production_quality_fixes_20260830/
-├── 01_preflight_read_only.sql        read-only, ein WITH … SELECT, 28 Zeilen
+├── 01_preflight_read_only.sql        read-only, ein WITH … SELECT, 29 Zeilen
 ├── 02_backup_quality_fixes.sql       schreibend, legt den Snapshot an
 ├── 03_verify_backup_read_only.sql    read-only, prueft den Snapshot, 23 Zeilen
 ├── 04_apply_quality_fixes.sql        schreibend, die eigentliche Korrektur

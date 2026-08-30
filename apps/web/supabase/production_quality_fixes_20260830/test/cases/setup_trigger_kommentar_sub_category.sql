@@ -11,6 +11,7 @@ language plpgsql
 as $$
 begin
   -- shop_sub_category bleibt bewusst ohne lastmod-Bump.
+  /* Auch ein Blockkommentar darf shop_sub_category nennen, ohne Code zu sein. */
   if new.updated_at is not distinct from old.updated_at
      and (new.name) is distinct from (old.name)
   then

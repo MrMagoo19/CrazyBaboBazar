@@ -15,8 +15,8 @@ gegengeprueft.
 > [!success] Das lokale Gate ist fuer diesen Stand **erfuellt**:
 > **164/164 PASS**, 0 Abweichungen, Records=164, STEP=164,
 > Coverage-Assertion PASS, Exit 0, PostgreSQL **16.15**. Ergebnisdatei:
-> `/tmp/cbb-qftest.Z3T0ySL7/results.tsv`; Einzelprotokolle:
-> `/tmp/cbb-qftest.Z3T0ySL7/logs/`. Der Cluster wurde sauber gestoppt; PGDATA
+> `/tmp/cbb-qftest.v85MjgLU/results.tsv`; Einzelprotokolle:
+> `/tmp/cbb-qftest.v85MjgLU/logs/`. Der Cluster wurde sauber gestoppt; PGDATA
 > und Socketverzeichnis wurden entfernt.
 
 Der fruehere Lauf mit 119/119 PASS bleibt als Historie fuer den Paketstand vor
@@ -340,8 +340,8 @@ alle uebrigen Produktbilder des Shops.
 
 Der aktuelle Vollauf bestand am 2026-08-30 gegen PostgreSQL **16.15** mit
 **164/164 PASS**, 0 Abweichungen, Records=164, STEP=164, Coverage PASS und Exit
-0. Ergebnisdatei: `/tmp/cbb-qftest.Z3T0ySL7/results.tsv`; Einzelprotokolle:
-`/tmp/cbb-qftest.Z3T0ySL7/logs/`.
+0. Ergebnisdatei: `/tmp/cbb-qftest.v85MjgLU/results.tsv`; Einzelprotokolle:
+`/tmp/cbb-qftest.v85MjgLU/logs/`.
 
 Gegenueber dem vorherigen 145er-Lauf sind abgedeckt:
 
@@ -590,7 +590,7 @@ ist wieder aufgehoben. Das ist der korrekte Ausgang, kein Fehler.
 
 | Gate | Wer | Stand |
 |---|---|---|
-| Lokaler PostgreSQL-Harness `test/run_local_postgres_test.sh` fuer den **aktuellen** Stand | Codex | **164/164 PASS, 0 Abweichungen, Records=STEP=164, Coverage PASS, Exit 0, PostgreSQL 16.15** (`/tmp/cbb-qftest.Z3T0ySL7/results.tsv`) |
+| Lokaler PostgreSQL-Harness `test/run_local_postgres_test.sh` fuer den **aktuellen** Stand | Codex | **164/164 PASS, 0 Abweichungen, Records=STEP=164, Coverage PASS, Exit 0, PostgreSQL 16.15** (`/tmp/cbb-qftest.v85MjgLU/results.tsv`) |
 | Historie: Harness-Lauf auf Commit `250ad42` | Codex | 160/160 PASS, 0 Abweichungen, Coverage PASS, Exit 0 (PostgreSQL 16.15) — gilt **nicht** fuer den aktuellen Stand |
 | Historie: Harness-Lauf nach der A4-Erweiterung | Codex | 145/145 PASS, 0 Abweichungen, Exit 0 (PostgreSQL 16.15, 2026-08-30) — gilt **nicht** fuer den aktuellen Stand |
 | Historie: Harness-Lauf vor der Erweiterung | Codex | 119/119 PASS, 0 Abweichungen, Exit 0 (2026-08-30) — gilt **nicht** fuer den aktuellen Stand |

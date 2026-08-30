@@ -11,8 +11,8 @@ Codex-Vollauf
 > [!success] LOKALES GATE FUER DEN AKTUELLEN STAND: **BESTANDEN**
 > **164/164 PASS**, **0 Abweichungen**, Records=164, STEP=164,
 > Coverage-Assertion PASS, Exit **0**, PostgreSQL **16.15**. Ergebnisdatei:
-> `/tmp/cbb-qftest.Z3T0ySL7/results.tsv`; Einzelprotokolle:
-> `/tmp/cbb-qftest.Z3T0ySL7/logs/`.
+> `/tmp/cbb-qftest.v85MjgLU/results.tsv`; Einzelprotokolle:
+> `/tmp/cbb-qftest.v85MjgLU/logs/`.
 
 Der wegwerfbare lokale Cluster wurde danach sauber gestoppt; PGDATA und
 Socketverzeichnis wurden entfernt, die Logs bleiben erhalten. Kein Paket-SQL
@@ -32,7 +32,7 @@ Damit steigt das Soll von 160 auf **164 Schritte**.
 
 | Lauf | Stand | Ergebnis | Artefakte |
 |---|---|---|---|
-| aktueller Paketstand | nach zweiter Opus-Endpruefung | **164/164 PASS, 0 Abweichungen, Records=STEP=164, Coverage PASS, Exit 0, PostgreSQL 16.15** | `/tmp/cbb-qftest.Z3T0ySL7/results.tsv`, Logs unter `/tmp/cbb-qftest.Z3T0ySL7/logs/` |
+| aktueller Paketstand | nach zweiter Opus-Endpruefung | **164/164 PASS, 0 Abweichungen, Records=STEP=164, Coverage PASS, Exit 0, PostgreSQL 16.15** | `/tmp/cbb-qftest.v85MjgLU/results.tsv`, Logs unter `/tmp/cbb-qftest.v85MjgLU/logs/` |
 | 160 Schritte | Commit `250ad42` | 160/160 PASS, 0 Abweichungen, Coverage PASS, Exit 0, PostgreSQL 16.15 | `/tmp/cbb-qftest.549lsB6T/results.tsv`, Logs unter `/tmp/cbb-qftest.549lsB6T/logs/` |
 | 145 Schritte | nach der A4-Erweiterung | 145/145 PASS, 0 Abweichungen, Exit 0, PostgreSQL 16.15 | `/tmp/cbb-qftest.AgI5UJsx/results.tsv`, Logs unter `/tmp/cbb-qftest.AgI5UJsx/logs/` |
 | 119 Schritte | vor der A4-Erweiterung | 119/119 PASS, 0 Abweichungen, Exit 0 | `/tmp/cbb-qftest.qWvTWbdG/results.tsv` |

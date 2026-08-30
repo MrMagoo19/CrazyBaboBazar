@@ -6,8 +6,8 @@
 > Der unabhaengige Vollauf bestand am 2026-08-30 gegen PostgreSQL **16.15**
 > mit **164/164 PASS**, 0 Abweichungen, Records=164, STEP=164,
 > Coverage-Assertion PASS und Exit 0. Ergebnisdatei:
-> `/tmp/cbb-qftest.Z3T0ySL7/results.tsv`; Einzelprotokolle:
-> `/tmp/cbb-qftest.Z3T0ySL7/logs/`. Der Cluster wurde danach sauber gestoppt;
+> `/tmp/cbb-qftest.v85MjgLU/results.tsv`; Einzelprotokolle:
+> `/tmp/cbb-qftest.v85MjgLU/logs/`. Der Cluster wurde danach sauber gestoppt;
 > PGDATA und Socketverzeichnis wurden entfernt.
 
 ### Was seit dem 160er-Lauf hinzugekommen ist

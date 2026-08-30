@@ -489,13 +489,18 @@ trigger_kandidaten as (
     t.tgqual is null as ohne_when_klausel,
     (p.pronamespace::regnamespace)::text || '.' || p.proname::text as funktion,
     pg_catalog.pg_get_triggerdef(t.oid) as triggerdef,
-    -- Erst Zeilenkommentare entfernen, solange die Zeilenumbrueche noch da
-    -- sind; erst danach Whitespace normalisieren. So kann Kommentartext weder
-    -- einen Vertragsbeleg vortaeuschen noch shop_sub_category faelschlich als
-    -- ausgefuehrten Code erscheinen lassen.
+    -- Erst Block- und Zeilenkommentare entfernen, solange die Zeilenumbrueche
+    -- noch da sind; erst danach Whitespace normalisieren. So kann Kommentartext
+    -- weder einen Vertragsbeleg vortaeuschen noch shop_sub_category faelschlich
+    -- als ausgefuehrten Code erscheinen lassen.
     regexp_replace(
       regexp_replace(
-        pg_catalog.pg_get_functiondef(p.oid),
+        regexp_replace(
+          pg_catalog.pg_get_functiondef(p.oid),
+          '/\*([^*]|\*+[^*/])*\*+/',
+          ' ',
+          'g'
+        ),
         '--[^\n\r]*',
         ' ',
         'g'

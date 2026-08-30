@@ -139,6 +139,12 @@ while true; do
       fi
       # append to engine decision log
       printf '%s %s %s\n' "$(date --iso-8601=seconds)" "agent=${chosen_agent}" "engine=${recommended_engine:-unknown}" >> "${CBB_WORKER_STATE_DIR}/engine.log"
+
+      # If claude supports a --model flag, pass recommended_engine to claude
+      CLAUDE_MODEL_ARG=""
+      if [[ -n "${recommended_engine}" ]]; then
+        CLAUDE_MODEL_ARG="--model ${recommended_engine}"
+      fi
     fi
 
     worker_prompt="$(<"${CBB_RUNNING_FILE}")"
@@ -151,7 +157,7 @@ while true; do
     echo "---------------- CLAUDE-AUSGABE ----------------"
 
     if [[ "${worker_mode}" == "chrome" ]]; then
-      claude --chrome \
+      claude ${CLAUDE_MODEL_ARG} --chrome \
         --add-dir "${CBB_REPO_ROOT}" \
         --allowedTools 'mcp__claude-in-chrome__*' \
         -p "${worker_prompt}" 2>&1 | tee "${CBB_LATEST_LOG}"
@@ -160,7 +166,7 @@ while true; do
       # Die Chrome-Tab-Gruppe ist an die benannte interaktive Sitzung gebunden.
       # Durch Resume bleibt die bereits sichtbar erteilte Browserfreigabe
       # erhalten, statt fuer jeden Print-Auftrag eine neue Sitzung anzulegen.
-      claude --chrome --resume "CLAUDE WORKER" \
+      claude ${CLAUDE_MODEL_ARG} --chrome --resume "CLAUDE WORKER" \
         --add-dir "${CBB_REPO_ROOT}" \
         --allowedTools 'mcp__claude-in-chrome__*' \
         -p "${worker_prompt}" 2>&1 \
@@ -170,7 +176,7 @@ while true; do
       # Lokale Datei-Edits fuer explizit abgegrenzte Implementierungsauftraege
       # automatisch erlauben. Bash, Netzwerk und externe Aktionen behalten
       # ihre normalen Claude-Berechtigungsgrenzen.
-      claude --permission-mode acceptEdits \
+      claude ${CLAUDE_MODEL_ARG} --permission-mode acceptEdits \
         --add-dir "${CBB_MONEYWIKI_ROOT}" \
         -p "${worker_prompt}" 2>&1 \
         | tee "${CBB_LATEST_LOG}"
@@ -179,7 +185,7 @@ while true; do
       # Direkter, projektgebundener Supabase-MCP: nur die serverseitig
       # gelieferte Projekt-URL darf ohne Rueckfrage gelesen werden. Schreibende
       # Supabase-Tools bleiben fuer diesen Auftrag explizit gesperrt.
-      claude --permission-mode dontAsk \
+      claude ${CLAUDE_MODEL_ARG} --permission-mode dontAsk \
         --allowedTools 'mcp__supabase__get_project_url' \
         --disallowedTools 'mcp__supabase__execute_sql,mcp__supabase__apply_migration,mcp__supabase__create_branch,mcp__supabase__deploy_edge_function,mcp__supabase__update_storage_config' \
         -p "${worker_prompt}" 2>&1 \
@@ -190,14 +196,14 @@ while true; do
       # gilt ausschliesslich fuer diesen Claude-Prozess und wird nach dessen
       # Ende nicht gespeichert. Alle anderen schreibenden Supabase-Tools sind
       # explizit gesperrt.
-      claude --permission-mode dontAsk \
+      claude ${CLAUDE_MODEL_ARG} --permission-mode dontAsk \
         --allowedTools 'Read,mcp__supabase__get_project_url,mcp__supabase__execute_sql' \
         --disallowedTools 'mcp__supabase__apply_migration,mcp__supabase__create_branch,mcp__supabase__deploy_edge_function,mcp__supabase__update_storage_config' \
         -p "${worker_prompt}" 2>&1 \
         | tee "${CBB_LATEST_LOG}"
       worker_status="${PIPESTATUS[0]}"
     elif [[ "${worker_mode}" == "plain" ]]; then
-      claude -p "${worker_prompt}" 2>&1 | tee "${CBB_LATEST_LOG}"
+      claude ${CLAUDE_MODEL_ARG} -p "${worker_prompt}" 2>&1 | tee "${CBB_LATEST_LOG}"
       worker_status="${PIPESTATUS[0]}"
     else
       echo "CLAUDE WORKER abgebrochen: unbekannter Modus '${worker_mode}'." \

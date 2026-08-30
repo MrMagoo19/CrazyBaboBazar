@@ -5,6 +5,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { DbProduct } from '@/lib/db-types'
 import { getPriceBand } from '@/lib/db-types'
+import { AFFILIATE_DISCLOSURE, affiliateAriaLabel } from '@/lib/affiliate-disclosure'
+import { AffiliateLink } from '@/components/ui/affiliate-link'
 import { ExternalLink, ArrowRight, Flame, TrendingUp, Zap, Shuffle, SlidersHorizontal } from 'lucide-react'
 
 // ── Design Tokens ────────────────────────────────────────────────
@@ -190,13 +192,41 @@ export function PreviewClient({ products }: { products: DbProduct[] }) {
                   </div>
                 )}
 
-                {/* Hover: Amazon CTA */}
-                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                  <a href={product.affiliate_url} target="_blank" rel="sponsored nofollow noopener noreferrer"
-                     style={{ background: t.accent, color: theme === 'warm' ? '#fff' : '#1C1C1C' }}
-                     className="flex items-center gap-1.5 text-[10px] font-extrabold px-3 py-1.5">
+                {/* Hover: Amazon CTA
+                    Laeuft ueber `AffiliateLink` mit ABGESCHALTETER Messung.
+                    Zwei Gruende, beide zwingend:
+                      * Auch diese `noindex, nofollow`-Design-Werkbank darf das
+                        Partnerziel nicht ins Markup schreiben — der Link zeigt
+                        deshalb wie ueberall sonst auf /api/click/<slug>.
+                      * Design-Experimente duerfen aber keine echten Klick-outs
+                        erzeugen, sonst verfaelschen sie die Zahlen der
+                        produktiven Seiten. Ohne Kennung (`cs`) leitet der
+                        Server nur weiter und speichert nichts.
+
+                    Auch hier steht die Kennzeichnung unmittelbar am CTA: Der
+                    Link ist ein echter Partnerlink, sobald ihn jemand
+                    aktiviert — dass die Seite intern und `noindex` ist, aendert
+                    daran nichts. Der Hinweis liegt im selben
+                    Hover-Container wie der Button, erscheint also mit ihm
+                    zusammen; ein Hinweis, der ohne den Button sichtbar waere,
+                    wuerde am Bild kleben und die Karte veraendern. */}
+                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 flex flex-col items-end gap-1">
+                  <span
+                    style={{ background: t.cardBg, color: t.titleColor }}
+                    className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 leading-none"
+                  >
+                    {AFFILIATE_DISCLOSURE}
+                  </span>
+                  <AffiliateLink
+                    slug={product.slug}
+                    affiliateUrl={product.affiliate_url}
+                    measurementEnabled={false}
+                    ariaLabel={affiliateAriaLabel(`Amazon: ${product.name}`)}
+                    style={{ background: t.accent, color: theme === 'warm' ? '#fff' : '#1C1C1C' }}
+                    className="flex items-center gap-1.5 text-[10px] font-extrabold px-3 py-1.5"
+                  >
                     Amazon <ExternalLink size={10} />
-                  </a>
+                  </AffiliateLink>
                 </div>
               </div>
 

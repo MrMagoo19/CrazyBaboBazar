@@ -27,7 +27,7 @@ export default function DatenschutzPage() {
           <h1 className="font-[family-name:var(--font-display)] font-extrabold text-5xl mb-3">
             Datenschutz
           </h1>
-          <p className="text-[#555] text-sm mb-12">Zuletzt aktualisiert: Mai 2026</p>
+          <p className="text-[#555] text-sm mb-12">Zuletzt aktualisiert: August 2026</p>
 
           <div className="space-y-10 text-[#555]">
 
@@ -40,7 +40,13 @@ export default function DatenschutzPage() {
                 Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie unsere Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
               </p>
               <p className="text-sm leading-relaxed">
-                <strong className="text-[#0A0A0A]">Cookies:</strong> Diese Website setzt keine eigenen Cookies. Externe Dienste (z. B. Amazon über Affiliate-Links) können eigene Cookies setzen, sobald Sie deren Links aufrufen. Darauf haben wir keinen Einfluss.
+                <strong className="text-[#0A0A0A]">Cookies:</strong> Diese Website setzt keine Werbe- und keine Profiling-Cookies. Wir setzen genau <strong className="text-[#0A0A0A]">einen</strong> eigenen, funktionalen First-Party-Cookie — und nur dann, wenn Sie im Hinweisbanner eine Entscheidung treffen. Er speichert ausschließlich diese Entscheidung („akzeptiert“ oder „abgelehnt“), läuft nach 182 Tagen (rund sechs Monaten) ab und enthält keine Kennung, mit der Sie wiedererkannt werden könnten (Einzelheiten in Abschnitt 6). Externe Dienste (z. B. Amazon über Affiliate-Links) können eigene Cookies setzen, sobald Sie deren Links aufrufen. Darauf haben wir keinen Einfluss.
+              </p>
+              <p className="text-sm leading-relaxed mt-3">
+                <strong className="text-[#0A0A0A]">Klick-Messung:</strong> Wenn Sie im Hinweisbanner „Akzeptieren“ wählen, speichern wir beim Klick auf einen Partnerlink einen pseudonymisierten, datensparsamen Zähl-Datensatz (siehe Abschnitt 6). Ohne Ihre Einwilligung funktioniert die Weiterleitung genauso, es wird dann aber nichts gespeichert.
+              </p>
+              <p className="text-sm leading-relaxed mt-3">
+                <strong className="text-[#0A0A0A]">Widerruf:</strong> Ihre Entscheidung können Sie jederzeit mit einem Klick zurücknehmen — über die Schaltfläche <strong className="text-[#0A0A0A]">Datenschutz-Einstellungen</strong> im Fußbereich jeder Seite.
               </p>
             </div>
 
@@ -102,6 +108,9 @@ export default function DatenschutzPage() {
               <p className="text-sm leading-relaxed mb-3">
                 Wenn Sie auf einen Affiliate-Link klicken und zu Amazon weitergeleitet werden, kann Amazon mittels Cookies und ähnlicher Technologien die Herkunft des Besuchs nachvollziehen und Ihnen personalisierte Werbung anzeigen. Amazon ist für diese Datenverarbeitung selbst verantwortlich. Rechtsgrundlage auf unserer Seite ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Refinanzierung des Angebots).
               </p>
+              <p className="text-sm leading-relaxed mb-3">
+                Der Klick läuft technisch über unsere eigene Weiterleitungsadresse. Ob dabei ein pseudonymisierter Zähl-Datensatz gespeichert wird, entscheiden ausschließlich Sie über den Hinweis-Banner — Einzelheiten in Abschnitt 6.
+              </p>
               <p className="text-sm leading-relaxed">
                 Informationen zum Datenschutz bei Amazon finden Sie unter:{' '}
                 <a
@@ -138,19 +147,110 @@ export default function DatenschutzPage() {
             </div>
 
             {/* 6 */}
-            <div className="border-l-2 border-[#E0E0E0] pl-6">
+            <div className="border-l-2 border-[#FFE500] pl-6">
               <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
-                6. Schriftarten (Google Fonts)
+                6. Klick-Messung bei Partnerlinks (nur mit Einwilligung)
               </h2>
+              <p className="text-sm leading-relaxed mb-3">
+                Partnerlinks auf dieser Website führen zunächst über unsere eigene
+                Weiterleitungsadresse <span className="text-[#0A0A0A]">/api/click/&lt;produkt&gt;</span> und
+                erst von dort zum Partnershop. Die Zieladresse wird ausschließlich auf unserem Server
+                aus den veröffentlichten Produktdaten ermittelt.
+              </p>
+              <p className="text-sm leading-relaxed mb-3">
+                <strong className="text-[#0A0A0A]">Ohne Einwilligung:</strong> Die Weiterleitung
+                funktioniert unverändert. Es wird <strong className="text-[#0A0A0A]">kein</strong> Datensatz
+                gespeichert und <strong className="text-[#0A0A0A]">keine</strong> Kennung vergeben.
+              </p>
+              <p className="text-sm leading-relaxed mb-3">
+                <strong className="text-[#0A0A0A]">Mit Einwilligung</strong> („Akzeptieren“ im Hinweisbanner)
+                speichern wir pro Klick genau diese Angaben — datensparsam und pseudonymisiert, also
+                ohne Ihren Namen, aber mit einer zufälligen, kurzlebigen Sitzungskennung:
+              </p>
+              <ul className="text-sm space-y-1 mb-3">
+                {[
+                  'Produkt-Kennung (Slug) des angeklickten Produkts',
+                  'Partnershop (derzeit ausschließlich Amazon)',
+                  'Seitenpfad, von dem der Klick ausging — ohne Suchbegriffe und ohne sonstige Parameter',
+                  'grobe Gerätekategorie (Mobil, Tablet, Desktop oder unbekannt)',
+                  'zufällige Sitzungskennung, die nur bis zum Schließen des Browser-Tabs gilt',
+                  'Zeitpunkt des Klicks',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <span className="text-[#0A0A0A] shrink-0 mt-0.5">▪</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-sm leading-relaxed mb-3">
+                <strong className="text-[#0A0A0A]">Ausdrücklich nicht gespeichert werden:</strong> Ihre
+                IP-Adresse (auch nicht als Hashwert), Ihre vollständige Browserkennung (User-Agent), die
+                vollständige Herkunfts-URL, Suchbegriffe oder sonstige Adressparameter. Es werden keine
+                Profile gebildet und keine Daten mit anderen Quellen zusammengeführt.
+              </p>
+              <p className="text-sm leading-relaxed mb-3">
+                <strong className="text-[#0A0A0A]">Wie Ihre Entscheidung zu uns gelangt:</strong> Die
+                Messung findet auf unserem Server statt. Damit dieser Ihre Einwilligung überhaupt prüfen
+                kann, speichert Ihre Entscheidung im Hinweisbanner einen funktionalen First-Party-Cookie
+                unter dem Namen{' '}
+                <span className="text-[#0A0A0A]">cbb_consent_clickout_v2</span> (Attribute:{' '}
+                <span className="text-[#0A0A0A]">SameSite=Lax</span>,{' '}
+                <span className="text-[#0A0A0A]">Secure</span> (auf HTTPS-Verbindungen),{' '}
+                <span className="text-[#0A0A0A]">Path=/</span>, Laufzeit genau 182 Tage, also rund
+                sechs Monate). Sein Inhalt ist
+                ausschließlich das Wort <span className="text-[#0A0A0A]">accepted</span> oder{' '}
+                <span className="text-[#0A0A0A]">declined</span>. Er enthält{' '}
+                <strong className="text-[#0A0A0A]">keine</strong> Kennung, keine Nummer und keinen
+                Zeitstempel und dient nicht der Wiedererkennung. Gesetzt wird er nur durch Ihre
+                ausdrückliche Auswahl — nicht schon beim bloßen Aufruf der Seite.
+              </p>
+              <p className="text-sm leading-relaxed mb-3">
+                <strong className="text-[#0A0A0A]">Speicherort der Kennung:</strong> Die zufällige
+                Sitzungskennung liegt im <span className="text-[#0A0A0A]">sessionStorage</span> Ihres
+                Browsers und steht <strong className="text-[#0A0A0A]">nie</strong> in einem Cookie — auch
+                nicht in dem oben genannten. Sie entsteht erst, wenn Sie nach Ihrer Einwilligung
+                tatsächlich einen Partnerlink anklicken, wird beim Schließen des Tabs gelöscht und gilt
+                nicht tab- oder geräteübergreifend.
+              </p>
+              <p className="text-sm leading-relaxed mb-3">
+                <strong className="text-[#0A0A0A]">Ohne beides passiert nichts:</strong> Unser Server
+                speichert einen Klick nur, wenn der Consent-Cookie „akzeptiert“ trägt{' '}
+                <em>und</em> eine gültige Sitzungskennung mitgeschickt wird. Ein Link, in den jemand von
+                außen eine erfundene Kennung schreibt, erzeugt keinen Datensatz.
+              </p>
+              <p className="text-sm leading-relaxed mb-3">
+                <strong className="text-[#0A0A0A]">Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. a DSGVO
+                (Einwilligung) sowie § 25 Abs. 1 TDDDG für die Speicherung im Endgerät. Die Einwilligung ist
+                freiwillig und <strong className="text-[#0A0A0A]">jederzeit</strong> mit Wirkung für die
+                Zukunft widerrufbar — so einfach, wie sie erteilt wurde: Klicken Sie im Fußbereich jeder
+                Seite auf <strong className="text-[#0A0A0A]">Datenschutz-Einstellungen</strong>. Das löscht
+                den Entscheidungs-Cookie und die Sitzungskennung sofort, und der Hinweisbanner erscheint
+                erneut, sodass Sie neu entscheiden können. Alternativ können Sie im Hinweisbanner
+                „Ablehnen“ wählen oder die Websitedaten dieser Seite (Cookie und sessionStorage) in Ihren
+                Browsereinstellungen löschen — beides ist möglich, aber nicht der einzige Weg.
+              </p>
               <p className="text-sm leading-relaxed">
-                Diese Website verwendet Google Fonts. Die Schriftarten werden beim ersten Aufruf vom Server des Hosting-Anbieters geladen — nicht von Google-Servern. Eine direkte Verbindung zu Google-Servern findet nicht statt, sodass keine Daten an Google übertragen werden.
+                <strong className="text-[#0A0A0A]">Speicherdauer:</strong> Die Zähl-Datensätze werden
+                spätestens nach 12 Monaten gelöscht. Sie enthalten keinen Namen und keine Kontaktdaten und
+                sind für uns keiner Person zuzuordnen; ein Auskunftsersuchen zu einem einzelnen Datensatz
+                können wir deshalb regelmäßig nicht beantworten (Art. 11 DSGVO).
               </p>
             </div>
 
             {/* 7 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
               <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
-                7. Ihre Rechte (Art. 15–22 DSGVO)
+                7. Schriftarten (Google Fonts)
+              </h2>
+              <p className="text-sm leading-relaxed">
+                Diese Website verwendet Google Fonts. Die Schriftarten werden beim ersten Aufruf vom Server des Hosting-Anbieters geladen — nicht von Google-Servern. Eine direkte Verbindung zu Google-Servern findet nicht statt, sodass keine Daten an Google übertragen werden.
+              </p>
+            </div>
+
+            {/* 8 */}
+            <div className="border-l-2 border-[#E0E0E0] pl-6">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
+                8. Ihre Rechte (Art. 15–22 DSGVO)
               </h2>
               <p className="text-sm leading-relaxed mb-3">
                 Sie haben gegenüber uns folgende Rechte hinsichtlich der Sie betreffenden personenbezogenen Daten:
@@ -175,10 +275,10 @@ export default function DatenschutzPage() {
               </p>
             </div>
 
-            {/* 8 */}
+            {/* 9 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
               <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
-                8. Beschwerderecht bei der Aufsichtsbehörde (Art. 77 DSGVO)
+                9. Beschwerderecht bei der Aufsichtsbehörde (Art. 77 DSGVO)
               </h2>
               <p className="text-sm leading-relaxed">
                 Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung Ihrer personenbezogenen Daten zu beschweren. Die zuständige Aufsichtsbehörde richtet sich nach Ihrem gewöhnlichen Aufenthaltsort, Ihrem Arbeitsplatz oder dem Ort des mutmaßlichen Verstoßes. Eine Liste der deutschen Aufsichtsbehörden finden Sie auf der Website des Bundesbeauftragten für den Datenschutz (bfdi.bund.de).

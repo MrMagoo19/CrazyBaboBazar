@@ -5,6 +5,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import type { DbProduct } from '@/lib/db-types'
 import { getPriceBand } from '@/lib/db-types'
+import { merchantCtaLabel, merchantShortLabel, resolveMerchant } from '@/lib/affiliate'
+import { AFFILIATE_DISCLOSURE, affiliateAriaLabel } from '@/lib/affiliate-disclosure'
+import { AffiliateLink } from '@/components/ui/affiliate-link'
 import { ExternalLink, Shuffle, TrendingUp, Clock, Zap, SlidersHorizontal, ArrowRight } from 'lucide-react'
 
 type Tab = 'neueste' | 'beliebt' | 'unter20' | 'preisspanne' | 'zufall'
@@ -179,14 +182,37 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                       <span className="font-[family-name:var(--font-body)] font-semibold text-base text-[#0A0A0A]">
                         {getPriceBand(product.price_cents)}
                       </span>
-                      <a
-                        href={product.affiliate_url}
-                        target="_blank"
-                        rel="sponsored nofollow noopener noreferrer"
-                        className="flex items-center gap-1.5 bg-[#FFE500] text-[#0A0A0A] text-[10px] font-extrabold px-3 py-1.5 hover:bg-[#FFE500] transition-colors"
-                      >
-                        Amazon <ExternalLink size={10} />
-                      </a>
+                      {/* Klick-out laeuft ueber /api/click/<slug> (lib/affiliate.ts).
+                          Das Ziel steht nicht mehr im Markup und wird serverseitig
+                          aus den veroeffentlichten Produktdaten aufgeloest.
+
+                          Die Kennzeichnung steht in einer eigenen Spalte direkt
+                          unter dem Button — nicht IM Button, weil der nur
+                          "Amazon" traegt und der laengere Hinweis ihn entweder
+                          umbrechen oder ueber die Kartenbreite schieben wuerde.
+                          Ein <span> statt eines zweiten Links: verschachtelte
+                          <a> sind ungueltiges HTML. Das 44px-Touchziel bleibt
+                          am Link selbst und wird durch den Hinweis nicht
+                          angetastet. */}
+                      <div className="flex flex-col items-end gap-1">
+                        <AffiliateLink
+                          slug={product.slug}
+                          affiliateUrl={product.affiliate_url}
+                          // Screenreader lesen statt des Linktexts das Label —
+                          // der Hinweis daneben erreicht sie sonst nicht.
+                          ariaLabel={affiliateAriaLabel(
+                            `${merchantCtaLabel(resolveMerchant(product.affiliate_url))}: ${product.name}`
+                          )}
+                          className="flex items-center justify-center gap-1.5 bg-[#FFE500] text-[#0A0A0A] text-[10px] font-extrabold px-3 hover:bg-[#FFE500] transition-colors"
+                          style={{ minHeight: '44px', border: '2px solid #0A0A0A' }}
+                        >
+                          {merchantShortLabel(resolveMerchant(product.affiliate_url))}
+                          <ExternalLink size={10} aria-hidden />
+                        </AffiliateLink>
+                        <span className="text-[9px] leading-none uppercase tracking-wider text-[#555]">
+                          {AFFILIATE_DISCLOSURE}
+                        </span>
+                      </div>
                     </div>
                     <Link
                       href={`/produkt/${product.slug}`}

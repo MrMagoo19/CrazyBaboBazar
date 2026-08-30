@@ -7,6 +7,11 @@ import { resolveProductCategoryLink } from '@/lib/taxonomy'
 import { getPriceBand } from '@/lib/db-types'
 import { ShareButton } from '@/components/ui/share-button'
 import { ImageSlider } from '@/components/ui/image-slider'
+import { AffiliateLink } from '@/components/ui/affiliate-link'
+import { StickyAffiliateBar } from '@/components/ui/sticky-affiliate-bar'
+import { merchantCtaLabel, resolveMerchant } from '@/lib/affiliate'
+import { AFFILIATE_DISCLOSURE, affiliateAriaLabel } from '@/lib/affiliate-disclosure'
+import { ExternalLink } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const revalidate = 3600
@@ -109,6 +114,11 @@ export default async function ProduktPage({ params }: Props) {
 
   const catEmoji = product.categories?.emoji ?? '📦'
 
+  // Merchant-abhaengige CTA-Beschriftung. Heute immer Amazon; die Ableitung
+  // steht in lib/affiliate.ts, damit ein zweiter Partner nur dort eingetragen
+  // werden muss und nicht in jeder Komponente.
+  const ctaLabel = merchantCtaLabel(resolveMerchant(product.affiliate_url))
+
   // Category/breadcrumb target — only ever point at routes that actually exist.
   // Die Aufloesung liegt in `lib/taxonomy.ts`, damit Breadcrumb und Sitemap
   // dieselbe Route-Matrix benutzen: Eine bekannte Persona allein reicht nicht,
@@ -166,7 +176,10 @@ export default async function ProduktPage({ params }: Props) {
   }
 
   return (
-    <div>
+    // pb-24 auf Mobil: die fixe CTA-Leiste liegt ueber dem Dokumentfluss und
+    // wuerde sonst den letzten Abschnitt verdecken. Ab `md` gibt es die Leiste
+    // nicht, dort faellt der Abstand wieder weg.
+    <div className="pb-24 md:pb-0">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
@@ -264,7 +277,61 @@ export default async function ProduktPage({ params }: Props) {
                 <p className="text-[#555] font-semibold text-base mb-4">{product.tagline}</p>
               )}
 
-              <div className="text-[#555555] text-base leading-relaxed mb-8 space-y-3">
+              {/* ── CTA ──
+                  Bewusst OBERHALB des langen Beschreibungstexts. Vorher stand er
+                  darunter und lag auf dem Handy je nach Textlaenge mehrere
+                  Bildschirmhoehen unter dem Falz. Die Reihenfolge ist damit:
+                  Titel → Tagline → Preisband + CTA → Beschreibung. */}
+              <div style={{ borderTop: '2px solid #E0E0E0', borderBottom: '2px solid #E0E0E0', padding: '1.5rem 0', marginBottom: '2rem' }}>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <div className="text-[#555] text-xs font-[family-name:var(--font-mono)] uppercase tracking-wider mb-2">Preisbereich</div>
+                    <div className="font-[family-name:var(--font-mono)] font-bold text-3xl text-[#0A0A0A]">
+                      {getPriceBand(product.price_cents)}
+                    </div>
+                    {/* Bewusst KEINE Aktualitaetszusage: `price_cents` ist ein
+                        manuell gepflegter Wert, aus dem hier nur ein Preisband
+                        wird. "Aktueller Preis auf Amazon" waere eine Behauptung,
+                        die diese Datenquelle nicht deckt. */}
+                    <div className="text-[#555] text-[10px] mt-1">Preisband zur Orientierung</div>
+                  </div>
+                  <div className="text-right text-xs text-[#555] max-w-[140px]">
+                    <div>Preis wird von Amazon</div>
+                    <div>festgelegt &amp; kann variieren.</div>
+                  </div>
+                </div>
+
+                {/* ── Kennzeichnung DIREKT am CTA ──
+                    Vorher stand der Partnersatz unter dem ShareButton: ein
+                    fremdes Bedienelement zwischen Link und Hinweis, und auf
+                    dem Handy je nach Umbruch schon ausserhalb des Blicks. Die
+                    kommerzielle Natur muss aber erkennbar sein, BEVOR geklickt
+                    wird — der Hinweis steht deshalb unmittelbar ueber dem
+                    Button, ohne Element dazwischen. `rel="sponsored"` bleibt
+                    daneben bestehen, richtet sich aber nur an Suchmaschinen. */}
+                <p className="text-[#555] text-xs leading-relaxed text-center mb-2">
+                  <span className="font-bold text-[#0A0A0A]">{AFFILIATE_DISCLOSURE}</span>
+                  {' — Als Amazon-Partner verdienen wir an qualifizierten Käufen. Kein Aufpreis für dich.'}
+                </p>
+
+                <AffiliateLink
+                  slug={product.slug}
+                  affiliateUrl={product.affiliate_url}
+                  // Das Label ersetzt fuer Screenreader den Linktext — der
+                  // sichtbare Hinweis daneben wird nicht mitgelesen. Die
+                  // Kennzeichnung muss deshalb im Label selbst stehen.
+                  ariaLabel={affiliateAriaLabel(`${ctaLabel}: ${product.name}`)}
+                  className="flex w-full items-center justify-center gap-2 text-center bg-[#0A0A0A] text-white py-4 font-bold text-base hover:bg-[#FFE500] hover:text-[#0A0A0A] transition-colors duration-200 mb-3"
+                  style={{ minHeight: '48px' }}
+                >
+                  {ctaLabel}
+                  <ExternalLink size={16} aria-hidden />
+                </AffiliateLink>
+
+                <ShareButton name={product.name} tagline={product.tagline} />
+              </div>
+
+              <div className="text-[#555555] text-base leading-relaxed space-y-3">
                 {(product.description ?? '').split('\n').map((line, i) => {
                   const segments: { text: string; url?: string }[] = []
                   const re = /\[([^\]]+)\]\(([^)]+)\)/g
@@ -293,37 +360,6 @@ export default async function ProduktPage({ params }: Props) {
                 })}
               </div>
 
-              {/* CTA */}
-              <div style={{ borderTop: '2px solid #E0E0E0', paddingTop: '2rem' }}>
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <div className="text-[#555] text-xs font-[family-name:var(--font-mono)] uppercase tracking-wider mb-2">Preisbereich</div>
-                    <div className="font-[family-name:var(--font-mono)] font-bold text-3xl text-[#0A0A0A]">
-                      {getPriceBand(product.price_cents)}
-                    </div>
-                    <div className="text-[#555] text-[10px] mt-1">Aktueller Preis auf Amazon</div>
-                  </div>
-                  <div className="text-right text-xs text-[#555] max-w-[140px]">
-                    <div>Preis wird von Amazon</div>
-                    <div>festgelegt & kann variieren.</div>
-                  </div>
-                </div>
-
-                <a
-                  href={product.affiliate_url}
-                  target="_blank"
-                  rel="sponsored nofollow noopener noreferrer"
-                  className="block w-full text-center bg-[#0A0A0A] text-white py-4 font-bold text-base hover:bg-[#FFE500] hover:text-[#0A0A0A] transition-colors duration-200 mb-3"
-                >
-                  Preis auf Amazon prüfen →
-                </a>
-
-                <ShareButton name={product.name} tagline={product.tagline} />
-
-                <p className="text-[#555] text-xs text-center mt-3">
-                  * Als Amazon-Partner verdienen wir an qualifizierten Käufen. Kein Aufpreis für dich.
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -590,6 +626,16 @@ export default async function ProduktPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* ── MOBILE STICKY-CTA ──────────────────────────────────
+          Nur unter `md`. Der z-index liegt unter dem Cookie-Hinweis, damit die
+          Einwilligungsentscheidung nie verdeckt wird. */}
+      <StickyAffiliateBar
+        slug={product.slug}
+        affiliateUrl={product.affiliate_url}
+        productName={product.name}
+        priceBand={getPriceBand(product.price_cents)}
+      />
 
     </div>
   )

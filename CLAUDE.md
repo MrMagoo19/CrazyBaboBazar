@@ -1,4 +1,34 @@
+# Engine-Routing (Kostensteuerung)
+
+Verbindliche Routing-Tabelle: **`AGENTS.md` §0**.
+
+Kurzfassung für Claude: Delegiere mechanische Arbeit an die Subagenten in
+`.claude/agents/` — dort ist das Modell je Aufgabentyp hinterlegt und greift
+automatisch.
+
+Wichtig: Folge der Engine-Auto-Selection- und PARA-Memory-Policy in
+`AGENTS.md` (§14) und konsultiere `.claude/agents/engine-routing.md` bevor
+du Para Memory anfragst oder eine Engine automatisch wechselst.
+
+| Aufgabe | Agent | Engine |
+|---|---|---|
+| Zählen, suchen, SQL, HTTP-Status, Seitengrößen | `scout` | haiku / — |
+| Externe Recherche mit Belegstufe | `rechercheur` | sonnet / medium |
+| Code-Befunde mit Datei:Zeile | `code-auditor` | sonnet / high |
+| Veröffentlichungstexte nach Voice Bible | `texter` | sonnet / high |
+| Gegnerische Endprüfung vor Vorlage | `pruefer` | opus / high |
+
+Haiku unterstützt keine konfigurierbare Effort-Stufe — daher `—` beim `scout`.
+Die Einsparung entsteht dort durch das Modell selbst, nicht durch eine Stufe.
+
+**Bleibt in der Hauptsitzung:** Strategie, Abwägung, Entscheidung, Synthese — und
+jeder Befund, an dem eine Entscheidung hängt.
+
+**Unverändert:** Eine günstigere Engine senkt nie den Belegstandard. Quelle,
+Codestelle oder Abfrage gehören weiterhin zu jeder Aussage.
+
 # Websiteerstellung
+
 
 ## Tech Stack
 

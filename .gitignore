@@ -13,3 +13,7 @@
 
 # Lokale Editor-Workspace-Dateien (enthalten Maschinenpfade dieses Rechners).
 *.code-workspace
+
+# Lokale Claude-Code-Einstellungen dieses Arbeitsplatzes. Projektweit geteilte
+# Agentendefinitionen unter .claude/agents/ bleiben dagegen versionierbar.
+/.claude/settings.local.json

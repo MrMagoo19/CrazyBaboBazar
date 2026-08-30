@@ -8,6 +8,7 @@ import { buildClickOutHref, merchantCtaLabel, resolveMerchant } from '@/lib/affi
 import { getOrCreateClickSessionId } from '@/lib/click-session'
 import { consentStore } from '@/lib/consent'
 import type { ConsentSnapshot } from '@/lib/consent-store'
+import { cn } from '@/lib/utils'
 
 /**
  * Der eine Affiliate-CTA der App.
@@ -143,7 +144,14 @@ export function AffiliateLink({
       // Unser eigener Endpunkt braucht den Referrer nicht: die Herkunft steht
       // bereits sanitisiert im `from`-Parameter.
       referrerPolicy="no-referrer"
-      className={className}
+      // `touch-manipulation` schaltet den 300ms-Doppeltipp-Zoom ab, damit der
+      // CTA auf Mobil sofort reagiert. Als statische Klasse, damit Tailwind sie
+      // beim Scannen findet — ein zur Laufzeit gebauter Klassenname landete
+      // nicht im Stylesheet. `cn` statt einer Verkettung: es fuehrt die Klasse
+      // konfliktfrei mit dem `className` der Aufrufstelle zusammen, sodass ein
+      // dort bewusst gesetztes `touch-none` gewinnt, statt dass beide Klassen
+      // nebeneinander stehen und die CSS-Reihenfolge entscheidet.
+      className={cn('touch-manipulation', className)}
       style={style}
       aria-label={ariaLabel}
       title={title}

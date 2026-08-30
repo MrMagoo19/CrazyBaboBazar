@@ -152,7 +152,7 @@ export function ProductGrid({ products }: { products: DbProduct[] }) {
                 slug={product.slug}
                 affiliateUrl={product.affiliate_url}
                 ariaLabel={affiliateAriaLabel(`${ctaLabel}: ${product.name}`)}
-                className="flex items-center justify-center gap-2 w-full text-[11px] font-black uppercase tracking-widest"
+                className="flex items-center justify-center gap-2 w-full text-[11px] font-black uppercase tracking-widest transition-[filter] hover:brightness-95"
                 style={{
                   minHeight: '44px',
                   // Longhand statt `background`/`border`-Kurzform: identische

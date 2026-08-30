@@ -150,6 +150,8 @@ describe('ProductGrid — Semantik und Bedienbarkeit', () => {
 
     const minHeight = affiliateLinks()[0].style.minHeight
     expect(minHeight).toBe('44px')
+    expect(affiliateLinks()[0].className).toContain('touch-manipulation')
+    expect(affiliateLinks()[0].className).toContain('hover:brightness-95')
   })
 
   it('haelt jeden CTA in der Tab-Reihenfolge', () => {

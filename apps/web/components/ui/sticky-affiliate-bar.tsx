@@ -78,7 +78,16 @@ export function StickyAffiliateBar({
           // `aria-label` ersetzt aber den Linktext, nicht die Umgebung. Der
           // Hinweis gehoert deshalb auch ins Label.
           ariaLabel={affiliateAriaLabel(`${ctaLabel}: ${productName}`)}
-          className="ml-auto flex items-center justify-center gap-2 flex-1 text-xs font-black uppercase tracking-widest"
+          // Hover-Rueckmeldung ueber die Deckkraft, nicht ueber `brightness`:
+          // Der Button ist fast schwarz (#0A0A0A), ein `brightness(1.25)` hebt
+          // ihn nur auf #0D0D0D — das sieht niemand. Gleichzeitig klemmt
+          // derselbe Filter das Markengelb der Schrift auf #FFFF00 hoch, also
+          // genau die Farbverschiebung, die hier nicht passieren soll.
+          // `opacity` mischt den Button stattdessen gegen den weissen
+          // Leistengrund auf, was sichtbar ist und den Farbton haelt: die
+          // Flaeche geht auf rgb(35,35,35), das Gelb bleibt praktisch
+          // unveraendert und der Kontrast dazwischen bleibt weit ueber 4,5:1.
+          className="ml-auto flex items-center justify-center gap-2 flex-1 text-xs font-black uppercase tracking-widest transition-opacity hover:opacity-90"
           style={{
             minHeight: '48px',
             backgroundColor: '#0A0A0A',

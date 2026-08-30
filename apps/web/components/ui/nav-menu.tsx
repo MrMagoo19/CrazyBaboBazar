@@ -17,7 +17,7 @@ type DropdownItem = { label: string; href: string; icon: React.ElementType; desc
 
 const THEMEN: DropdownItem[] = [
   { label: "Gaming",          href: "/thema/gaming",    icon: Gamepad2,        desc: "Tabletop, Retro & Collectibles" },
-  { label: "Tech & Setup",    href: "/thema/tech",      icon: Laptop,          desc: "Gadgets & Schreibtisch" },
+  { label: "Tech",            href: "/thema/tech",      icon: Laptop,          desc: "Gadgets & Schreibtisch" },
   { label: "Küche",           href: "/thema/kueche",    icon: UtensilsCrossed, desc: "Küchengeräte & Kulinarisches" },
   { label: "Lifestyle",       href: "/thema/lifestyle", icon: Sparkles,        desc: "Party, Bar & Fun" },
   { label: "Outdoor",         href: "/thema/outdoor",   icon: TreePine,        desc: "Camping & Survival" },

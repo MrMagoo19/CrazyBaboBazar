@@ -280,6 +280,65 @@ describe('Produktseite — mobile Sticky-Leiste', () => {
     expect(root.className).toContain('pb-24')
     expect(root.className).toContain('md:pb-0')
   })
+
+  it('gibt dem Sticky-CTA eine sichtbare Hover-Rueckmeldung', async () => {
+    await renderPage()
+
+    const sticky = affiliateLinks()[1]
+
+    // Vorher war der Hover wirkungslos: `brightness` auf einer fast schwarzen
+    // Flaeche (#0A0A0A) ergibt #0D0D0D — kein wahrnehmbarer Unterschied.
+    expect(sticky.className).not.toContain('brightness')
+    expect(sticky.className).toContain('hover:opacity-90')
+    expect(sticky.className).toContain('transition-opacity')
+  })
+
+  it('laesst die Inline-Farben der Leiste unangetastet', async () => {
+    await renderPage()
+
+    // Die Rueckmeldung darf die Farben nicht ersetzen — sie mischt sie nur
+    // gegen den Leistengrund auf. Der Ruhezustand bleibt exakt schwarz/gelb.
+    const sticky = affiliateLinks()[1]
+    expect(sticky.style.backgroundColor).toMatch(/#0a0a0a|rgb\(10,\s*10,\s*10\)/i)
+    expect(sticky.style.color).toMatch(/#ffe500|rgb\(255,\s*229,\s*0\)/i)
+    expect(sticky.style.minHeight).toBe('48px')
+  })
+
+  it('erlaubt auf beiden CTAs sofortiges Tippen ohne Doppeltipp-Verzoegerung', async () => {
+    await renderPage()
+
+    const ctas = affiliateLinks()
+    expect(ctas).toHaveLength(2)
+    for (const cta of ctas) {
+      expect(cta.className).toContain('touch-manipulation')
+    }
+  })
+
+  it('markiert das Icon im Sticky-CTA als dekorativ', async () => {
+    await renderPage()
+
+    // Das `aria-label` traegt die Bedeutung. Ein zusaetzlich vorgelesenes
+    // Icon waere nur Rauschen.
+    const icon = affiliateLinks()[1].querySelector('svg')
+    expect(icon?.getAttribute('aria-hidden')).toBe('true')
+  })
+
+  it('behaelt Kennzeichnung und Affiliate-Eigenschaften trotz der Hover-Aenderung', async () => {
+    await renderPage()
+
+    const bar = screen.getByTestId('sticky-affiliate-bar')
+    const sticky = affiliateLinks()[1]
+
+    expect((bar.firstElementChild as HTMLElement).textContent?.trim()).toBe(
+      'Anzeige · Affiliate-Link'
+    )
+    expect(sticky.getAttribute('rel')).toBe('sponsored nofollow noopener noreferrer')
+    expect(sticky.getAttribute('target')).toBe('_blank')
+    expect(sticky.getAttribute('href')).toContain(`/api/click/${SLUG}`)
+    expect(sticky.getAttribute('aria-label')).toBe(
+      'Anzeige · Affiliate-Link — Bei Amazon ansehen: Rocketbook Notizbuch A4'
+    )
+  })
 })
 
 describe('Produktseite — unveroeffentlichte Produkte', () => {

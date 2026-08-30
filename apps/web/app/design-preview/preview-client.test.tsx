@@ -105,6 +105,36 @@ afterEach(() => {
  * und gerade die abgeschaltete Messung sich nur am Verhalten zeigt.
  */
 describe('Design-Preview — Kennzeichnung des Partnerlinks', () => {
+  it('macht das Overlay auch bei Tastaturfokus sichtbar und versteckt das dekorative Icon', () => {
+    render(<PreviewClient products={[makeProduct()]} />)
+
+    const [cta] = affiliateLinks()
+    const overlay = cta.parentElement
+    expect(overlay?.className).toContain('group-focus-within:opacity-100')
+    expect(overlay?.className).toContain('group-focus-within:translate-y-0')
+    expect(cta.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true')
+  })
+
+  it('meldet aktive Theme- und Filter-Auswahlen', () => {
+    render(<PreviewClient products={[makeProduct()]} />)
+
+    const warm = screen.getByRole('button', { name: /Warm Editorial/ })
+    const brutal = screen.getByRole('button', { name: /Clean Brutalist/ })
+    const neueste = screen.getByRole('button', { name: 'Neueste' })
+    const beliebt = screen.getByRole('button', { name: 'Beliebt' })
+
+    expect(warm.getAttribute('aria-pressed')).toBe('true')
+    expect(brutal.getAttribute('aria-pressed')).toBe('false')
+    fireEvent.click(brutal)
+    expect(brutal.getAttribute('aria-pressed')).toBe('true')
+    expect(warm.getAttribute('aria-pressed')).toBe('false')
+    expect(neueste.getAttribute('aria-pressed')).toBe('true')
+    expect(beliebt.getAttribute('aria-pressed')).toBe('false')
+    fireEvent.click(beliebt)
+    expect(beliebt.getAttribute('aria-pressed')).toBe('true')
+    expect(neueste.getAttribute('aria-pressed')).toBe('false')
+  })
+
   it('zeigt die Kennzeichnung sichtbar unmittelbar am CTA', () => {
     render(<PreviewClient products={[makeProduct()]} />)
 
@@ -151,6 +181,7 @@ describe('Design-Preview — Kennzeichnung des Partnerlinks', () => {
     const [cta] = affiliateLinks()
     expect(cta.getAttribute('rel')).toBe('sponsored nofollow noopener noreferrer')
     expect(cta.getAttribute('target')).toBe('_blank')
+    expect(cta.className).toContain('touch-manipulation')
     expect(document.body.innerHTML).not.toContain('amzn.to')
   })
 })

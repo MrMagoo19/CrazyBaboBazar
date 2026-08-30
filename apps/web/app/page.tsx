@@ -7,11 +7,11 @@ export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: 'Crazy Babo Bazar — Kuriose Produkte für schlaue Käufer',
-  description: 'Entdecke über 200 handverlesene Gadgets, Spielzeug, Beauty-Produkte und Outdoor-Equipment. Täglich neue Empfehlungen mit direkten Amazon-Links.',
+  description: 'Entdecke handverlesene Gadgets, Spielzeug, Beauty-Produkte und Outdoor-Equipment. Täglich neue Empfehlungen mit direkten Amazon-Links.',
   alternates: { canonical: '/' },
   openGraph: {
     title: 'Crazy Babo Bazar — Kuriose Produkte für schlaue Käufer',
-    description: 'Über 200 handverlesene Produkte. Täglich neue Empfehlungen.',
+    description: 'Handverlesene Produkte. Täglich neue Empfehlungen.',
     type: 'website',
     url: 'https://www.crazybabobazar.com',
   },
@@ -39,7 +39,7 @@ export default async function HomePage() {
               Nicht wissen was du willst?
             </h2>
             <p className="text-[#AAA] text-sm max-w-md">
-              Swipe dich durch 350+ Produkte — rechts für Interesse, links für weiter. Je mehr du likest, desto besser wird die Auswahl.
+              Swipe dich durch {products.length.toLocaleString('de-DE')} Produkte — rechts für Interesse, links für weiter. Je mehr du likest, desto besser wird die Auswahl.
             </p>
           </div>
           <a

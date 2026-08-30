@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/guides/outdoor' }))
 
@@ -141,12 +141,47 @@ describe('GuideFinder — Linkstruktur bleibt unveraendert', () => {
 })
 
 describe('GuideFinder — Bedienbarkeit trotz zusaetzlicher Zeile', () => {
+  it('meldet den aktiven Filter und verbindet die Preis-Labels mit den Eingaben', () => {
+    render(<GuideFinder products={[makeProduct()]} />)
+
+    const neueste = screen.getByRole('button', { name: 'Neueste' })
+    const preisspanne = screen.getByRole('button', { name: 'Preisspanne' })
+    expect(neueste.getAttribute('aria-pressed')).toBe('true')
+    expect(preisspanne.getAttribute('aria-pressed')).toBe('false')
+
+    fireEvent.click(preisspanne)
+
+    expect(preisspanne.getAttribute('aria-pressed')).toBe('true')
+    expect(neueste.getAttribute('aria-pressed')).toBe('false')
+
+    const min = screen.getByLabelText('Von (€)') as HTMLInputElement
+    const max = screen.getByLabelText('Bis (€)') as HTMLInputElement
+    expect(min.id).toBe('guide-price-min')
+    expect(min.name).toBe('minPrice')
+    expect(min.inputMode).toBe('decimal')
+    expect(min.autocomplete).toBe('off')
+    expect(max.id).toBe('guide-price-max')
+    expect(max.name).toBe('maxPrice')
+    expect(max.inputMode).toBe('decimal')
+    expect(max.autocomplete).toBe('off')
+  })
+
+  it('nimmt dekorative Tab-Icons aus dem Accessibility-Baum', () => {
+    render(<GuideFinder products={[makeProduct()]} />)
+
+    for (const name of ['Neueste', 'Beliebt', 'Unter 20€', 'Preisspanne', 'Zufällig']) {
+      const icon = screen.getByRole('button', { name }).querySelector('svg')
+      expect(icon?.getAttribute('aria-hidden')).toBe('true')
+    }
+  })
+
   it('haelt das Touch-Ziel bei mindestens 44px', () => {
     render(<GuideFinder products={[makeProduct()]} />)
 
     // Die Kennzeichnung liegt AUSSERHALB des Links. Sie darf dessen
     // Mindesthoehe deshalb nicht anknabbern.
     expect(affiliateLinks()[0].style.minHeight).toBe('44px')
+    expect(affiliateLinks()[0].className).toContain('touch-manipulation')
   })
 
   it('verschachtelt keine Links ineinander', () => {

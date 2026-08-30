@@ -39,7 +39,7 @@ export default function OGImage() {
             crazybabobazar.com
           </div>
           <div style={{ color: '#0A0A0A', fontSize: '16px', fontWeight: 700 }}>
-            100+ handverlesene Produkte
+            Handverlesene Produkte
           </div>
         </div>
       </div>

@@ -129,7 +129,7 @@ export default function RootLayout({
                 <ul className="space-y-2">
                   {[
                     { href: '/thema/gaming',    label: 'Gaming' },
-                    { href: '/thema/tech',       label: 'Tech & Setup' },
+                    { href: '/thema/tech',       label: 'Tech' },
                     { href: '/thema/kueche',     label: 'Küche' },
                     { href: '/thema/lifestyle',  label: 'Lifestyle' },
                     { href: '/thema/outdoor',    label: 'Outdoor' },

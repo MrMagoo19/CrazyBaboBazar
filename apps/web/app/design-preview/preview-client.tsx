@@ -85,6 +85,7 @@ const FILTERS = [
 
 export function PreviewClient({ products }: { products: DbProduct[] }) {
   const [theme, setTheme] = useState<Theme>('warm')
+  const [activeFilter, setActiveFilter] = useState(FILTERS[0].key)
   const t = theme === 'dark' ? DARK : theme === 'warm' ? WARM : BRUTAL
   const isBrutal = theme === 'brutal'
 
@@ -107,8 +108,9 @@ export function PreviewClient({ products }: { products: DbProduct[] }) {
           {(['dark', 'warm', 'brutal'] as Theme[]).map(v => (
             <button
               key={v}
+              aria-pressed={theme === v}
               onClick={() => setTheme(v)}
-              className="px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all duration-200"
+              className="px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-[color,background-color] duration-200"
               style={{
                 background: theme === v ? t.accent : 'transparent',
                 color: theme === v ? '#fff' : '#999',
@@ -145,10 +147,12 @@ export function PreviewClient({ products }: { products: DbProduct[] }) {
           <div className="flex items-center overflow-x-auto">
             {FILTERS.map(({ key, label, icon: Icon }) => (
               <button key={key}
-                className="flex items-center gap-2 px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap border-b-2 transition-all"
-                style={{ borderColor: key === 'neu' ? t.accent : 'transparent',
-                         color: key === 'neu' ? t.accent : t.tagline }}>
-                <Icon size={12} />
+                aria-pressed={key === activeFilter}
+                onClick={() => setActiveFilter(key)}
+                className="flex items-center gap-2 px-5 py-3.5 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap border-b-2 transition-[color,border-color]"
+                style={{ borderColor: key === activeFilter ? t.accent : 'transparent',
+                         color: key === activeFilter ? t.accent : t.tagline }}>
+                <Icon size={12} aria-hidden />
                 {label}
               </button>
             ))}
@@ -210,7 +214,7 @@ export function PreviewClient({ products }: { products: DbProduct[] }) {
                     Hover-Container wie der Button, erscheint also mit ihm
                     zusammen; ein Hinweis, der ohne den Button sichtbar waere,
                     wuerde am Bild kleben und die Karte veraendern. */}
-                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 flex flex-col items-end gap-1">
+                <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-[opacity,transform] duration-300 translate-y-2 group-hover:translate-y-0 group-focus-within:translate-y-0 flex flex-col items-end gap-1">
                   <span
                     style={{ background: t.cardBg, color: t.titleColor }}
                     className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 leading-none"
@@ -225,7 +229,7 @@ export function PreviewClient({ products }: { products: DbProduct[] }) {
                     style={{ background: t.accent, color: theme === 'warm' ? '#fff' : '#1C1C1C' }}
                     className="flex items-center gap-1.5 text-[10px] font-extrabold px-3 py-1.5"
                   >
-                    Amazon <ExternalLink size={10} />
+                    Amazon <ExternalLink size={10} aria-hidden />
                   </AffiliateLink>
                 </div>
               </div>

@@ -97,6 +97,41 @@ describe('AffiliateLink — Linkstruktur', () => {
     expect(a.getAttribute('tabindex')).toBeNull()
   })
 
+  it('optimiert Touch-Aktivierungen und behaelt uebergebene Klassen', () => {
+    render(
+      <AffiliateLink slug={SLUG} affiliateUrl={TARGET} className="eigene-klasse" />
+    )
+
+    expect(link().className).toContain('touch-manipulation')
+    expect(link().className).toContain('eigene-klasse')
+  })
+
+  it('setzt touch-manipulation auch ohne uebergebenes className', () => {
+    render(<AffiliateLink slug={SLUG} affiliateUrl={TARGET} />)
+
+    // Ohne `className` darf kein leeres Fragment uebrig bleiben.
+    expect(link().className).toBe('touch-manipulation')
+  })
+
+  it('laesst ein bewusst gesetztes touch-none der Aufrufstelle gewinnen', () => {
+    render(<AffiliateLink slug={SLUG} affiliateUrl={TARGET} className="touch-none" />)
+
+    // Zusammenfuehren statt Verketten: stuenden beide Klassen nebeneinander,
+    // entschiede die Reihenfolge im Stylesheet — nicht die Aufrufstelle.
+    const classes = link().className.split(/\s+/)
+    expect(classes).toContain('touch-none')
+    expect(classes).not.toContain('touch-manipulation')
+  })
+
+  it('baut keine Kennzeichnung in die generische Komponente ein', () => {
+    render(<AffiliateLink slug={SLUG} affiliateUrl={TARGET} />)
+
+    // Die Disclosure gehoert an die Aufrufstelle, wo sie sichtbar neben dem
+    // Button steht. Automatisch hier eingebaut erschiene sie auf jeder Flaeche
+    // doppelt.
+    expect(document.body.textContent).not.toContain('Anzeige · Affiliate-Link')
+  })
+
   it('liefert das erste href auch bei erteiltem Consent unveraendert aus', () => {
     // Hydrierungsstabilitaet: Server und Client rendern denselben Link. Die
     // Kennung kommt erst bei der tatsaechlichen Aktivierung dazu.

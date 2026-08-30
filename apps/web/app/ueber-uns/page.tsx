@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { getPublishedProductCount } from '@/lib/db'
+
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   // Ohne Markennamen: `title.template` im Root-Layout haengt ihn an. Der frühere
@@ -36,7 +39,12 @@ const personas = [
   { slug: '/miniboss', label: 'Miniboss', desc: 'Spielzeug & Spaß für kleine Chefs', emoji: '⭐' },
 ]
 
-export default function UeberUnsPage() {
+export default async function UeberUnsPage() {
+  const productCount = await getPublishedProductCount()
+  const productCountLabel = productCount === null
+    ? 'Viele'
+    : productCount.toLocaleString('de-DE')
+
   return (
     <div>
       {/* Breadcrumb */}
@@ -95,8 +103,8 @@ export default function UeberUnsPage() {
                 <div className="font-[family-name:var(--font-mono)] font-black text-xs uppercase tracking-widest text-[#0A0A0A] mb-3">In Zahlen</div>
                 <div className="space-y-3">
                   {[
-                    ['100+', 'handverlesene Produkte'],
-                    ['4', 'Personas — Babos, Queens, Miniboss, Wellness'],
+                    [productCountLabel, 'handverlesene Produkte'],
+                    ['3', 'Personas — Babos, Queens und Miniboss'],
                     ['0', 'automatisch hinzugefügte Produkte'],
                     ['1', 'Anspruch: nur empfehlen was überzeugt'],
                   ].map(([num, label]) => (
@@ -141,7 +149,7 @@ export default function UeberUnsPage() {
             Für wen ist der Bazar?
           </h2>
           <p className="text-[#555] text-base mb-10 max-w-xl">
-            Wir denken in Personas — nicht in Demographics. Jeder Mensch hat mehrere Seiten. Vier davon haben wir kuratiert.
+            Wir denken in Personas — nicht in Demographics. Jeder Mensch hat mehrere Seiten. Drei davon haben wir kuratiert.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {personas.map((p) => (

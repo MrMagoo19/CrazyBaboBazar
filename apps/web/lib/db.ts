@@ -59,6 +59,22 @@ export async function getPublishedProducts(): Promise<DbProduct[]> {
   return [...featured, ...rest]
 }
 
+/**
+ * Schlanke Bestandszahl fuer Seiten, die nur den Umfang nennen. Anders als
+ * `getPublishedProducts` uebertraegt diese Abfrage keine Produktzeilen. Bei
+ * einem Lesefehler kommt `null` zurueck, damit die UI keine erfundene oder
+ * irrefuehrende Null als echten Bestand ausgibt.
+ */
+export async function getPublishedProductCount(): Promise<number | null> {
+  const supabase = publicClient()
+  const { count, error } = await supabase
+    .from('products')
+    .select('id', { count: 'exact', head: true })
+    .eq('is_published', true)
+  if (error) return null
+  return count
+}
+
 export async function getProductsByCategory(categorySlug: string): Promise<DbProduct[]> {
   const supabase = publicClient()
   const { data } = await supabase
@@ -259,4 +275,3 @@ export async function getProductsByTag(tag: string): Promise<DbProduct[]> {
   const rest = seededShuffle(data.filter(p => !p.is_featured), seed + 1)
   return [...featured, ...rest]
 }
-

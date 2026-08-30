@@ -189,6 +189,40 @@ export default function DatenschutzPage() {
                 Profile gebildet und keine Daten mit anderen Quellen zusammengeführt.
               </p>
               <p className="text-sm leading-relaxed mb-3">
+                <strong className="text-[#0A0A0A]">Datenbankdienst und Empfänger:</strong> Für die
+                Speicherung der in diesem Abschnitt genannten Zähl-Datensätze nutzen wir Supabase als
+                Datenbank- und Hosting-Dienstleister. Anbieter ist Supabase, Inc., c/o Incorporating
+                Services, Ltd., 3500 S. DuPont Highway, Dover, Kent 19901, Delaware, USA. Supabase
+                verarbeitet diese Daten in unserem Auftrag. An Supabase werden nur die oben ausdrücklich
+                aufgeführten Angaben übermittelt; insbesondere erhält Supabase von uns für diese Messung
+                weder Ihre IP-Adresse noch Ihre vollständige Browserkennung.
+              </p>
+              <p className="text-sm leading-relaxed mb-3">
+                <strong className="text-[#0A0A0A]">Drittlandübermittlung:</strong> Supabase ist ein
+                US-Unternehmen und setzt für einzelne Leistungen weitere Dienstleister ein. Dadurch kann
+                es zu einer Verarbeitung in den USA oder Singapur kommen. Supabase nennt für solche
+                Übermittlungen die Standardvertragsklauseln der Europäischen Kommission (Modul 2:
+                Verantwortlicher an Auftragsverarbeiter) als Übermittlungsmechanismus gemäß Art. 46 Abs. 2
+                lit. c DSGVO. Weitere Informationen finden Sie in der{' '}
+                <a
+                  href="https://supabase.com/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 hover:text-[#0A0A0A]"
+                >
+                  Datenschutzerklärung von Supabase
+                </a>{' '}
+                und in der{' '}
+                <a
+                  href="https://supabase.com/downloads/docs/Supabase%2BTIA%2B250314.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 hover:text-[#0A0A0A]"
+                >
+                  Transfer-Folgenabschätzung von Supabase
+                </a>.
+              </p>
+              <p className="text-sm leading-relaxed mb-3">
                 <strong className="text-[#0A0A0A]">Wie Ihre Entscheidung zu uns gelangt:</strong> Die
                 Messung findet auf unserem Server statt. Damit dieser Ihre Einwilligung überhaupt prüfen
                 kann, speichert Ihre Entscheidung im Hinweisbanner einen funktionalen First-Party-Cookie

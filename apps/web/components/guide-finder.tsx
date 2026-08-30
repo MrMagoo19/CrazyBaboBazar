@@ -66,17 +66,18 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
             {TABS.map(tab => (
               <button
                 key={tab.key}
+                aria-pressed={activeTab === tab.key}
                 onClick={() => {
                   setActiveTab(tab.key)
                   if (tab.key === 'zufall') setShuffleSeed(s => s + 1)
                 }}
-                className={`flex items-center gap-2 px-5 py-4 text-xs font-bold uppercase tracking-widest whitespace-nowrap border-b-2 transition-all duration-200
+                className={`flex items-center gap-2 px-5 py-4 text-xs font-bold uppercase tracking-widest whitespace-nowrap border-b-2 transition-[color,background-color,border-color] duration-200
                   ${activeTab === tab.key
                     ? 'border-[#0A0A0A] bg-[#FFE500] text-[#0A0A0A]'
                     : 'border-transparent text-[#555] hover:text-[#0A0A0A]'
                   }`}
               >
-                <tab.icon size={13} />
+                <tab.icon size={13} aria-hidden />
                 {tab.label}
               </button>
             ))}
@@ -89,28 +90,36 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
         <div className="border-b-2 border-[#0A0A0A] bg-[#F5F5F5]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-end gap-6">
             <div>
-              <label className="block text-[10px] uppercase tracking-widest text-[#555] mb-2">Von (€)</label>
+              <label htmlFor="guide-price-min" className="block text-[10px] uppercase tracking-widest text-[#555] mb-2">Von (€)</label>
               <input
+                id="guide-price-min"
+                name="minPrice"
                 type="number"
+                inputMode="decimal"
+                autoComplete="off"
                 min={0}
                 value={minPrice}
                 onChange={e => setMinPrice(Number(e.target.value))}
-                className="w-24 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] text-sm px-3 py-2 outline-none focus:border-[#FFE500]"
+                className="w-24 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] text-sm px-3 py-2 focus:border-[#FFE500]"
               />
             </div>
             <div>
-              <label className="block text-[10px] uppercase tracking-widest text-[#555] mb-2">Bis (€)</label>
+              <label htmlFor="guide-price-max" className="block text-[10px] uppercase tracking-widest text-[#555] mb-2">Bis (€)</label>
               <input
+                id="guide-price-max"
+                name="maxPrice"
                 type="number"
+                inputMode="decimal"
+                autoComplete="off"
                 min={0}
                 value={maxPrice}
                 onChange={e => setMaxPrice(Number(e.target.value))}
-                className="w-24 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] text-sm px-3 py-2 outline-none focus:border-[#FFE500]"
+                className="w-24 bg-white border-2 border-[#0A0A0A] text-[#0A0A0A] text-sm px-3 py-2 focus:border-[#FFE500]"
               />
             </div>
             <button
               onClick={() => { setAppliedMin(minPrice); setAppliedMax(maxPrice) }}
-              className="px-6 py-2 bg-[#FFE500] text-[#0A0A0A] text-xs font-extrabold uppercase tracking-widest hover:bg-[#FFE500] transition-colors border-2 border-[#0A0A0A]"
+              className="px-6 py-2 bg-[#FFE500] text-[#0A0A0A] text-xs font-extrabold uppercase tracking-widest transition-[filter] hover:brightness-95 border-2 border-[#0A0A0A]"
             >
               Anwenden
             </button>
@@ -138,7 +147,7 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                   onClick={() => setShuffleSeed(s => s + 1)}
                   className="ml-3 inline-flex items-center gap-1 text-[#0A0A0A] hover:underline font-bold"
                 >
-                  <Shuffle size={10} /> Neu mischen
+                  <Shuffle size={10} aria-hidden /> Neu mischen
                 </button>
               )}
             </p>
@@ -203,7 +212,7 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                           ariaLabel={affiliateAriaLabel(
                             `${merchantCtaLabel(resolveMerchant(product.affiliate_url))}: ${product.name}`
                           )}
-                          className="flex items-center justify-center gap-1.5 bg-[#FFE500] text-[#0A0A0A] text-[10px] font-extrabold px-3 hover:bg-[#FFE500] transition-colors"
+                          className="flex items-center justify-center gap-1.5 bg-[#FFE500] text-[#0A0A0A] text-[10px] font-extrabold px-3 transition-[filter] hover:brightness-95"
                           style={{ minHeight: '44px', border: '2px solid #0A0A0A' }}
                         >
                           {merchantShortLabel(resolveMerchant(product.affiliate_url))}
@@ -216,9 +225,9 @@ export function GuideFinder({ products }: { products: DbProduct[] }) {
                     </div>
                     <Link
                       href={`/produkt/${product.slug}`}
-                      className="flex items-center gap-1 text-xs font-bold text-[#555] hover:text-[#0A0A0A] hover:gap-2 transition-all duration-200"
+                      className="flex items-center gap-1 text-xs font-bold text-[#555] hover:text-[#0A0A0A] hover:gap-2 transition-[color,gap] duration-200"
                     >
-                      Details <ArrowRight size={11} />
+                      Details <ArrowRight size={11} aria-hidden />
                     </Link>
                   </div>
 

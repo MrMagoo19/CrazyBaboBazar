@@ -22,7 +22,8 @@ echo "--- /Prompt head ---"
 echo
 
 detect_agent_from_prompt() {
-  head -c 2000 "${PROMPT_FILE}" | awk 'BEGIN{in=0} /^---/ { if(in==0){in=1; next} else {exit}} in==1{print}' | sed -n 's/^agent:[[:space:]]*\(.*\)$/\1/p' | tr -d '"\r'
+  # extract YAML frontmatter between the first pair of '---' lines and look for agent:
+  sed -n '1,2000p' "${PROMPT_FILE}" | sed -n '/^---$/,/^---$/p' | sed -n 's/^agent:[[:space:]]*//p' | tr -d '"\r'
 }
 
 chosen_agent="$(detect_agent_from_prompt || true)"
@@ -35,11 +36,28 @@ echo "Detected agent: ${chosen_agent}"
 
 recommended_engine=""
 if [[ -f "${ROUTING_FILE}" ]]; then
-  recommended_engine=$(awk -v a="${chosen_agent}" '
-    BEGIN{found=0}
-    $0~("^\\s*"a":") {found=1}
-    found && $0~"recommended_engine:" {gsub(/^[ \t]*recommended_engine:[ \t]*/,"",$0); print $0; exit}
-  ' "${ROUTING_FILE}")
+  # Use python to robustly parse the small YAML-like mapping
+  recommended_engine=$(python3 - <<PY
+import re,sys
+f=open('${ROUTING_FILE}','r')
+lines=f.readlines()
+f.close()
+agent='''${chosen_agent}'''
+found=False
+for i,l in enumerate(lines):
+    if re.match(r'^\s*'+re.escape(agent)+r'\s*:\s*$', l):
+        found=True
+        for j in range(i+1, len(lines)):
+            m=re.match(r'^\s*recommended_engine\s*:\s*(\S+)', lines[j])
+            if m:
+                print(m.group(1))
+                sys.exit(0)
+            if re.match(r'^\S', lines[j]):
+                break
+        break
+sys.exit(0)
+PY
+)
 fi
 
 if [[ -n "${recommended_engine}" ]]; then

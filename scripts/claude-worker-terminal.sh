@@ -128,8 +128,8 @@ while true; do
 
     # Auto-detect agent from YAML frontmatter in the prompt (optional)
     detect_agent_from_prompt() {
-      # read first 2000 chars to be safe
-      head -c 2000 "${CBB_RUNNING_FILE}" | awk 'BEGIN{in=0} /^---/ { if(in==0){in=1; next} else {exit}} in==1{print}' | sed -n 's/^agent:[[:space:]]*\(.*\)$/\1/p' | tr -d '"\r'
+      # extract YAML frontmatter via sed and pull the agent: value
+      sed -n '1,2000p' "${CBB_RUNNING_FILE}" | sed -n '/^---$/,/^---$/p' | sed -n 's/^agent:[[:space:]]*//p' | tr -d '"\r'
     }
 
     chosen_agent="$(detect_agent_from_prompt || true)"

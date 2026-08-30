@@ -359,12 +359,12 @@ Instanz. Fehlen die Binaries, meldet der Harness das klar, gibt Stufe 1
 vollstaendig aus und endet mit **Exit 2** — das ist ausdruecklich weder PASS
 noch FAIL der Rollout-Dateien.
 
-**Belegter lokaler Stand (2026-08-28, Codex-Audit):** Der vollstaendige Harness
+**Belegter lokaler Stand (zuletzt wiederholt 2026-08-30, Codex-Audit):** Der vollstaendige Harness
 lief gegen einen wegwerfbaren PostgreSQL-16-Cluster mit **118/118 PASS**, **0
 Abweichungen** und Exit 0. Darin enthalten sind 13 statische Pruefungen sowie
 die Datenbankfaelle A bis O, einschliesslich Drift, doppeltem Jobnamen,
 fehlendem `pg_cron`, fehlgeschlagener Laufhistorie und Rollback mit aktivem
-Job. Ergebnisdatei: `/tmp/cbb-pgtest-clicks.9RBrw2Kd/results.tsv`.
+Job. Letzte Ergebnisdatei: `/tmp/cbb-pgtest-clicks.LydWhvbd/results.tsv`.
 
 Dieser lokale PASS belegt die SQL-Logik und ihre Guards, **nicht** die
 Einrichtung oder Ausfuehrung auf Production. Das Retention-Gate in Abschnitt 7

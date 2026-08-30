@@ -334,3 +334,61 @@ scharf geschaltet werden — unabhängig von Stufe 2.
 
 **Production-Hold bleibt unverändert bestehen.** Kein Commit, kein Push, kein Deploy,
 kein Datenbankzugriff in diesem Lauf.
+
+## Finaler lokaler Abschluss 2026-08-30 — Codex-Audit
+
+Die oben als „Stufe 2 weiterhin nicht bewertet" dokumentierte Aussage ist
+historisch und wird durch diesen Abschnitt ersetzt. Codex hat beide Harnesse mit
+einem portablen PostgreSQL 16.15 vollständig gegen wegwerfbare lokale Cluster
+ausgeführt. Production und Pilot/Staging wurden dabei nicht berührt.
+
+### Abgeschlossene Arbeitsblöcke
+
+- **Engine-Routing:** Der sichtbare Claude-Runner liest `agent:` aus dem
+  Prompt-Frontmatter, mappt ausschließlich die in
+  `.claude/agents/engine-routing.md` erlaubten Aliasse und beendet die
+  Optionsauswertung vor einem mit `---` beginnenden Prompt. Jobzustand und
+  Modellargumente werden zwischen Aufträgen zurückgesetzt.
+- **Affiliate-CTA/Disclosure:** `Anzeige · Affiliate-Link` bleibt an allen
+  direkten CTAs sichtbar und Teil des zugänglichen Namens. Preisfilter haben
+  echte Labels, Auswahlbuttons melden ihren Zustand, das Design-Preview-Overlay
+  wird auch bei Tastaturfokus sichtbar, dekorative Icons sind ausgeblendet und
+  Affiliate-Links verwenden `touch-action: manipulation`.
+- **F1 Datenschutz:** Supabase ist als Datenbankdienst/Empfänger der
+  consent-gebundenen Klick-Messung einschließlich Anbieteranschrift,
+  Datenumfang, möglicher Drittlandverarbeitung, SCC-Mechanismus und
+  Anbieterquellen dokumentiert. Es wird keine unbelegte Projektregion genannt.
+- **Lokale Quick Wins:** A1 (drei statt vier Personas), A2 (read-only
+  Bestandszählung), A3 (bereits geladene Produktmenge statt Festzahl) und C6
+  (kanonisches sichtbares Label `Tech`) sind im Repo erledigt.
+
+### Finale lokale Gates
+
+| Gate | Ergebnis |
+|---|---|
+| `npm test` | **21 Dateien, 325 Tests grün** |
+| `npm run typecheck` | **Exit 0** |
+| `npm run lint` | **Exit 0** |
+| `npm run build` | **Exit 0, 441/441 Seiten** |
+| Engine-Routing-Harness | **41/41 PASS**, echter Runner mit Stub-`claude`, kein versteckter Claude-Aufruf |
+| `production_clickouts` PostgreSQL-Harness | **118/118 PASS**, 0 Abweichungen, Exit 0; `/tmp/cbb-pgtest-clicks.LydWhvbd/results.tsv` |
+| `production_value_add_batch3` PostgreSQL-Harness | **108/108 PASS**, 0 Abweichungen, Exit 0; `/tmp/cbb-pgtest-b3.rKRQhnbA/results.tsv` |
+| `git diff --check` | **Exit 0**, keine Ausgabe |
+
+Nach dem vollständigen Web-Gate wurde nur noch der zustandswirksame Klick des
+Design-Preview-Filters und eine echte Hover-Rückmeldung am Preisfilter ergänzt;
+die sieben betroffenen Testdateien liefen danach erneut mit **82/82 PASS**. Der
+abschließende Voll-Gate-Lauf wird im Commit-/Audit-Protokoll als finale
+Evidenz geführt.
+
+### Verbleibende Grenzen und nächste Prioritäten
+
+1. **Production-Hold bleibt aktiv.** Kein Production-DB-Write, kein Deploy,
+   kein `main`-Push/-Merge und keine externe Schreibaktion fand statt.
+2. Das Retention-Pre-enable-Gate ist weiterhin **NICHT ERFÜLLT**. Der
+   `SUPABASE_SERVICE_ROLE_KEY` darf für Klick-Messung nicht gesetzt werden.
+3. A4, A5, B2, B5, D6 und D7 sind konkrete Production-Datenkorrekturen. Ihre
+   Fundorte sind read-only belegt; die Ausführung braucht ausdrückliche
+   Benutzerfreigabe.
+4. W4 der Search-Console-Wirkungsmessung bleibt **2026-09-23**. Vorher gibt es
+   keine belastbare Nachher-Aussage.

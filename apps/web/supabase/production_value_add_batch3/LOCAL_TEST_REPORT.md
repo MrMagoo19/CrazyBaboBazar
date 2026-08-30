@@ -1,8 +1,7 @@
 # Lokaler Testbericht — Value-Add Charge 3
 
-**Stand:** 2026-08-28, nach dem vollstaendigen Stufe-1- und Stufe-2-Lauf von
-Codex sowie der anschliessenden Guard-Korrektur und dem vollstaendigen
-Wiederholungslauf
+**Stand:** 2026-08-30, nach erneutem vollstaendigem Stufe-1- und Stufe-2-Lauf
+von Codex auf dem finalen lokalen Arbeitsstand
 
 **Harness:** `test/run_local_postgres_test.sh`
 **Zielprojekt des Changesets:** `project/ydiihvzcxaaoqhmgoqvu` (nicht beruehrt)
@@ -24,6 +23,7 @@ Wiederholungslauf
 
 | Zeitpunkt | Was | Ergebnis |
 |---|---|---|
+| 2026-08-30, erneuter Abschlusslauf | Stufe 1 und Stufe 2 gegen PostgreSQL 16, ausgefuehrt von Codex | **108/108 PASS**, 0 Abweichungen, Manifest **74/74 `OK`**, Exit 0. Ergebnisdatei: `/tmp/cbb-pgtest-b3.rKRQhnbA/results.tsv`. |
 | 2026-08-28, finaler Wiederholungslauf | Stufe 1 und Stufe 2 gegen PostgreSQL 16, ausgefuehrt von Codex | **108/108 PASS**, 0 Abweichungen, Manifest **74/74 `OK`**, Exit 0. Ergebnisdatei: `/tmp/cbb-pgtest-b3.HnCpYwau/results.tsv`. |
 | 2026-08-28, erster vollstaendiger DB-Lauf | Stufe 1 und Stufe 2 | Zwei echte Guard-Reihenfolgefehler gefunden: `b_03_wiederholung` traf den globalen 30-Zeilen-Guard vor dem spezifischen vorhandenen v3-Payload; `m_02_abbruch` traf den globalen 21-Zeilen-Guard vor dem spezifischen Guard fuer vorbefuellte Zielzeilen. |
 | 2026-08-28, Korrekturrunde | Claude-Worker, danach unabhaengiger Codex-Audit | Nur die Guard-Reihenfolge wurde korrigiert: spezifische v3-/Zielzustandspruefungen laufen jetzt vor den globalen Mengen-Guards. Der finale Lauf in Zeile 1 belegt beide Korrekturen. |

@@ -2,8 +2,8 @@
 
 ## Status
 
-**`Befunde der dritten Opus-Endpruefung nachgehaertet, lokales Gate 166/166
-bestanden, nichts auf Production ausgefuehrt`**
+**`Hinweise der abschliessenden Opus-Pruefung nachgehaertet, lokales Gate
+170/170 bestanden, nichts auf Production ausgefuehrt`**
 
 Keine Datei dieses Verzeichnisses wurde gegen `project/ydiihvzcxaaoqhmgoqvu`
 (Production) oder `project/nmzuycveumyfvtxdcnuc` (Pilot) ausgefuehrt. Es gab
@@ -13,19 +13,25 @@ geprueft und Preis, ASIN sowie Bild-Erreichbarkeit extern read-only
 gegengeprueft.
 
 > [!success] Das lokale Gate ist fuer diesen Stand **ERFUELLT**:
-> **166/166 PASS**, 0 Abweichungen, Records=166, STEP=166,
+> **170/170 PASS**, 0 Abweichungen, Records=170, STEP=170,
 > Coverage-Assertion PASS, Exit 0, PostgreSQL **16.15**. Ergebnisdatei:
+> `/tmp/cbb-qftest.Gjbg97QB/results.tsv`; Einzelprotokolle:
+> `/tmp/cbb-qftest.Gjbg97QB/logs/`. Der Cluster wurde sauber gestoppt; PGDATA
+> und Socketverzeichnis wurden entfernt.
+
+> [!note] Historie, gilt **nicht** fuer die neuen Aenderungen
+> Der 166er-Vollauf belegt genau Commit `8cc2d8f`: **166/166 PASS**,
+> 0 Abweichungen, Records=166, STEP=166, Coverage-Assertion PASS, Exit 0,
+> PostgreSQL **16.15**. Ergebnisdatei:
 > `/tmp/cbb-qftest.TBdYphBg/results.tsv`; Einzelprotokolle:
 > `/tmp/cbb-qftest.TBdYphBg/logs/`. Der Cluster wurde sauber gestoppt; PGDATA
 > und Socketverzeichnis wurden entfernt.
-
-> [!note] Historie, gilt **nicht** fuer den aktuellen Stand
+>
 > Der 164er-Lauf belegt genau Commit `179ef1f`: **164/164 PASS**,
 > 0 Abweichungen, Records=164, STEP=164, Coverage-Assertion PASS, Exit 0,
 > PostgreSQL **16.15**. Ergebnisdatei:
 > `/tmp/cbb-qftest.v85MjgLU/results.tsv`; Einzelprotokolle:
-> `/tmp/cbb-qftest.v85MjgLU/logs/`. Der Cluster wurde sauber gestoppt; PGDATA
-> und Socketverzeichnis wurden entfernt.
+> `/tmp/cbb-qftest.v85MjgLU/logs/`.
 
 Der fruehere Lauf mit 119/119 PASS bleibt als Historie fuer den Paketstand vor
 der Erweiterung dokumentiert.
@@ -248,7 +254,7 @@ gleichzeitig:
 | `aktive BEFORE UPDATE ROW Trigger` | 1 | ein zweiter, unbekannter Schreiber auf `NEW` |
 | `vertragskonform` | 1 | falscher Name, fremde Funktion, `WHEN`-Klausel, abweichende Triggerdefinition |
 | `ohne shop_sub_category` | 1 | ein Bump durch die A4-Aenderung |
-| `explizites updated_at bleibt` | 1 | ein fehlender Guard, der den von `04` gesetzten Wert ueberschreibt — **und** jede zweite Zuweisung an `NEW.updated_at` irgendwo im Rumpf, auch in einer `LOOP` oder einem `ELSE`-Zweig |
+| `explizites updated_at bleibt` | 1 | ein fehlender Guard, der den von `04` gesetzten Wert ueberschreibt — **und** jede zweite Zuweisung an `NEW.updated_at` irgendwo im Rumpf, auch in einer `LOOP` oder einem `ELSE`-Zweig — **und** jede `OR`-Erweiterung des Guards zwischen ihm und seinem `THEN` |
 | `fremde updated_at-Trigger` | 0 | eine andere aktive Triggerfunktion, die `updated_at` anfasst |
 
 Gemessen wird auf dem von **Block- und Zeilenkommentaren** bereinigten
@@ -265,15 +271,51 @@ Die Zaehlungen laufen ueber `regexp_matches(…, 'g')` in einem
 PostgreSQL 15, und eine solche Mindestversion ist fuer die Zieldatenbank
 nirgends belegt.
 
+**Der Guard-Abschnitt zwischen Guard und `THEN` darf nur verschaerfen.** Die
+geordnete Regex allein liess dort ueber `.*` beliebigen Text zu — also auch ein
+`OR`:
+
+```sql
+if new.updated_at is not distinct from old.updated_at
+   or (new.name is distinct from old.name)
+then
+  new.updated_at := now();
+end if;
+```
+
+Dieser Rumpf haelt die Reihenfolge ein, hat genau eine Zuweisung und genau ein
+`END IF` — und ueberschreibt trotzdem ein von `04` ausdruecklich
+mitgeschriebenes `updated_at`, sobald sich zusaetzlich der Name aendert. Der
+Guard waere wirkungslos. `01` schneidet denselben Abschnitt deshalb eigens aus
+und verlangt: er existiert **und** enthaelt das **Wort** `or` nicht.
+Ausgeschnitten wird mit `substring(text, text)` und POSIX-Muster; eine
+versionsabhaengige Funktion (`regexp_match()` ab PostgreSQL 10, `regexp_count()`
+ab 15) kommt dafuer nicht zum Einsatz. Die Wortgrenze `\y` ist dabei Pflicht:
+der reale Tupelguard enthaelt `or` als blosse Zeichenfolge mehrfach
+(`editorial_note`, `shop_main_category`, `category_id`) und muss weiterhin PASS
+liefern. Beide zulaessigen Formen bleiben unveraendert PASS — der minimale
+Guard (leerer Abschnitt) und der reale AND-Tupelguard.
+
 **Fail-closed:** fehlt der Vertrag oder weicht er ab, meldet die Zeile `FAIL` —
 und nach der Regel aus [Abschnitt 3](#3-reihenfolge-und-freigabegrenzen) ist
 Schritt 2 damit nicht freigegeben und `04` darf nicht laufen.
 
 Der lokale Harness prueft genau diesen Katalogvertrag und nicht eine
 Nachbildung: die Fixture laedt die Originaldatei
-`supabase/seo_updated_at_trigger.sql`. `case_k_triggervertrag` belegt zuerst,
-dass ein reiner `shop_sub_category`-Kommentar PASS bleibt, und bricht den
-Vertrag danach **fuenfmal** unterschiedlich:
+`supabase/seo_updated_at_trigger.sql`. `case_k_triggervertrag` fuehrt **drei
+positive Kontrollen** mit je exakt 23 PASS und 0 FAIL:
+
+* der echte, unveraenderte Trigger — am Anfang und noch einmal am Ende,
+* ein reiner `shop_sub_category`-Kommentar im Rumpf,
+* der **minimal gueltige Guard** ganz ohne Zusatzbedingung
+  (`if new.updated_at is not distinct from old.updated_at then
+  new.updated_at := now(); end if;`). Das Setup dieses Falls weist selbst nach,
+  dass er wirklich minimal ist: genau eine Zuweisung, genau ein `END IF`,
+  **nichts** zwischen Guard und `THEN`, keine Tupelbedingung
+  `is distinct from` und keine Spalte der realen AND-Bedingung. Sonst waere der
+  Fall nur eine zweite Kopie des Kommentarfalls.
+
+Dazwischen wird der Vertrag **sechsmal** unterschiedlich gebrochen:
 
 1. Bump auf `shop_sub_category` — versteckt zwischen `-- … /*` und `-- … */`
    und damit zugleich die Gegenprobe auf die Reihenfolge der
@@ -285,7 +327,14 @@ Vertrag danach **fuenfmal** unterschiedlich:
    bedingungslosen `new.updated_at = now()` in einer `LOOP` — geordnete Regex
    und `END IF`-Zaehlung passen hier weiterhin, nur die positionsunabhaengige
    Zaehlung der Zuweisungen sieht den zweiten Schreiber,
-5. entfernter Trigger.
+5. Guard um ein **`OR`** erweitert — Reihenfolge, Zuweisungszahl, `END IF`-Zahl,
+   `shop_sub_category`, Triggername und Triggerdefinition sind hier alle
+   unauffaellig; gebrochen ist allein die Bedingung selbst. Das Setup weist die
+   vier unauffaelligen Vertragsgroessen einzeln nach und belegt zusaetzlich,
+   dass die frueher allein massgebliche geordnete Regex auf diesen Rumpf
+   **weiterhin passt** — ohne die Haertung waere er faelschlich als PASS
+   durchgegangen,
+6. entfernter Trigger.
 
 Jeder Negativzustand muss die benannte FAIL-Zeile liefern.
 
@@ -373,16 +422,18 @@ alle uebrigen Produktbilder des Shops.
 ### 4.4 Lokaler Harness — Gate fuer den aktuellen Stand BESTANDEN
 
 Der unabhaengige Vollauf bestand am 2026-08-30 gegen PostgreSQL **16.15** mit
-**166/166 PASS**, 0 Abweichungen, Records=166, STEP=166, Coverage PASS und Exit
-0. Ergebnisdatei: `/tmp/cbb-qftest.TBdYphBg/results.tsv`; Einzelprotokolle:
-`/tmp/cbb-qftest.TBdYphBg/logs/`. Der Cluster wurde sauber gestoppt; PGDATA und
+**170/170 PASS**, 0 Abweichungen, Records=170, STEP=170, Coverage PASS und Exit
+0. Ergebnisdatei: `/tmp/cbb-qftest.Gjbg97QB/results.tsv`; Einzelprotokolle:
+`/tmp/cbb-qftest.Gjbg97QB/logs/`. Der Cluster wurde sauber gestoppt; PGDATA und
 Socketverzeichnis wurden entfernt.
 
-**Historie:** der 164er-Lauf vom 2026-08-30 gegen PostgreSQL **16.15**
-(**164/164 PASS**, 0 Abweichungen, Records=164, STEP=164, Coverage PASS,
-Exit 0; `/tmp/cbb-qftest.v85MjgLU/results.tsv`, Logs unter
-`/tmp/cbb-qftest.v85MjgLU/logs/`) belegt genau Commit `179ef1f` — nicht diesen
-Stand.
+**Historie:** der 166er-Vollauf vom 2026-08-30 gegen PostgreSQL **16.15**
+(**166/166 PASS**, 0 Abweichungen, Records=166, STEP=166, Coverage PASS und
+Exit 0; `/tmp/cbb-qftest.TBdYphBg/results.tsv`, Logs unter
+`/tmp/cbb-qftest.TBdYphBg/logs/`) belegt genau Commit `8cc2d8f` — nicht diesen
+Stand. Der 164er-Lauf (**164/164 PASS**, 0 Abweichungen, Records=STEP=164,
+Coverage PASS, Exit 0; `/tmp/cbb-qftest.v85MjgLU/results.tsv`) belegt Commit
+`179ef1f`.
 
 Gegenueber dem 145er-Lauf sind seither abgedeckt:
 
@@ -392,7 +443,7 @@ Gegenueber dem 145er-Lauf sind seither abgedeckt:
 * die Identitaetspruefung ueber `id` UND `slug` im No-Op-Zweig von `02` und der
   Fall `case_di_backup_identitaet` (6 Schritte, siehe Abschnitt 5.6),
 * die Coverage-Assertion am Ende des Harness, die Records **und** `STEP` gegen
-  `ERWARTETE_SCHRITTE` prueft — aktuell gegen **166**.
+  `ERWARTETE_SCHRITTE` prueft — aktuell gegen **170**.
 
 Nach der zweiten Opus-Pruefung kamen ein positiver Kommentarfall und ein
 negativer Dummy-Guard mit bedingungsloser `=`-Zuweisung hinzu (Soll 164).
@@ -422,7 +473,32 @@ eingearbeitet:
    Zeilenkommentare**; die stale Zahl `ERWARTETE_SCHRITTE=160` in diesem
    Abschnitt ist auf die neue Sollzahl gezogen.
 6. Sollzahl, Records- und `STEP`-Coverage und alle Angaben in `RUNBOOK.md`,
-   `LOCAL_TEST_REPORT.md` und `test/README.md` stehen auf **166**.
+   `LOCAL_TEST_REPORT.md` und `test/README.md` standen damit auf **166**
+   (belegt durch den 166er-Vollauf auf Commit `8cc2d8f`).
+
+Die **abschliessende** Opus-Pruefung hat danach zwei actionable Hinweise
+ergeben; beide sind eingearbeitet und im 170er-Vollauf belegt:
+
+1. **Der minimal gueltige Guard war nur per Code-Lektuere belegt.** Neuer
+   positiver Fall `setup_trigger_minimalguard.sql` in `case_k_triggervertrag`:
+   der Rumpf traegt genau `if new.updated_at is not distinct from
+   old.updated_at then new.updated_at := now(); end if;` und sonst nichts.
+   Unmittelbar danach muss `01` **exakt 23 PASS und 0 FAIL** liefern. Die
+   Setup-Gegenproben belegen, dass der Fall wirklich minimal ist und nicht
+   versehentlich die reale AND-Bedingung traegt. **+2 Schritte.**
+2. **Der positive Regex-Check liess zwischen Guard und `THEN` beliebigen Text
+   und damit auch `OR` zu.** `01` schneidet diesen Abschnitt jetzt eigens aus
+   (`substring(text, text)` mit POSIX-Muster, ohne versionsabhaengige
+   Regex-Funktion) und verlangt: Abschnitt vorhanden **und** ohne das **Wort**
+   `or`. Minimaler Guard und realer AND-Tupelguard bleiben PASS. Neuer
+   Negativfall `setup_trigger_guard_mit_or_erweiterung.sql` — genau eine
+   Zuweisung, genau ein `END IF`, kein `shop_sub_category`, korrekter
+   Triggername und korrekte Triggerdefinition; er faellt allein wegen der
+   `OR`-Erweiterung. **+2 Schritte.**
+
+Damit steht die Sollzahl auf **170** (Zusammensetzung der Fallstufen: von 145
+auf **149**), und alle Angaben in `RUNBOOK.md`, `LOCAL_TEST_REPORT.md` und
+`test/README.md` sind darauf gezogen.
 
 ---
 
@@ -625,7 +701,7 @@ bleiben die Production-Freigaben und die unmittelbar vor `04` zu wiederholenden
 Preis-/Bildpruefungen.
 
 0. **Vorbedingung lokales Gate — erfuellt.** Der aktuelle Vollauf ergab
-   **166/166**, Records=STEP=166, 0 Abweichungen, Exit 0 und die Zeile
+   **170/170**, Records=STEP=170, 0 Abweichungen, Exit 0 und die Zeile
    `[PASS] coverage_schrittzahl`.
 1. **Freigabe #1 einholen.** Zielprojekt sichtbar pruefen.
    `01_preflight_read_only.sql` ausfuehren. Erwartet: 29 Zeilen, 23 PASS,
@@ -657,14 +733,16 @@ ist wieder aufgehoben. Das ist der korrekte Ausgang, kein Fehler.
 
 | Gate | Wer | Stand |
 |---|---|---|
-| Lokaler PostgreSQL-Harness `test/run_local_postgres_test.sh` fuer den **aktuellen** Stand | Codex | **166/166 PASS, 0 Abweichungen, Records=STEP=166, Coverage PASS, Exit 0, PostgreSQL 16.15** (`/tmp/cbb-qftest.TBdYphBg/results.tsv`) |
+| Lokaler PostgreSQL-Harness `test/run_local_postgres_test.sh` fuer den **aktuellen** Stand (`ERWARTETE_SCHRITTE=170`) | Codex | **170/170 PASS, 0 Abweichungen, Records=STEP=170, Coverage PASS, Exit 0, PostgreSQL 16.15** (`/tmp/cbb-qftest.Gjbg97QB/results.tsv`) |
+| Historie: Harness-Lauf auf Commit `8cc2d8f` | Codex | 166/166 PASS, 0 Abweichungen, Records=STEP=166, Coverage PASS, Exit 0 (PostgreSQL 16.15) — Artefakt `/tmp/cbb-qftest.TBdYphBg/results.tsv`, gilt **nicht** fuer die neuen Aenderungen |
 | Historie: Harness-Lauf auf Commit `179ef1f` | Codex | 164/164 PASS, 0 Abweichungen, Records=STEP=164, Coverage PASS, Exit 0 (PostgreSQL 16.15) — Artefakt `/tmp/cbb-qftest.v85MjgLU/results.tsv`, gilt **nicht** fuer den aktuellen Stand |
 | Historie: Harness-Lauf auf Commit `250ad42` | Codex | 160/160 PASS, 0 Abweichungen, Coverage PASS, Exit 0 (PostgreSQL 16.15) — gilt **nicht** fuer den aktuellen Stand |
 | Historie: Harness-Lauf nach der A4-Erweiterung | Codex | 145/145 PASS, 0 Abweichungen, Exit 0 (PostgreSQL 16.15, 2026-08-30) — gilt **nicht** fuer den aktuellen Stand |
 | Historie: Harness-Lauf vor der Erweiterung | Codex | 119/119 PASS, 0 Abweichungen, Exit 0 (2026-08-30) — gilt **nicht** fuer den aktuellen Stand |
 | Unabhaengiges Codex-Audit der sechs SQL-Dateien (`--profile deep`) | Codex | **abgeschlossen**; A4-lastmod getrennt, No-Op-Zeitstempel- und Backup-Identitaetspfade nachgehaertet, Triggervertrag geprueft |
 | Zweite Opus-Endpruefung (struktureller Triggervertrag, Kommentarbereinigung, D7-Zeile) | Claude/Codex | Befunde umgesetzt; unabhaengiges Audit und lokaler 164er-Lauf **abgeschlossen** (Stand `179ef1f`) |
-| Dritte Opus-Endpruefung (regexp_count-Versionsabhaengigkeit, positionsunabhaengige Zuweisungszaehlung, Reihenfolge der Kommentarbereinigung, minimaler Guard, Beschreibungen, Sollzahl) | Claude/Codex | alle sechs Befunde **umgesetzt**; unabhaengiges Audit und 166er-Vollauf **abgeschlossen** |
+| Dritte Opus-Endpruefung (regexp_count-Versionsabhaengigkeit, positionsunabhaengige Zuweisungszaehlung, Reihenfolge der Kommentarbereinigung, minimaler Guard, Beschreibungen, Sollzahl) | Claude/Codex | alle sechs Befunde **umgesetzt**; unabhaengiges Audit und 166er-Vollauf **abgeschlossen** (Stand `8cc2d8f`) |
+| Abschliessende Opus-Pruefung (positiver Setup-Fall fuer den minimalen Guard, `OR`-Haertung des Triggervertrags) | Claude/Codex | beide Hinweise **umgesetzt**; unabhaengiges Audit und 170er-Vollauf **abgeschlossen** |
 | Erneute Preispruefung ASIN `B07HHXWN3C` unmittelbar vor `04` | Codex/Benutzer | **offen** |
 | Erneute Erreichbarkeitspruefung der neun Bild-URLs unmittelbar vor `04` | Codex/Benutzer | **offen** |
 | Freigabe #1 bis #5 (Production) | Benutzer | **offen** |

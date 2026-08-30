@@ -472,7 +472,14 @@ gamer_info as (
 --        Bedingung, dass der Aufrufer die Spalte NICHT selbst geschrieben hat.
 --        Guard, THEN, Zuweisung und END IF muessen in dieser Reihenfolge
 --        stehen; sowohl := als auch = werden als PL/pgSQL-Zuweisungsoperator
---        gezaehlt. Gezaehlt wird OHNE Ruecksicht auf die Statementposition:
+--        gezaehlt. Zwischen dem Guard und seinem THEN ist ausserdem nur eine
+--        VERSCHAERFUNG erlaubt: der Abschnitt darf leer sein (minimaler
+--        gueltiger Guard) oder die AND-Tupelbedingung des echten Triggers
+--        tragen, aber das Wort "or" darf darin nicht vorkommen. Eine
+--        ODER-Erweiterung liesse den Trigger auch dann schreiben, wenn der
+--        Aufrufer updated_at ausdruecklich mitgeschrieben hat — der Guard waere
+--        wirkungslos, obwohl Reihenfolge, Zuweisungszahl und END-IF-Zahl noch
+--        stimmen. Gezaehlt wird OHNE Ruecksicht auf die Statementposition:
 --        jedes new.updated_at := / = im bereinigten Rumpf ist ein Treffer,
 --        egal ob es nach begin, then, else, loop oder einem Semikolon steht.
 --        Ein Vergleich der Form  new.updated_at = ...  faellt dabei bewusst
@@ -565,7 +572,8 @@ trigger_messung as (
   select
     k.*,
     z.anzahl as updated_at_zuweisungen,
-    e.anzahl as end_if_bloecke
+    e.anzahl as end_if_bloecke,
+    gz.ausdruck as guard_zusatzbedingung
   from trigger_kandidaten k
   -- Jedes new.updated_at := / = im bereinigten Rumpf, unabhaengig davon, an
   -- welcher Statementposition es steht (begin, then, else, loop, nach einem
@@ -585,6 +593,33 @@ trigger_messung as (
            'end[[:space:]]+if;',
            'gi')
   ) e
+  -- Der Text, der im Guard ZWISCHEN  new.updated_at is not distinct from
+  -- old.updated_at  und dem THEN steht, das die Zuweisung traegt. Genau dieser
+  -- Abschnitt entscheidet, ob der Guard noch ein Guard ist:
+  --   * leer            -> minimaler gueltiger Guard,
+  --   * ' and (...)'    -> die Tupelbedingung des echten Triggers, eine
+  --                        Verschaerfung,
+  --   * ' or (...)'     -> eine ODER-Erweiterung. Sie hebt den Guard auf: der
+  --                        Rumpf schreibt dann auch dann now(), wenn der
+  --                        Aufrufer updated_at ausdruecklich mitgeschrieben hat.
+  -- Das Muster laeuft absichtlich GIERIG bis zu dem THEN, hinter dem die
+  -- Zuweisung steht. Zusammen mit  updated_at_zuweisungen = 1  ist dieses THEN
+  -- eindeutig; ein  case ... when ... then ...  innerhalb der Bedingung kann den
+  -- Abschnitt damit nicht vorzeitig abschneiden.
+  --
+  -- substring(text, text) statt regexp_match(): regexp_match() gibt es erst ab
+  -- PostgreSQL 10. substring mit POSIX-Muster laeuft auf jeder Version. Es kennt
+  -- kein Flag fuer Gross-/Kleinschreibung, deshalb wird der Rumpf vorher
+  -- kleingeschrieben. Findet das Muster nichts, ist das Ergebnis NULL — und NULL
+  -- sperrt weiter unten, statt durchzugehen.
+  cross join lateral (
+    select substring(
+             lower(k.funktionsdef),
+             'if new\.updated_at is not distinct from old\.updated_at'
+             || '(.*)[[:space:]]then[[:space:]]+new\.updated_at'
+             || '[[:space:]]*(?::=|=)[[:space:]]*now\(\);'
+           ) as ausdruck
+  ) gz
 ),
 
 trigger_vertrag as (
@@ -626,6 +661,27 @@ trigger_vertrag as (
           || '.*[[:space:]]then[[:space:]]+new\.updated_at[[:space:]]*(:=|=)'
           || '[[:space:]]*now\(\);[[:space:]]*end[[:space:]]+if;'
         )
+        -- Dieses ".*" allein waere zu freizuegig: es liesse zwischen Guard und
+        -- THEN JEDEN Text zu, also auch eine ODER-Erweiterung der Form
+        --   if new.updated_at is not distinct from old.updated_at
+        --      or (new.name is distinct from old.name)
+        --   then new.updated_at := now(); end if;
+        -- Dieser Rumpf haelt die Reihenfolge ein, hat genau eine Zuweisung und
+        -- genau ein END IF — und ueberschreibt trotzdem ein von 04
+        -- ausdruecklich mitgeschriebenes updated_at, sobald sich zusaetzlich
+        -- der Name aendert. Der Guard waere damit wirkungslos.
+        --
+        -- Deshalb wird derselbe Abschnitt oben eigens ausgeschnitten
+        -- (guard_zusatzbedingung) und hier gepruefen:
+        --   * NULL      -> Guard/Zuweisung passen nicht zusammen, sperrt.
+        --   * enthaelt das WORT "or" -> ODER-Erweiterung, sperrt.
+        -- \y ist die Wortgrenze der POSIX-Ausdruecke von PostgreSQL und steht
+        -- seit Langem zur Verfuegung; eine Funktion mit Mindestversion braucht
+        -- es dafuer nicht. Die Wortgrenze ist Pflicht, nicht Kosmetik: der reale
+        -- Tupelguard enthaelt "or" als Zeichenfolge mehrfach (editorial_note,
+        -- shop_main_category, category_id) und muss weiterhin PASS liefern.
+        and guard_zusatzbedingung is not null
+        and guard_zusatzbedingung !~ '\yor\y'
         -- Genau eine Zuweisung im ganzen bereinigten Rumpf. Eine zweite,
         -- bedingungslose Zuweisung — auch in einer LOOP, einem ELSE-Zweig oder
         -- hinter einem Semikolon — hebt den Guard praktisch auf und muss

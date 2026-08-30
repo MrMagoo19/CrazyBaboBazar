@@ -204,10 +204,10 @@ CURRENT_CASE="-"
 # Zusammensetzung (jede Einheit schreibt genau einen Record):
 #   13  case_0_statisch (1 appnamen, 3 set_local, 3 read_only, 6 kein_drop)
 #    6  fixture
-#  145  Fallstufen inkl. der beiden Konkurrenzlaeufe
+#  149  Fallstufen inkl. der beiden Konkurrenzlaeufe
 #    2  die beiden inline gefuehrten F-Stufen
 #       (f_02_unter_sperre, f_locker_terminiert)
-ERWARTETE_SCHRITTE=166
+ERWARTETE_SCHRITTE=170
 
 printf 'case\tstep\tlabel\tfile\texpect\texit\tverdict\tdetail\n' > "$RESULTS"
 
@@ -961,10 +961,22 @@ report_table case_a_happy_path a_05_nach_wiederholung "$SQL_DIR/05_verify_read_o
 # 01 prueft diesen Vertrag seit der Erweiterung direkt im Systemkatalog
 # (pg_trigger, pg_proc, pg_get_triggerdef, pg_get_functiondef). Dieser Fall
 # belegt, dass die Pruefung wirklich am Katalog haengt und nicht an einem
-# Kommentar: eine positive Kommentar-Gegenprobe muss PASS bleiben; danach wird
-# der Vertrag viermal auf unterschiedliche Weise gebrochen, und 01 muss jedes
-# Mal genau die Zeile products_updated_at_triggervertrag als FAIL melden. Die
-# Kontrollschritte zeigen, dass die FAILs von der Manipulation kommen.
+# Kommentar.
+#
+# Drei POSITIVE Kontrollen (jeweils exakt 23 PASS, 0 FAIL):
+#   * der echte, unveraenderte Trigger am Anfang und am Ende,
+#   * ein reiner shop_sub_category-Kommentar im Rumpf,
+#   * der MINIMAL gueltige Guard ganz ohne Zusatzbedingung.
+#
+# SECHS NEGATIVE Zustaende dazwischen; 01 muss jedes Mal genau die Zeile
+# products_updated_at_triggervertrag als FAIL melden:
+#   1. Bump auf shop_sub_category (versteckt zwischen -- ... /* und -- ... */),
+#   2. fehlender updated_at-Guard,
+#   3. Dummy-Guard mit bedingungsloser =-Zuweisung dahinter,
+#   4. korrekter Guard plus zweiter bedingungsloser Zuweisung in einer LOOP,
+#   5. Guard um ein ODER erweitert,
+#   6. Trigger entfernt.
+# Die Kontrollschritte zeigen, dass die FAILs von der Manipulation kommen.
 #
 # Die Fixture traegt den ECHTEN Trigger (fx_real_trigger), die Manipulationen
 # sind DDL und damit auf diese Fall-Datenbank beschraenkt.
@@ -974,6 +986,16 @@ report_table case_k_triggervertrag k_01_vertrag_intakt \
 step case_k_triggervertrag ok k_setup_kommentar_sub_category \
   "$HERE/cases/setup_trigger_kommentar_sub_category.sql"
 report_table case_k_triggervertrag k_01_kommentar_bleibt_pass \
+  "$SQL_DIR/01_preflight_read_only.sql" 23
+# Zweite positive Kontrolle: der MINIMAL gueltige Guard ohne jede
+# Zusatzbedingung. Dass 01 diese Form akzeptiert, war bisher nur durch Lesen der
+# geordneten Regex belegt. Das Setup weist selbst nach, dass der Abschnitt
+# zwischen Guard und THEN wirklich leer ist und der Rumpf keine
+# AND-Tupelbedingung traegt — sonst waere der Fall nur eine zweite Kopie des
+# Kommentarfalls.
+step case_k_triggervertrag ok k_setup_minimalguard \
+  "$HERE/cases/setup_trigger_minimalguard.sql"
+report_table case_k_triggervertrag k_01_minimalguard_bleibt_pass \
   "$SQL_DIR/01_preflight_read_only.sql" 23
 step case_k_triggervertrag ok k_setup_sub_category \
   "$HERE/cases/setup_trigger_bumpt_sub_category.sql"
@@ -995,6 +1017,18 @@ report_table_expect_fail case_k_triggervertrag k_01_guard_dummy_zuweisung_danach
 step case_k_triggervertrag ok k_setup_zweite_zuweisung_in_schleife \
   "$HERE/cases/setup_trigger_zweite_zuweisung_in_schleife.sql"
 report_table_expect_fail case_k_triggervertrag k_01_zweite_zuweisung_in_schleife \
+  "$SQL_DIR/01_preflight_read_only.sql" products_updated_at_triggervertrag
+# Guard um ein ODER erweitert. Reihenfolge, genau eine Zuweisung, genau ein
+# END IF, kein shop_sub_category, korrekter Triggername und korrekte
+# Triggerdefinition — alles unveraendert in Ordnung. Gebrochen ist allein die
+# Bedingung selbst: "Aufrufer hat updated_at nicht geschrieben ODER der Name hat
+# sich geaendert" schreibt now() auch ueber einen ausdruecklich gesetzten
+# Zeitstempel. Das Setup weist die vier unauffaelligen Vertragsgroessen selbst
+# nach und belegt zusaetzlich, dass die frueher allein massgebliche geordnete
+# Regex auf diesen Rumpf weiterhin passt.
+step case_k_triggervertrag ok k_setup_guard_mit_or_erweiterung \
+  "$HERE/cases/setup_trigger_guard_mit_or_erweiterung.sql"
+report_table_expect_fail case_k_triggervertrag k_01_guard_mit_or_erweiterung \
   "$SQL_DIR/01_preflight_read_only.sql" products_updated_at_triggervertrag
 step case_k_triggervertrag ok k_setup_trigger_entfernt \
   "$HERE/cases/setup_trigger_entfernt.sql"

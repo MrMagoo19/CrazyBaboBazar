@@ -4,20 +4,70 @@
 
 > [!success] AKTUELLER STAND: **BESTANDEN**
 > Der unabhaengige Vollauf bestand am 2026-08-30 gegen PostgreSQL **16.15**
-> mit **166/166 PASS**, 0 Abweichungen, Records=166, STEP=166,
+> mit **170/170 PASS**, 0 Abweichungen, Records=170, STEP=170,
 > Coverage-Assertion PASS und Exit 0. Ergebnisdatei:
+> `/tmp/cbb-qftest.Gjbg97QB/results.tsv`; Einzelprotokolle:
+> `/tmp/cbb-qftest.Gjbg97QB/logs/`. Der Cluster wurde danach sauber gestoppt;
+> PGDATA und Socketverzeichnis wurden entfernt.
+>
+> **Historie, gilt nicht fuer die neuen Aenderungen:** der 166er-Vollauf vom
+> 2026-08-30 gegen PostgreSQL **16.15** (**166/166 PASS**, 0 Abweichungen,
+> Records=166, STEP=166, Coverage-Assertion PASS, Exit 0) belegt genau den
+> Stand von Commit `8cc2d8f`. Ergebnisdatei:
 > `/tmp/cbb-qftest.TBdYphBg/results.tsv`; Einzelprotokolle:
 > `/tmp/cbb-qftest.TBdYphBg/logs/`. Der Cluster wurde danach sauber gestoppt;
 > PGDATA und Socketverzeichnis wurden entfernt.
 >
-> **Historie, gilt nicht fuer den aktuellen Stand:** der 164er-Lauf vom
-> 2026-08-30 gegen PostgreSQL **16.15** (**164/164 PASS**, 0 Abweichungen,
-> Records=164, STEP=164, Coverage-Assertion PASS, Exit 0) belegt den Stand von
-> Commit `179ef1f`. Ergebnisdatei: `/tmp/cbb-qftest.v85MjgLU/results.tsv`;
-> Einzelprotokolle: `/tmp/cbb-qftest.v85MjgLU/logs/`. Der Cluster wurde danach
-> sauber gestoppt; PGDATA und Socketverzeichnis wurden entfernt.
+> **Aeltere Historie:** der 164er-Lauf vom 2026-08-30 gegen PostgreSQL **16.15**
+> (**164/164 PASS**, 0 Abweichungen, Records=164, STEP=164,
+> Coverage-Assertion PASS, Exit 0) belegt den Stand von Commit `179ef1f`.
+> Ergebnisdatei: `/tmp/cbb-qftest.v85MjgLU/results.tsv`; Einzelprotokolle:
+> `/tmp/cbb-qftest.v85MjgLU/logs/`.
 
-### Was seit dem 164er-Stand (`179ef1f`) hinzugekommen ist
+### Was seit dem 166er-Stand (`8cc2d8f`) hinzugekommen ist
+
+* **Positive Kontrolle fuer den minimal gueltigen Guard** (+2 Schritte):
+  `setup_trigger_minimalguard.sql` setzt genau
+  `if new.updated_at is not distinct from old.updated_at then
+  new.updated_at := now(); end if;` — ohne jede Zusatzbedingung. Unmittelbar
+  danach muss `01` weiterhin **exakt 23 PASS und 0 FAIL** liefern. Bisher war
+  diese Form nur durch Lesen des regulaeren Ausdrucks belegt. Das Setup weist
+  selbst nach, dass der Fall wirklich minimal ist: genau eine Zuweisung, genau
+  ein `END IF`, **nichts** zwischen Guard und `THEN`, keine Tupelbedingung
+  `is distinct from`, keine Spalte der realen AND-Bedingung, kein
+  `shop_sub_category` — und dass die geordnete Struktur Guard → `THEN` →
+  Zuweisung → `END IF` passt.
+* **Der positive Regex-Check ist gegen `OR` fail-closed gemacht.** Zwischen dem
+  `updated_at`-Guard und seinem `THEN` liess `01` bisher ueber `.*` **beliebigen**
+  Text zu — also auch eine ODER-Erweiterung. Ein Rumpf mit
+  `… old.updated_at or (new.name is distinct from old.name) then
+  new.updated_at := now(); end if;` haelt Reihenfolge, Zuweisungszahl und
+  `END IF`-Zahl ein und ueberschreibt trotzdem ein von `04` ausdruecklich
+  gesetztes `updated_at`, sobald sich zusaetzlich der Name aendert. `01`
+  schneidet denselben Abschnitt jetzt eigens aus (`substring(text, text)` mit
+  POSIX-Muster, **keine** versionsabhaengige Funktion wie `regexp_match()` oder
+  `regexp_count()`) und verlangt: der Abschnitt existiert **und** enthaelt das
+  **Wort** `or` nicht. Die Wortgrenze `\y` ist dabei Pflicht — der reale
+  Tupelguard enthaelt `or` als blosse Zeichenfolge mehrfach
+  (`editorial_note`, `shop_main_category`, `category_id`) und muss weiterhin
+  PASS liefern. Minimaler Guard (leerer Abschnitt) und realer AND-Tupelguard
+  bleiben unveraendert PASS.
+* **Neuer Negativfall `setup_trigger_guard_mit_or_erweiterung.sql`**
+  (+2 Schritte): genau eine Zuweisung, genau ein `END IF`, kein
+  `shop_sub_category`, korrekter Triggername und korrekte Triggerdefinition —
+  gebrochen ist allein die Bedingung selbst. `01` muss
+  `products_updated_at_triggervertrag` als FAIL melden. Das Setup weist die vier
+  unauffaelligen Vertragsgroessen einzeln nach und belegt zusaetzlich, dass die
+  frueher allein massgebliche geordnete Regex auf diesen Rumpf **weiterhin
+  passt** — der Fall waere ohne die Haertung faelschlich als PASS
+  durchgegangen.
+* **`ERWARTETE_SCHRITTE` steht auf 170** (Zusammensetzung: 13 statische
+  Pruefungen, 6 Fixture-Stufen, **149** Fallstufen, 2 inline gefuehrte
+  F-Stufen). `case_k_triggervertrag` fuehrt damit **drei** positive Kontrollen
+  (echter Trigger, Kommentarfall, Minimalguard) und **sechs** negative
+  Vertragszustaende.
+
+### Was seit dem 164er-Stand (`179ef1f`) hinzugekommen war
 
 * **Keine undokumentierte PostgreSQL-15-Abhaengigkeit mehr.** Die beiden
   Zaehlungen im Triggervertrag liefen ueber `pg_catalog.regexp_count()`, das es
@@ -58,7 +108,7 @@
   Blockkommentare). Guard, `THEN`, die einzige Zuweisung und `END IF` muessen
   geordnet zusammenpassen; `:=` und `=` werden gezaehlt.
 * Die Coverage-Assertion vergleicht sowohl Records als auch `STEP` mit
-  `ERWARTETE_SCHRITTE=166`.
+  `ERWARTETE_SCHRITTE` — damals 166, heute 170.
 
 ### Was der 160er-Lauf seit dem 145er-Lauf abdeckte
 
@@ -82,7 +132,7 @@
   `slug`** — symmetrisch zum Neuanlage-Pfad und zu `04`/`06`. Der Fall
   manipuliert eine Backup-**id** bei unveraendertem Inhalt.
 * **Coverage-Assertion am Ende des Harness:** die damalige Soll-Schrittzahl
-  (`ERWARTETE_SCHRITTE` stand zu jenem Zeitpunkt auf 160, heute auf 166) wurde
+  (`ERWARTETE_SCHRITTE` stand zu jenem Zeitpunkt auf 160, heute auf 170) wurde
   gegen die tatsaechlich nach `results.tsv` geschriebenen Records geprueft. Eine
   spaeter entfernte Teststufe kann damit nicht mehr als `GESAMT: PASS`
   durchgehen. Die Assertion legt selbst **keinen** Record an.
@@ -135,9 +185,10 @@ Ergebnisdatei dieses historischen Laufs:
 `/tmp/cbb-qftest.qWvTWbdG/logs/`. Der lokale Cluster wurde danach sauber
 gestoppt; PGDATA und Socketverzeichnis wurden entfernt.
 
-**119/119, 145/145, 160/160 und 164/164 sind historische Nachweise frueherer
-Paketstaende** — der 164er-Lauf belegt genau Commit `179ef1f`. Den aktuellen
-Stand mit `ERWARTETE_SCHRITTE=166` belegt der bestandene 166er-Vollauf.
+**119/119, 145/145, 160/160, 164/164 und 166/166 sind historische Nachweise
+frueherer Paketstaende** — der 164er-Lauf belegt genau Commit `179ef1f`, der
+166er-Lauf genau Commit `8cc2d8f`. Den aktuellen Stand mit
+`ERWARTETE_SCHRITTE=170` belegt der bestandene 170er-Vollauf.
 
 ## Was er testet
 
@@ -250,7 +301,7 @@ sonst nichts belegen wuerde.
   `05` → 23 — bei 0 FAIL-Zeilen. Eine stillschweigend geschrumpfte Pruefliste
   faellt damit auf, statt als PASS durchzugehen.
 * Am Ende steht eine **Coverage-Assertion** auf die Soll-Schrittzahl
-  `ERWARTETE_SCHRITTE=166`. Sie prueft die bereits nach `results.tsv`
+  `ERWARTETE_SCHRITTE=170`. Sie prueft die bereits nach `results.tsv`
   geschriebenen Records (ohne Kopfzeile) **und** den `STEP`-Zaehler und legt
   selbst keinen Record an. `FAILURES=0` belegt nur, dass die ausgefuehrten
   Stufen bestanden haben — nicht, dass alle Stufen ausgefuehrt wurden. Faellt
@@ -290,7 +341,7 @@ nicht aussagekraeftig.
 | `case_c3_fremdspalte` | `tagline` driftet — eine Spalte, die das Paket gar nicht anfasst und die keine Vorzustandspruefung abdeckt. `04` muss trotzdem abbrechen, weil der vollstaendige `to_jsonb`-Vergleich gegen das Backup zusaetzlich laeuft |
 | `case_c4_gemischt` | eine Zeile steht bereits im Zielzustand, neun nicht → `04` bricht ab. Danach weicht **genau eine** Zeile von der Baseline ab: die vom Setup gesetzte |
 | `case_c5_fehlende_zeile` | eine Zielzeile ist geloescht → `02` bricht ab (6/7), `04` findet kein Backup |
-| `case_k_triggervertrag` | positiver Kommentarfall: `shop_sub_category` nur im Rumpfkommentar bleibt bei 23 PASS. Danach wird der deployte Vertrag **fuenfmal** gebrochen — Bump auf `shop_sub_category` (hinter `-- … /*` und `-- … */` versteckt, also zugleich die Gegenprobe auf die Reihenfolge der Kommentarbereinigung), fehlender Guard, Dummy-Guard mit bedingungsloser `=`-Zuweisung, korrekter Guard **plus zweiter bedingungsloser Zuweisung in einer `LOOP`**, Trigger entfernt. `01` muss jedes Mal `products_updated_at_triggervertrag` als FAIL melden; der echte Trigger am Ende wieder 23 PASS. Geprueft wird der von **Block- und Zeilenkommentaren** bereinigte Systemkatalogtext |
+| `case_k_triggervertrag` | **drei positive Kontrollen** mit je exakt 23 PASS / 0 FAIL: der echte, unveraenderte Trigger (am Anfang und am Ende), ein reiner `shop_sub_category`-Rumpfkommentar, und der **minimal gueltige Guard** ganz ohne Zusatzbedingung. Dazwischen wird der deployte Vertrag **sechsmal** gebrochen — Bump auf `shop_sub_category` (hinter `-- … /*` und `-- … */` versteckt, also zugleich die Gegenprobe auf die Reihenfolge der Kommentarbereinigung), fehlender Guard, Dummy-Guard mit bedingungsloser `=`-Zuweisung, korrekter Guard **plus zweiter bedingungsloser Zuweisung in einer `LOOP`**, **Guard um ein `OR` erweitert**, Trigger entfernt. `01` muss jedes Mal `products_updated_at_triggervertrag` als FAIL melden. Geprueft wird der von **Block- und Zeilenkommentaren** bereinigte Systemkatalogtext |
 | `case_d_backup_manipuliert` | veraenderter Backup-Inhalt → `04`, `06` **und** ein Wiederholungslauf von `02` brechen ab |
 | `case_di_backup_identitaet` | der Backup-**Inhalt** ist korrekt, nur eine Zeilen-**id** ist fremd. `06` schreibt ueber die `id` zurueck, `04` sperrt Zeilenpaare ueber `id` UND `slug` — ein reiner Inhaltsvergleich je `slug` sieht davon nichts. Der No-Op-Zweig von `02` haette den Snapshot frueher durchgewunken; jetzt bricht er mit `Identitaet ueber id und slug: 6/7` ab, `04` mit `6/7 Produkt-Zeilenpaare`, `06` mit `Produkt-Backup passt zu 6/7`. Ergaenzt `case_d_backup_manipuliert`, ersetzt ihn nicht |
 | `case_d2_backup_leer` | Tabelle existiert, Inhalt weg → `04`, `06` und `02` brechen mit der exakten Zeilenzahl `0/7` ab. Eine Datei, die nur auf Existenz prueft, waere hier durchgelaufen |

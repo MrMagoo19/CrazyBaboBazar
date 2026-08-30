@@ -204,10 +204,10 @@ CURRENT_CASE="-"
 # Zusammensetzung (jede Einheit schreibt genau einen Record):
 #   13  case_0_statisch (1 appnamen, 3 set_local, 3 read_only, 6 kein_drop)
 #    6  fixture
-#  139  Fallstufen inkl. der beiden Konkurrenzlaeufe
+#  143  Fallstufen inkl. der beiden Konkurrenzlaeufe
 #    2  die beiden inline gefuehrten F-Stufen
 #       (f_02_unter_sperre, f_locker_terminiert)
-ERWARTETE_SCHRITTE=160
+ERWARTETE_SCHRITTE=164
 
 printf 'case\tstep\tlabel\tfile\texpect\texit\tverdict\tdetail\n' > "$RESULTS"
 
@@ -961,15 +961,19 @@ report_table case_a_happy_path a_05_nach_wiederholung "$SQL_DIR/05_verify_read_o
 # 01 prueft diesen Vertrag seit der Erweiterung direkt im Systemkatalog
 # (pg_trigger, pg_proc, pg_get_triggerdef, pg_get_functiondef). Dieser Fall
 # belegt, dass die Pruefung wirklich am Katalog haengt und nicht an einem
-# Kommentar: der Vertrag wird dreimal auf unterschiedliche Weise gebrochen, und
-# 01 muss jedes Mal genau die Zeile products_updated_at_triggervertrag als FAIL
-# melden. Die beiden Kontrollschritte davor und danach zeigen, dass die FAILs
-# von der Manipulation kommen und nicht vom Fall selbst.
+# Kommentar: eine positive Kommentar-Gegenprobe muss PASS bleiben; danach wird
+# der Vertrag viermal auf unterschiedliche Weise gebrochen, und 01 muss jedes
+# Mal genau die Zeile products_updated_at_triggervertrag als FAIL melden. Die
+# Kontrollschritte zeigen, dass die FAILs von der Manipulation kommen.
 #
 # Die Fixture traegt den ECHTEN Trigger (fx_real_trigger), die Manipulationen
 # sind DDL und damit auf diese Fall-Datenbank beschraenkt.
 new_case case_k_triggervertrag "01 prueft den deployten updated_at-Triggervertrag fail-closed"
 report_table case_k_triggervertrag k_01_vertrag_intakt \
+  "$SQL_DIR/01_preflight_read_only.sql" 23
+step case_k_triggervertrag ok k_setup_kommentar_sub_category \
+  "$HERE/cases/setup_trigger_kommentar_sub_category.sql"
+report_table case_k_triggervertrag k_01_kommentar_bleibt_pass \
   "$SQL_DIR/01_preflight_read_only.sql" 23
 step case_k_triggervertrag ok k_setup_sub_category \
   "$HERE/cases/setup_trigger_bumpt_sub_category.sql"
@@ -978,6 +982,10 @@ report_table_expect_fail case_k_triggervertrag k_01_sub_category \
 step case_k_triggervertrag ok k_setup_ohne_guard \
   "$HERE/cases/setup_trigger_ohne_updated_at_guard.sql"
 report_table_expect_fail case_k_triggervertrag k_01_ohne_guard \
+  "$SQL_DIR/01_preflight_read_only.sql" products_updated_at_triggervertrag
+step case_k_triggervertrag ok k_setup_guard_dummy_zuweisung_danach \
+  "$HERE/cases/setup_trigger_guard_dummy_zuweisung_danach.sql"
+report_table_expect_fail case_k_triggervertrag k_01_guard_dummy_zuweisung_danach \
   "$SQL_DIR/01_preflight_read_only.sql" products_updated_at_triggervertrag
 step case_k_triggervertrag ok k_setup_trigger_entfernt \
   "$HERE/cases/setup_trigger_entfernt.sql"
@@ -1513,14 +1521,15 @@ column -t -s $'\t' "$RESULTS" 2>/dev/null || cat "$RESULTS"
 # mehr als vollstaendiger PASS gelten.
 # ---------------------------------------------------------------------------
 RECORDS_GESCHRIEBEN=$(( $(wc -l < "$RESULTS") - 1 ))
-if [[ $RECORDS_GESCHRIEBEN -eq $ERWARTETE_SCHRITTE ]]; then
+if [[ $RECORDS_GESCHRIEBEN -eq $ERWARTETE_SCHRITTE \
+   && $STEP -eq $ERWARTETE_SCHRITTE ]]; then
   log ""
-  log "  [PASS] coverage_schrittzahl: $RECORDS_GESCHRIEBEN von $ERWARTETE_SCHRITTE Records geschrieben"
+  log "  [PASS] coverage_schrittzahl: $RECORDS_GESCHRIEBEN Records und $STEP Schritte von $ERWARTETE_SCHRITTE"
 else
   mark_fail
   log ""
-  log "  [FAIL] coverage_schrittzahl: $RECORDS_GESCHRIEBEN Records statt $ERWARTETE_SCHRITTE"
-  log "         (STEP-Zaehler: $STEP). Der Lauf war nicht vollstaendig — kein GESAMT PASS."
+  log "  [FAIL] coverage_schrittzahl: $RECORDS_GESCHRIEBEN Records und $STEP Schritte statt $ERWARTETE_SCHRITTE"
+  log "         Der Lauf war nicht vollstaendig — kein GESAMT PASS."
 fi
 
 log ""

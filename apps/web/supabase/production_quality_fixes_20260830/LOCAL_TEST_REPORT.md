@@ -1,7 +1,7 @@
 # Lokaler Testbericht — Production-Quality-Fixes 2026-08-30
 
-**Stand:** 2026-08-30, nach den Korrekturen aus der Opus-Endpruefung und
-unabhaengigem Codex-Vollauf
+**Stand:** 2026-08-30, nach der zweiten Opus-Endpruefung und unabhaengigem
+Codex-Vollauf
 
 **Harness:** `test/run_local_postgres_test.sh`
 **Zielprojekt des Changesets:** `project/ydiihvzcxaaoqhmgoqvu` (nicht beruehrt)
@@ -9,47 +9,46 @@ unabhaengigem Codex-Vollauf
 ## Ergebnis
 
 > [!success] LOKALES GATE FUER DEN AKTUELLEN STAND: **BESTANDEN**
-> **160/160 PASS**, **0 Abweichungen**, Coverage-Assertion PASS, Exit **0**,
-> PostgreSQL **16.15**. Ergebnisdatei:
-> `/tmp/cbb-qftest.549lsB6T/results.tsv`; Einzelprotokolle:
-> `/tmp/cbb-qftest.549lsB6T/logs/`.
+> **164/164 PASS**, **0 Abweichungen**, Records=164, STEP=164,
+> Coverage-Assertion PASS, Exit **0**, PostgreSQL **16.15**. Ergebnisdatei:
+> `/tmp/cbb-qftest.Z3T0ySL7/results.tsv`; Einzelprotokolle:
+> `/tmp/cbb-qftest.Z3T0ySL7/logs/`.
 
 Der wegwerfbare lokale Cluster wurde danach sauber gestoppt; PGDATA und
 Socketverzeichnis wurden entfernt, die Logs bleiben erhalten. Kein Paket-SQL
 lief gegen Production oder Pilot/Staging.
 
-## Was seit dem letzten ausgefuehrten Lauf hinzugekommen ist
+## Was seit dem 160er-Lauf hinzugekommen ist
 
 | Aenderung | Wirkung auf den Lauf |
 |---|---|
-| `01`: Katalogpruefung `products_updated_at_triggervertrag` (Sortierung 156) | `01` erwartet jetzt **23** statt 22 PASS-Zeilen, 29 statt 28 Zeilen |
-| `case_k_triggervertrag` — Vertrag dreimal gebrochen, zweimal Kontrolle | +9 Schritte |
-| `02`: Zeilenidentitaet (`id` UND `slug`) im No-Op-Zweig, fail-closed | keine neue Erwartung in bestehenden Faellen |
-| `case_di_backup_identitaet` — Backup mit fremder Zeilen-`id` | +6 Schritte |
-| Coverage-Assertion `ERWARTETE_SCHRITTE=160` am Ende des Harness | kein eigener `results.tsv`-Record; prueft die Gesamtzahl der geschriebenen Records |
+| `01`: kommentarbereinigter, geordneter Guard-Zuweisungs-Nachweis; `:=` und `=` werden gezaehlt | keine neue Reportzeile; schaerferer Inhalt der bestehenden Vertragszeile |
+| `case_k_triggervertrag`: positiver Kommentarfall und negativer Dummy-Guard mit bedingungsloser `=`-Zuweisung | +4 Schritte |
+| Coverage-Assertion | prueft jetzt Records **und** `STEP` hart gegen `ERWARTETE_SCHRITTE=164` |
 
-Damit steigt das Soll von 145 auf **160 Schritte**.
+Damit steigt das Soll von 160 auf **164 Schritte**.
 
 ## Laufhistorie
 
 | Lauf | Stand | Ergebnis | Artefakte |
 |---|---|---|---|
-| aktueller Paketstand | nach Opus-Korrekturen | **160/160 PASS, 0 Abweichungen, Coverage PASS, Exit 0, PostgreSQL 16.15** | `/tmp/cbb-qftest.549lsB6T/results.tsv`, Logs unter `/tmp/cbb-qftest.549lsB6T/logs/` |
+| aktueller Paketstand | nach zweiter Opus-Endpruefung | **164/164 PASS, 0 Abweichungen, Records=STEP=164, Coverage PASS, Exit 0, PostgreSQL 16.15** | `/tmp/cbb-qftest.Z3T0ySL7/results.tsv`, Logs unter `/tmp/cbb-qftest.Z3T0ySL7/logs/` |
+| 160 Schritte | Commit `250ad42` | 160/160 PASS, 0 Abweichungen, Coverage PASS, Exit 0, PostgreSQL 16.15 | `/tmp/cbb-qftest.549lsB6T/results.tsv`, Logs unter `/tmp/cbb-qftest.549lsB6T/logs/` |
 | 145 Schritte | nach der A4-Erweiterung | 145/145 PASS, 0 Abweichungen, Exit 0, PostgreSQL 16.15 | `/tmp/cbb-qftest.AgI5UJsx/results.tsv`, Logs unter `/tmp/cbb-qftest.AgI5UJsx/logs/` |
 | 119 Schritte | vor der A4-Erweiterung | 119/119 PASS, 0 Abweichungen, Exit 0 | `/tmp/cbb-qftest.qWvTWbdG/results.tsv` |
 
-Der 160er-Lauf belegt den heutigen Stand. Die beiden historischen Laeufe
-kannten weder die Triggervertrags-Pruefzeile noch die Identitaetspruefung im
-No-Op-Zweig von `02` noch die Coverage-Assertion.
+Der 164er-Lauf belegt den aktuellen nachgehaerteten Stand. Die historischen
+Laeufe kannten jeweils einen kleineren Test- und Guard-Umfang.
 
-## Abgedeckter Stand (bestandener 160er-Lauf)
+## Abgedeckter Stand (bestandener 164er-Lauf)
 
 - genau sieben Produkt- und drei Listen-Zielzeilen;
 - A4-Unterkategorie `basteln -> gadgets`, wobei `updated_at` nachweislich
   unveraendert bleibt;
 - neues `updated_at` nur fuer die sechs sichtbar geaenderten Produktseiten;
 - der deployte `updated_at`-Triggervertrag auf `public.products`, gemessen im
-  Systemkatalog und dreifach negativ gegengeprueft;
+  Systemkatalog, kommentarbereinigt, mit geordneter Guard-Zuweisungs-Struktur,
+  vierfach negativ und mit positivem Kommentarfall gegengeprueft;
 - harte Vorbedingungen fuer `anon` und `authenticated`;
 - direkte und geerbte Backup-Rechte auf Tabellen und Schema;
 - `updated_at IS NULL` vor Backup, Apply und Restore;

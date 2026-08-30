@@ -2,7 +2,7 @@
 
 ## Status
 
-**`korrigiert nach Opus-Endpruefung, lokales Gate 160/160 bestanden,
+**`nach zweiter Opus-Endpruefung nachgehaertet, lokales Gate 164/164 bestanden,
 nichts auf Production ausgefuehrt`**
 
 Keine Datei dieses Verzeichnisses wurde gegen `project/ydiihvzcxaaoqhmgoqvu`
@@ -13,11 +13,11 @@ geprueft und Preis, ASIN sowie Bild-Erreichbarkeit extern read-only
 gegengeprueft.
 
 > [!success] Das lokale Gate ist fuer diesen Stand **erfuellt**:
-> **160/160 PASS**, **0 Abweichungen**, Coverage-Assertion PASS, Exit **0**,
-> PostgreSQL **16.15**. Ergebnisdatei:
-> `/tmp/cbb-qftest.549lsB6T/results.tsv`; Einzelprotokolle:
-> `/tmp/cbb-qftest.549lsB6T/logs/`. Der wegwerfbare Cluster wurde danach
-> sauber gestoppt; PGDATA und Socketverzeichnis wurden entfernt.
+> **164/164 PASS**, 0 Abweichungen, Records=164, STEP=164,
+> Coverage-Assertion PASS, Exit 0, PostgreSQL **16.15**. Ergebnisdatei:
+> `/tmp/cbb-qftest.Z3T0ySL7/results.tsv`; Einzelprotokolle:
+> `/tmp/cbb-qftest.Z3T0ySL7/logs/`. Der Cluster wurde sauber gestoppt; PGDATA
+> und Socketverzeichnis wurden entfernt.
 
 Der fruehere Lauf mit 119/119 PASS bleibt als Historie fuer den Paketstand vor
 der Erweiterung dokumentiert.
@@ -249,9 +249,11 @@ Schritt 2 damit nicht freigegeben und `04` darf nicht laufen.
 
 Der lokale Harness prueft genau diesen Katalogvertrag und nicht eine
 Nachbildung: die Fixture laedt die Originaldatei
-`supabase/seo_updated_at_trigger.sql`, und `case_k_triggervertrag` bricht den
-Vertrag dreimal unterschiedlich (Bump auf `shop_sub_category`, fehlender
-`updated_at`-Guard, Trigger entfernt) und verlangt jedes Mal die FAIL-Zeile.
+`supabase/seo_updated_at_trigger.sql`. `case_k_triggervertrag` belegt zuerst,
+dass ein reiner `shop_sub_category`-Kommentar PASS bleibt, und bricht den
+Vertrag danach viermal unterschiedlich: Bump auf `shop_sub_category`, fehlender
+Guard, Dummy-Guard mit bedingungsloser `=`-Zuweisung und entfernter Trigger.
+Jeder Negativzustand muss die benannte FAIL-Zeile liefern.
 
 ---
 
@@ -336,25 +338,24 @@ alle uebrigen Produktbilder des Shops.
 
 ### 4.4 Lokaler Harness — Gate fuer den aktuellen Stand BESTANDEN
 
-`test/run_local_postgres_test.sh` lief am 2026-08-30 gegen PostgreSQL **16.15**
-mit **160/160 PASS**, **0 Abweichungen**, Coverage-Assertion PASS und Exit
-**0**. Ergebnisdatei: `/tmp/cbb-qftest.549lsB6T/results.tsv`; Einzelprotokolle:
-`/tmp/cbb-qftest.549lsB6T/logs/`. Der lokale Cluster wurde danach sauber
-gestoppt; PGDATA und Socketverzeichnis wurden entfernt.
+Der aktuelle Vollauf bestand am 2026-08-30 gegen PostgreSQL **16.15** mit
+**164/164 PASS**, 0 Abweichungen, Records=164, STEP=164, Coverage PASS und Exit
+0. Ergebnisdatei: `/tmp/cbb-qftest.Z3T0ySL7/results.tsv`; Einzelprotokolle:
+`/tmp/cbb-qftest.Z3T0ySL7/logs/`.
 
 Gegenueber dem vorherigen 145er-Lauf sind abgedeckt:
 
 * die Katalogpruefung `products_updated_at_triggervertrag` in `01`
   (`01` jetzt 23 statt 22 PASS, siehe Abschnitt 2.5),
-* der Fall `case_k_triggervertrag` (9 Schritte),
+* der Fall `case_k_triggervertrag` (damals 9 Schritte),
 * die Identitaetspruefung ueber `id` UND `slug` im No-Op-Zweig von `02` und der
   Fall `case_di_backup_identitaet` (6 Schritte, siehe Abschnitt 5.6),
 * die Coverage-Assertion auf `ERWARTETE_SCHRITTE=160` am Ende des Harness.
 
-Damit steht das Soll bei **160 Schritten**; der Lauf hat alle 160 Records
-geschrieben und die maschinelle Sollzahl bestaetigt. Der ausfuehrliche Nachweis
-steht in [`LOCAL_TEST_REPORT.md`](LOCAL_TEST_REPORT.md) und
-[`test/README.md`](test/README.md).
+Nach der zweiten Opus-Pruefung kamen ein positiver Kommentarfall und ein
+negativer Dummy-Guard mit bedingungsloser `=`-Zuweisung hinzu. Die
+Coverage-Assertion prueft nun Records und `STEP`. Der Vollauf bestaetigte alle
+**164 Schritte** und beide Zaehler exakt.
 
 ---
 
@@ -511,7 +512,7 @@ Dubletten aussehen:
 
 | Slug | ASIN / Link | Preis | aktuelles Bild | Klassifizierung |
 |---|---|---|---|---|
-| `tosy-flying-disc-108-rgb-leds-leuchtfrisbee` | `B0B1YMNGS2`, **direkt im Repo** (`import_products_batch8.sql` Z. 49) | 3599 (`import_products_batch8.sql` Z. 46) | `51QWMABiNIL` (`fix_batch8_images.sql` Z. 5) | `babo / lifestyle / gadgets` (`reassign_all_categories.sql` Z. 286) |
+| `tosy-flying-disc-108-rgb-leds-leuchtfrisbee` | `B0B1YMNGS2`, **direkt im Repo** (`import_products_batch8.sql` Z. 49) | 3599 (`import_products_batch8.sql` Z. 47) | `51QWMABiNIL` (`fix_batch8_images.sql` Z. 5) | `babo / lifestyle / gadgets` (`reassign_all_categories.sql` Z. 286) |
 | `tosy-flying-disc-wiederaufladbar` | eigener Kurzlink `amzn.to/3QtubCJ` (`manual_affiliate_fix.sql` Z. 44) — die ASIN steht **nicht** im Repo | 2999 (`products_update.sql` Z. 63) | `81vsAxy1YLL` (`products_update.sql` Z. 63) | `miniboss / spass / outdoor` (`reassign_all_categories.sql` Z. 754) |
 
 #### Was das Repo belegt — und was nicht
@@ -557,7 +558,7 @@ Offen bleiben die Production-Freigaben und die unmittelbar vor `04` zu
 wiederholenden Preis-/Bildpruefungen.
 
 0. **Vorbedingung lokales Gate — erfuellt.** Der aktuelle Lauf ergab
-   **160/160**, 0 Abweichungen, Exit 0 und die Zeile
+   **164/164**, 0 Abweichungen, Exit 0 und die Zeile
    `[PASS] coverage_schrittzahl`.
 1. **Freigabe #1 einholen.** Zielprojekt sichtbar pruefen.
    `01_preflight_read_only.sql` ausfuehren. Erwartet: 29 Zeilen, 23 PASS,
@@ -589,11 +590,12 @@ ist wieder aufgehoben. Das ist der korrekte Ausgang, kein Fehler.
 
 | Gate | Wer | Stand |
 |---|---|---|
-| Lokaler PostgreSQL-Harness `test/run_local_postgres_test.sh` fuer den **aktuellen** Stand | Codex | **160/160 PASS, 0 Abweichungen, Coverage PASS, Exit 0, PostgreSQL 16.15** (`/tmp/cbb-qftest.549lsB6T/results.tsv`) |
+| Lokaler PostgreSQL-Harness `test/run_local_postgres_test.sh` fuer den **aktuellen** Stand | Codex | **164/164 PASS, 0 Abweichungen, Records=STEP=164, Coverage PASS, Exit 0, PostgreSQL 16.15** (`/tmp/cbb-qftest.Z3T0ySL7/results.tsv`) |
+| Historie: Harness-Lauf auf Commit `250ad42` | Codex | 160/160 PASS, 0 Abweichungen, Coverage PASS, Exit 0 (PostgreSQL 16.15) — gilt **nicht** fuer den aktuellen Stand |
 | Historie: Harness-Lauf nach der A4-Erweiterung | Codex | 145/145 PASS, 0 Abweichungen, Exit 0 (PostgreSQL 16.15, 2026-08-30) — gilt **nicht** fuer den aktuellen Stand |
 | Historie: Harness-Lauf vor der Erweiterung | Codex | 119/119 PASS, 0 Abweichungen, Exit 0 (2026-08-30) — gilt **nicht** fuer den aktuellen Stand |
 | Unabhaengiges Codex-Audit der sechs SQL-Dateien (`--profile deep`) | Codex | **abgeschlossen**; A4-lastmod getrennt, No-Op-Zeitstempel- und Backup-Identitaetspfade nachgehaertet, Triggervertrag geprueft |
-| Opus-Endpruefung und deren Korrekturen (Triggervertrag in `01`, Identitaet im No-Op-Zweig von `02`, Coverage-Assertion, D7-/Zaehl-/Zielprojekt-Text) | Claude/Codex | Umsetzung, unabhaengiges Audit und lokaler 160er-Lauf **abgeschlossen** |
+| Zweite Opus-Endpruefung (struktureller Triggervertrag, Kommentarbereinigung, D7-Zeile) | Claude/Codex | Befunde umgesetzt; unabhaengiges Audit und lokaler 164er-Lauf **abgeschlossen** |
 | Erneute Preispruefung ASIN `B07HHXWN3C` unmittelbar vor `04` | Codex/Benutzer | **offen** |
 | Erneute Erreichbarkeitspruefung der neun Bild-URLs unmittelbar vor `04` | Codex/Benutzer | **offen** |
 | Freigabe #1 bis #5 (Production) | Benutzer | **offen** |

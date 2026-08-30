@@ -463,11 +463,15 @@ gamer_info as (
 --     2. vertragstrigger  Dieser eine Trigger heisst products_set_updated_at,
 --        haengt an public.products_touch_updated_at, hat keine WHEN-Klausel und
 --        traegt genau die erwartete Definition.
---     3. ohne_sub_category  Der Funktionsrumpf nennt shop_sub_category
---        nirgends. Damit kann die A4-Aenderung keinen Bump ausloesen.
+--     3. ohne_sub_category  Der von Zeilenkommentaren bereinigte
+--        Funktionsrumpf nennt shop_sub_category nirgends. Damit kann die
+--        A4-Aenderung keinen Bump ausloesen; ein reiner Pflegekommentar sperrt
+--        den Preflight nicht.
 --     4. explizit_gesetzt_bleibt  Der Rumpf setzt updated_at genau einmal, und
 --        nur unter der Bedingung, dass der Aufrufer die Spalte NICHT selbst
---        geschrieben hat.
+--        geschrieben hat. Guard, THEN, Zuweisung und END IF muessen in dieser
+--        Reihenfolge stehen; sowohl := als auch = werden als PL/pgSQL-
+--        Zuweisungsoperator gezaehlt.
 --     5. fremde_updated_at_trigger  Keine andere aktive Triggerfunktion auf
 --        public.products fasst updated_at ueberhaupt an.
 --
@@ -485,8 +489,21 @@ trigger_kandidaten as (
     t.tgqual is null as ohne_when_klausel,
     (p.pronamespace::regnamespace)::text || '.' || p.proname::text as funktion,
     pg_catalog.pg_get_triggerdef(t.oid) as triggerdef,
-    regexp_replace(pg_catalog.pg_get_functiondef(p.oid), '\s+', ' ', 'g')
-      as funktionsdef
+    -- Erst Zeilenkommentare entfernen, solange die Zeilenumbrueche noch da
+    -- sind; erst danach Whitespace normalisieren. So kann Kommentartext weder
+    -- einen Vertragsbeleg vortaeuschen noch shop_sub_category faelschlich als
+    -- ausgefuehrten Code erscheinen lassen.
+    regexp_replace(
+      regexp_replace(
+        pg_catalog.pg_get_functiondef(p.oid),
+        '--[^\n\r]*',
+        ' ',
+        'g'
+      ),
+      '\s+',
+      ' ',
+      'g'
+    ) as funktionsdef
   from pg_catalog.pg_trigger t
   join pg_catalog.pg_proc p on p.oid = t.tgfoid
   where t.tgrelid = 'public.products'::regclass
@@ -514,9 +531,20 @@ trigger_vertrag as (
       as ohne_sub_category,
     (select count(*) from trigger_kandidaten
       where tgname = 'products_set_updated_at'
-        and funktionsdef ~* 'if new\.updated_at is not distinct from old\.updated_at'
-        and array_length(
-              string_to_array(lower(funktionsdef), 'new.updated_at :='), 1) = 2)::integer
+        -- Nicht nur Guard und Zuweisung irgendwo im Text finden: die einzige
+        -- Zuweisung muss zwischen THEN und dem einzigen END IF desselben
+        -- geordneten Guard-Blocks stehen. Kommentare sind oben entfernt.
+        and funktionsdef ~* (
+          'if new\.updated_at is not distinct from old\.updated_at '
+          || '.* then new\.updated_at *(:=|=) *now\(\); *end if;'
+        )
+        and pg_catalog.regexp_count(
+              funktionsdef,
+              '(^|;|then|begin)[[:space:]]+new\.updated_at[[:space:]]*(:=|=)',
+              1,
+              'i'
+            ) = 1
+        and pg_catalog.regexp_count(funktionsdef, 'end[[:space:]]+if;', 1, 'i') = 1)::integer
       as explizit_gesetzt_bleibt,
     (select count(*) from trigger_kandidaten
       where tgname <> 'products_set_updated_at'

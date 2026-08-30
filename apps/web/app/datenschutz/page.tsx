@@ -191,19 +191,45 @@ export default function DatenschutzPage() {
               <p className="text-sm leading-relaxed mb-3">
                 <strong className="text-[#0A0A0A]">Datenbankdienst und Empfänger:</strong> Für die
                 Speicherung der in diesem Abschnitt genannten Zähl-Datensätze nutzen wir Supabase als
-                Datenbank- und Hosting-Dienstleister. Anbieter ist Supabase, Inc., c/o Incorporating
-                Services, Ltd., 3500 S. DuPont Highway, Dover, Kent 19901, Delaware, USA. Supabase
-                verarbeitet diese Daten in unserem Auftrag. An Supabase werden nur die oben ausdrücklich
-                aufgeführten Angaben übermittelt; insbesondere erhält Supabase von uns für diese Messung
-                weder Ihre IP-Adresse noch Ihre vollständige Browserkennung.
+                Datenbank- und Hosting-Dienstleister. Vertragspartner und Auftragsverarbeiter ist Supabase
+                Pte. Ltd., 65 Chulia Street #38-02/03, OCBC Centre, Singapore 049513. Supabase verarbeitet
+                diese Daten in unserem Auftrag auf Grundlage der aktuellen Auftragsverarbeitungsvereinbarung
+                (DPA) von Supabase. An Supabase werden nur die oben ausdrücklich aufgeführten Angaben
+                übermittelt; insbesondere erhält Supabase von uns für diese Messung weder Ihre IP-Adresse
+                noch Ihre vollständige Browserkennung. Der primäre Speicherort unseres Supabase-Projekts ist
+                die Region West EU (Ireland) (eu-west-1).
               </p>
               <p className="text-sm leading-relaxed mb-3">
-                <strong className="text-[#0A0A0A]">Drittlandübermittlung:</strong> Supabase ist ein
-                US-Unternehmen und setzt für einzelne Leistungen weitere Dienstleister ein. Dadurch kann
-                es zu einer Verarbeitung in den USA oder Singapur kommen. Supabase nennt für solche
+                <strong className="text-[#0A0A0A]">Drittlandübermittlung:</strong> Auch bei einem
+                Projektspeicherort in der EU setzt Supabase für einzelne Leistungen weitere
+                Unterauftragsverarbeiter ein — laut der von Supabase veröffentlichten Liste etwa Amazon Web
+                Services, Inc. für das Hosting und Supabase, Inc. für den Support. Dadurch kann es zu einer
+                Verarbeitung in Drittländern, insbesondere den USA oder Singapur, kommen — Singapur
+                deshalb, weil Supabase Pte. Ltd. dort als Vertragspartei und Datenimporteurin sitzt.
+                Der primäre Speicherort unseres Supabase-Projekts in der EU (siehe oben) bleibt davon
+                unberührt. Supabase nennt für solche
                 Übermittlungen die Standardvertragsklauseln der Europäischen Kommission (Modul 2:
                 Verantwortlicher an Auftragsverarbeiter) als Übermittlungsmechanismus gemäß Art. 46 Abs. 2
-                lit. c DSGVO. Weitere Informationen finden Sie in der{' '}
+                lit. c DSGVO. Die aktuelle Auftragsverarbeitungsvereinbarung (DPA) und die aktuelle Liste der
+                Unterauftragsverarbeiter finden Sie unter:{' '}
+                <a
+                  href="https://supabase.com/legal/customer-resources/data-processing-addendum"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 hover:text-[#0A0A0A]"
+                >
+                  Auftragsverarbeitungsvereinbarung (DPA) von Supabase
+                </a>{' '}
+                und{' '}
+                <a
+                  href="https://supabase.com/legal/customer-resources/subprocessor-list"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 hover:text-[#0A0A0A]"
+                >
+                  Liste der Unterauftragsverarbeiter von Supabase
+                </a>. Allgemeine Informationen zum Datenschutz bei Supabase (kein Ersatz für das DPA) finden
+                Sie in der{' '}
                 <a
                   href="https://supabase.com/privacy"
                   target="_blank"
@@ -211,15 +237,6 @@ export default function DatenschutzPage() {
                   className="underline underline-offset-2 hover:text-[#0A0A0A]"
                 >
                   Datenschutzerklärung von Supabase
-                </a>{' '}
-                und in der{' '}
-                <a
-                  href="https://supabase.com/downloads/docs/Supabase%2BTIA%2B250314.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline underline-offset-2 hover:text-[#0A0A0A]"
-                >
-                  Transfer-Folgenabschätzung von Supabase
                 </a>.
               </p>
               <p className="text-sm leading-relaxed mb-3">

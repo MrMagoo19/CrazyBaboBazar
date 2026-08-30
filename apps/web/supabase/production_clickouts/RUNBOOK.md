@@ -153,8 +153,9 @@ Fehlerlaerm. Und ohne erfuelltes Gate entstuenden Daten ohne Loeschmechanismus.
 
 Die Datenschutzerklaerung nennt Supabase jetzt wahrheitsgemaess als
 Datenbankdienst/Empfaenger und verweist auf den vom Anbieter dokumentierten
-SCC-Mechanismus. Das Repository kann aber **nicht** belegen, welcher DPA-/SCC-
-Vertragsstand fuer das konkrete Supabase-Konto tatsaechlich gilt.
+SCC-Mechanismus. Das Repository kann aber **nicht** selbststaendig belegen,
+welcher DPA-/SCC-Vertragsstand fuer das konkrete Supabase-Konto tatsaechlich
+gilt — dafuer braucht es eine read-only-Pruefung im Supabase-Konto selbst.
 
 Vor dem ersten Production-Write und vor jedem Deploy, der die Klick-Messung
 scharf schalten koennte, muss deshalb im Supabase-Konto read-only verifiziert
@@ -167,10 +168,22 @@ und in Abschnitt 10 protokolliert werden:
 3. die reale Projektregion ist bekannt; falls sie in der Datenschutzerklaerung
    genannt werden soll, wird sie erst nach dieser Verifikation eingetragen.
 
-Bis dieser Nachweis protokolliert ist, bleibt der Rollout auch bei gruenem SQL-
-und Retention-Gate gesperrt. Die aktuelle Datenschutzerklaerung behauptet
-bewusst keine unbestaetigte Projektregion und keinen individuell verifizierten
-Vertragsabschluss.
+**Stand 2026-08-30:** Alle drei Punkte sind read-only verifiziert und in
+Abschnitt 10 protokolliert; die Datenschutzerklaerung
+(`apps/web/app/datenschutz/page.tsx`, Abschnitt 6) wurde entsprechend
+korrigiert — richtige Vertragspartei Supabase Pte. Ltd. (Singapur) statt der
+zuvor falschen Delaware-Angabe, Nennung der Region West EU (Ireland)/
+eu-west-1 als primaerem Speicherort, Hinweis auf Unterauftragsverarbeiter
+(u. a. AWS fuer Hosting, Supabase, Inc. fuer Support) und aktuelle Links zu
+DPA und Unterauftragsverarbeiterliste anstelle des veralteten TIA-Links von
+Maerz 2025. **Dieses PRE-DEPLOY-GATE ist damit erfuellt.**
+
+Das aendert nichts am Production-Hold insgesamt: Der Rollout bleibt zusaetzlich
+durch das Retention-Gate in Abschnitt 7 (weiterhin **NICHT ERFUELLT**) und durch
+die generelle Freigabepflicht fuer das Setzen von `SUPABASE_SERVICE_ROLE_KEY`
+(Abschnitt 5, externe Kontoaktion mit eigener Freigabe) gesperrt. Diese
+Korrektur ist eine lokale Textaenderung im Repository — sie ist weder ein
+Production-Write noch eine Rollout-Freigabe.
 
 ---
 
@@ -409,7 +422,11 @@ Gates.
 
 | Datum | Schritt | Ziel | Ergebnis |
 |---|---|---|---|
-| — | — | — | **Noch nichts ausgefuehrt.** Production-Hold aktiv. |
+| — | — | — | **Noch keine Production-SQL-Ausfuehrung.** Production-Hold aktiv. Retention-Gate (Abschnitt 7) bleibt **NICHT ERFUELLT**. |
+| 2026-08-30 | PRE-DEPLOY-GATE (Abschnitt 5), read-only | Organisation "CrazyBaboBazar" (Ref `jjkoafzwtawtzcmrxexj`), Projekt "CrazyBaboBazar Project" (Ref `ydiihvzcxaaoqhmgoqvu`) | Dashboard Settings > General: Project region **West EU (Ireland)**, `eu-west-1` (primaerer Speicherort). Supabase Terms of Service **Version 3 — 1. August 2026** (Agreement gilt durch Zugriff/Nutzung, DPA ausdruecklich einbezogen). Supabase-DPA **Version 1 — 1. August 2026**; Auftragsverarbeiter/Datenimporteur ist **Supabase Pte. Ltd.**, 65 Chulia Street #38-02/03, OCBC Centre, Singapore 049513; DPA gilt ab Effective Date des Agreements; Annahme des Agreements wirkt wie Unterzeichnung der SCCs; fuer Controller→Processor gilt **Modul 2**. Offizielle Unterauftragsverarbeiterliste, **Stand 1. Juni 2026**: Amazon Web Services, Inc. = Hosting, Supabase, Inc. = Support (weitere Dienstleister gelistet); kein Hinweis, dass Supabase, Inc. der vertragliche Auftragsverarbeiter waere. Ergebnis: die drei Punkte des PRE-DEPLOY-GATE sind erfuellt; `apps/web/app/datenschutz/page.tsx` (Abschnitt 6) entsprechend korrigiert (Vertragspartei, Region, Unterauftragsverarbeiter-Hinweis, DPA-/Subprocessor-Links, veralteten TIA-Link entfernt). **Keine Production-Ausfuehrung, kein Rollout, keine Freigabe** — Retention-Gate (Abschnitt 7) bleibt **NICHT ERFUELLT**. |
 
-Zusaetzlich offen: DPA/SCC-Kontostand und reale Projektregion gemaess dem
-Pre-Deploy-Gate in Abschnitt 5 read-only verifizieren und hier protokollieren.
+Zusaetzlich offen: Retention-Gate (Abschnitt 7) — `04a`/`04b` auf Production
+ausfuehren und Job-History kontrollieren — sowie die generelle Freigabe zum
+Setzen von `SUPABASE_SERVICE_ROLE_KEY` (Abschnitt 5). Das PRE-DEPLOY-GATE
+selbst (DPA/SCC-Kontostand, reale Projektregion) ist seit 2026-08-30 erfuellt
+und oben protokolliert.

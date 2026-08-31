@@ -101,10 +101,16 @@ export default function RootLayout({
 
               {/* Brand */}
               <div>
-                <div className="font-[family-name:var(--font-display)] font-black text-2xl text-[#0A0A0A] leading-none tracking-tight mb-4" style={{ letterSpacing: '-0.04em' }}>
-                  CRAZY<br />
-                  <span style={{ background: '#FFE500', color: '#0A0A0A', paddingLeft: '4px', paddingRight: '4px' }}>BABO</span>{' '}
-                  BAZAR
+                <div
+                  className="font-[family-name:var(--font-display)] font-bold text-2xl text-[#0A0A0A] leading-none tracking-tight mb-4"
+                  style={{ letterSpacing: '-0.04em' }}
+                  aria-label="Crazy Babo Bazar"
+                >
+                  <span className="block">CRAZY</span>
+                  <span className="flex items-baseline whitespace-nowrap">
+                    <span className="inline-block bg-[#FFE500] px-1 text-[#0A0A0A]">BABO</span>
+                    <span className="ml-2">BAZAR</span>
+                  </span>
                 </div>
                 <p className="text-[#555] text-sm leading-relaxed max-w-xs">
                   Kuriose Produkte für schlaue Käufer. Handverlesen.

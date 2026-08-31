@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'm.media-amazon.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.40yards.de',
+        pathname: '/cdn/shop/**',
+      },
     ],
   },
 }

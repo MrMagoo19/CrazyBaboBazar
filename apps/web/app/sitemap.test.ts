@@ -153,6 +153,16 @@ describe('sitemap — statische Seiten', () => {
     expect(urls(await sitemap())).toContain(`${BASE_URL}/guide`)
   })
 
+  it('reicht den Geschenke-Hub genau einmal ein', async () => {
+    mockSupabase({})
+    const all = urls(await sitemap())
+
+    expect(all).toContain(`${BASE_URL}/geschenke`)
+    expect(all.filter((u) => u === `${BASE_URL}/geschenke`)).toHaveLength(1)
+    // Der Hub selbst ist die Route — es gibt keine Kind-Routen darunter.
+    expect(all.filter((u) => u.startsWith(`${BASE_URL}/geschenke/`))).toEqual([])
+  })
+
   it('enthaelt weiterhin jede Guide-Detailseite', async () => {
     mockSupabase({})
     const all = urls(await sitemap())

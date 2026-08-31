@@ -17,6 +17,7 @@ import { metadata as designPreviewMetadata } from './design-preview/page'
 import { metadata as entdeckenMetadata } from './entdecken/page'
 import { metadata as likesMetadata } from './entdecken/likes/layout'
 import { metadata as guideIndexMetadata } from './guide/page'
+import { metadata as geschenkeMetadata } from './geschenke/page'
 import { metadata as impressumMetadata } from './impressum/page'
 import { metadata as jarvisMetadata } from './jarvis-ebook/page'
 import { metadata as listenIndexMetadata } from './listen/page'
@@ -103,6 +104,7 @@ const STATIC_ROUTES: { path: string; metadata: Metadata }[] = [
   { path: 'design-preview/page.tsx', metadata: designPreviewMetadata },
   { path: 'entdecken/page.tsx', metadata: entdeckenMetadata },
   { path: 'guide/page.tsx', metadata: guideIndexMetadata },
+  { path: 'geschenke/page.tsx', metadata: geschenkeMetadata },
   { path: 'impressum/page.tsx', metadata: impressumMetadata },
   { path: 'jarvis-ebook/page.tsx', metadata: jarvisMetadata },
   { path: 'listen/page.tsx', metadata: listenIndexMetadata },

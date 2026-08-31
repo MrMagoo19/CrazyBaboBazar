@@ -75,6 +75,35 @@ export async function getPublishedProductCount(): Promise<number | null> {
   return count
 }
 
+/**
+ * Die Obergrenze der Startseiten-Auswahl. Sie steht hier und nicht in der Page,
+ * damit Helper und Test dieselbe Zahl lesen.
+ */
+export const HOMEPAGE_HIGHLIGHT_LIMIT = 12
+
+/**
+ * Die kleine kuratierte Auswahl der Startseite: Top Picks zuerst, danach die
+ * neuesten Produkte, hart auf `HOMEPAGE_HIGHLIGHT_LIMIT` begrenzt.
+ *
+ * Bewusst NICHT `getPublishedProducts`: das laedt den vollstaendigen Katalog
+ * inklusive aller Spalten und Kategorie-Joins in den Serverspeicher und
+ * serialisiert ihn anschliessend in das HTML der Startseite. Fuer eine Seite,
+ * die zwoelf Karten zeigt, ist das ein Vielfaches an Nutzlast ohne jeden
+ * sichtbaren Gegenwert. Die Begrenzung passiert deshalb in der Abfrage
+ * (`limit`), nicht erst im Renderer.
+ */
+export async function getHomepageHighlights(): Promise<DbProduct[]> {
+  const supabase = publicClient()
+  const { data } = await supabase
+    .from('products')
+    .select('*, categories(*)')
+    .eq('is_published', true)
+    .order('is_featured', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(HOMEPAGE_HIGHLIGHT_LIMIT)
+  return data ?? []
+}
+
 export async function getProductsByCategory(categorySlug: string): Promise<DbProduct[]> {
   const supabase = publicClient()
   const { data } = await supabase

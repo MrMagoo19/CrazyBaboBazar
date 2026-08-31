@@ -118,8 +118,12 @@ export function NavSearch() {
               placeholder="Produkt suchen… z.B. Massagepistole, Gaming, Küche"
               className="flex-1 bg-transparent text-sm text-[#0A0A0A] placeholder:text-[#999] outline-none font-[family-name:var(--font-body)]"
             />
-            <button onClick={closeSearch} className="text-[#555] hover:text-[#0A0A0A] transition-colors">
-              <X size={14} />
+            <button
+              onClick={closeSearch}
+              aria-label="Suche schließen"
+              className="flex items-center justify-center min-w-11 min-h-11 shrink-0 text-[#555] hover:text-[#0A0A0A] transition-colors"
+            >
+              <X size={14} aria-hidden />
             </button>
           </div>
           <div className="p-2 max-h-[60vh] overflow-y-auto">
@@ -158,7 +162,7 @@ export function NavSearch() {
     <>
       <button
         onClick={openSearch}
-        className="flex items-center gap-1.5 text-white hover:text-[#FFE500] transition-colors font-[family-name:var(--font-mono)] text-xs font-bold"
+        className="flex items-center justify-center gap-1.5 min-w-11 min-h-11 text-white hover:text-[#FFE500] transition-colors font-[family-name:var(--font-mono)] text-xs font-bold"
         aria-label="Suche öffnen"
       >
         <SearchIcon size={16} />
@@ -231,7 +235,6 @@ export function DesktopNav() {
   }, [])
 
   const isThemenActive = pathname?.startsWith('/thema')
-  const isListenActive = pathname?.startsWith('/listen')
   const isGuideActive = pathname?.startsWith('/guide')
   const isPreisActive = ['/trending', '/unter-10', '/unter-20', '/unter-50', '/unter-100', '/unter-200', '/ueber-200'].includes(pathname ?? '')
 
@@ -257,11 +260,21 @@ export function DesktopNav() {
     <div className="hidden md:block" onClick={e => e.stopPropagation()}>
       <nav className="flex items-center">
 
+        {/* Geschenkefinder — der wichtigste Einstieg */}
+        <Link
+          href="/geschenke"
+          className={`min-h-11 flex items-center px-4 py-2 text-xs font-black uppercase tracking-wide transition-colors font-[family-name:var(--font-mono)] ${
+            pathname === '/geschenke' ? 'text-[#FFE500]' : 'text-white hover:text-[#FFE500]'
+          }`}
+        >
+          Geschenke
+        </Link>
+
         {/* Themen */}
         <div onMouseEnter={() => openMenu("themen")} onMouseLeave={scheduleClose}>
           <button
             onClick={e => { e.stopPropagation(); setOpen(o => o === "themen" ? null : "themen") }}
-            className={`flex items-center gap-1 px-4 py-2 text-xs font-black uppercase tracking-wide transition-colors font-[family-name:var(--font-mono)] ${
+            className={`min-h-11 flex items-center gap-1 px-4 py-2 text-xs font-black uppercase tracking-wide transition-colors font-[family-name:var(--font-mono)] ${
               open === "themen" || isThemenActive ? 'text-[#FFE500]' : 'text-white hover:text-[#FFE500]'
             }`}
           >
@@ -270,31 +283,11 @@ export function DesktopNav() {
           </button>
         </div>
 
-        {/* Listen */}
-        <Link
-          href="/listen"
-          className={`px-4 py-2 text-xs font-black uppercase tracking-wide transition-colors font-[family-name:var(--font-mono)] ${
-            isListenActive ? 'text-[#FFE500]' : 'text-white hover:text-[#FFE500]'
-          }`}
-        >
-          Listen
-        </Link>
-
-        {/* Guides */}
-        <Link
-          href="/guide"
-          className={`px-4 py-2 text-xs font-black uppercase tracking-wide transition-colors font-[family-name:var(--font-mono)] ${
-            isGuideActive ? 'text-[#FFE500]' : 'text-white hover:text-[#FFE500]'
-          }`}
-        >
-          Guides
-        </Link>
-
         {/* Preis */}
         <div onMouseEnter={() => openMenu("preis")} onMouseLeave={scheduleClose}>
           <button
             onClick={e => { e.stopPropagation(); setOpen(o => o === "preis" ? null : "preis") }}
-            className={`flex items-center gap-1 px-4 py-2 text-xs font-black uppercase tracking-wide transition-colors font-[family-name:var(--font-mono)] ${
+            className={`min-h-11 flex items-center gap-1 px-4 py-2 text-xs font-black uppercase tracking-wide transition-colors font-[family-name:var(--font-mono)] ${
               open === "preis" || isPreisActive ? 'text-[#FFE500]' : 'text-white hover:text-[#FFE500]'
             }`}
           >
@@ -302,6 +295,16 @@ export function DesktopNav() {
             <ChevronDown size={11} className={`transition-transform duration-150 ${open === "preis" ? 'rotate-180' : ''}`} />
           </button>
         </div>
+
+        {/* Guides */}
+        <Link
+          href="/guide"
+          className={`min-h-11 flex items-center px-4 py-2 text-xs font-black uppercase tracking-wide transition-colors font-[family-name:var(--font-mono)] ${
+            isGuideActive ? 'text-[#FFE500]' : 'text-white hover:text-[#FFE500]'
+          }`}
+        >
+          Guides
+        </Link>
 
       </nav>
       {/* Siehe NavSearch: Portal nur rendern, wenn ein Menü offen ist. */}
@@ -339,17 +342,27 @@ function MobileSheet() {
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', background: '#FFE500', color: '#0A0A0A', padding: '2px 8px' }}>
             Menü
           </span>
-          <button onClick={() => setOpen(false)} style={{ color: '#0A0A0A', padding: '4px', background: 'none', border: 'none', cursor: 'pointer' }}>
-            <X size={18} />
+          <button
+            onClick={() => setOpen(false)}
+            aria-label="Menü schließen"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '44px', minHeight: '44px', color: '#0A0A0A', background: 'none', border: 'none', cursor: 'pointer' }}
+          >
+            <X size={18} aria-hidden />
           </button>
         </div>
 
         <nav style={{ flex: 1, padding: '8px 0' }}>
+          {/* Geschenkefinder */}
+          <Link href="/geschenke" onClick={() => setOpen(false)}
+            style={{ display: 'flex', alignItems: 'center', minHeight: '44px', padding: '12px 24px', fontSize: '14px', fontWeight: 900, color: '#0A0A0A', textDecoration: 'none', borderBottom: '2px solid #0A0A0A', fontFamily: 'var(--font-mono)' }}>
+            Geschenke finden →
+          </Link>
+
           {/* Themen */}
           {sectionLabel("Themen")}
           {THEMEN.map(item => (
             <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
-              style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 24px', fontSize: '14px', fontWeight: 500, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0' }}>
+              style={{ display: 'flex', alignItems: 'center', minHeight: '44px', gap: '10px', padding: '12px 24px', fontSize: '14px', fontWeight: 500, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0' }}>
               <item.icon size={14} style={{ flexShrink: 0 }} />
               {item.label}
             </Link>
@@ -359,7 +372,7 @@ function MobileSheet() {
           {sectionLabel("Nach Preis", true)}
           {PREISE.map(item => (
             <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
-              style={{ display: 'flex', alignItems: 'center', padding: '10px 24px', fontSize: '14px', fontWeight: 700, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0', fontFamily: 'var(--font-mono)' }}>
+              style={{ display: 'flex', alignItems: 'center', minHeight: '44px', padding: '12px 24px', fontSize: '14px', fontWeight: 700, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0', fontFamily: 'var(--font-mono)' }}>
               {item.label}
             </Link>
           ))}
@@ -367,11 +380,11 @@ function MobileSheet() {
           {/* Kuratiert */}
           {sectionLabel("Kuratiert", true)}
           <Link href="/listen" onClick={() => setOpen(false)}
-            style={{ display: 'flex', alignItems: 'center', padding: '10px 24px', fontSize: '14px', fontWeight: 700, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0', fontFamily: 'var(--font-mono)' }}>
+            style={{ display: 'flex', alignItems: 'center', minHeight: '44px', padding: '12px 24px', fontSize: '14px', fontWeight: 700, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0', fontFamily: 'var(--font-mono)' }}>
             Listen
           </Link>
           <Link href="/guide" onClick={() => setOpen(false)}
-            style={{ display: 'flex', alignItems: 'center', padding: '10px 24px', fontSize: '14px', fontWeight: 700, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0', fontFamily: 'var(--font-mono)' }}>
+            style={{ display: 'flex', alignItems: 'center', minHeight: '44px', padding: '12px 24px', fontSize: '14px', fontWeight: 700, color: '#0A0A0A', textDecoration: 'none', borderBottom: '1px solid #F0F0F0', fontFamily: 'var(--font-mono)' }}>
             Guides
           </Link>
         </nav>
@@ -381,13 +394,13 @@ function MobileSheet() {
           <Link
             href="/entdecken"
             onClick={() => setOpen(false)}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', backgroundColor: '#FFE500', color: '#0A0A0A', padding: '12px', fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', textDecoration: 'none', marginBottom: '12px' }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '44px', gap: '8px', backgroundColor: '#FFE500', color: '#0A0A0A', padding: '12px', fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', textDecoration: 'none', marginBottom: '12px' }}
           >
             ♥ Swipe Area
           </Link>
           <div style={{ display: 'flex', gap: '16px' }}>
-            <Link href="/impressum" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Impressum</Link>
-            <Link href="/datenschutz" onClick={() => setOpen(false)} style={{ fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Datenschutz</Link>
+            <Link href="/impressum" onClick={() => setOpen(false)} style={{ display: 'flex', alignItems: 'center', minHeight: '44px', fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Impressum</Link>
+            <Link href="/datenschutz" onClick={() => setOpen(false)} style={{ display: 'flex', alignItems: 'center', minHeight: '44px', fontSize: '11px', color: '#555', fontFamily: 'var(--font-mono)' }}>Datenschutz</Link>
           </div>
         </div>
       </div>
@@ -396,8 +409,12 @@ function MobileSheet() {
 
   return (
     <>
-      <button className="md:hidden text-white hover:text-[#FFE500] transition-colors" aria-label="Menü öffnen" onClick={() => setOpen(true)}>
-        <Equal size={20} />
+      <button
+        className="md:hidden flex items-center justify-center min-w-11 min-h-11 text-white hover:text-[#FFE500] transition-colors"
+        aria-label="Menü öffnen"
+        onClick={() => setOpen(true)}
+      >
+        <Equal size={20} aria-hidden />
       </button>
       {/* Siehe NavSearch: Portal nur rendern, wenn das Sheet offen ist. */}
       {menu && createPortal(menu, document.body)}

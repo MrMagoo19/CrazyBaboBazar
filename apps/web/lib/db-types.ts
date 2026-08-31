@@ -32,8 +32,8 @@ export type DbProduct = {
   created_at: string | null
   shop_tags: string[] | null
   // Value-Add-Template-Felder: additiv und nullable auf der Production-Tabelle,
-  // derzeit ausschliesslich fuer die zehn Production-Pilotprodukte befuellt.
-  // Alle uebrigen Zeilen liefern null — jeder Renderer muss das abfangen.
+  // derzeit für die zwei abgeschlossenen 10er-Chargen (20 Produkte) befüllt.
+  // Alle übrigen Zeilen liefern null — jeder Renderer muss das abfangen.
   // Migration: supabase/production_value_add/02_migrate_value_add.sql
   // (Backfill: 04_backfill_value_add.sql, Rollback: 07_down_migration.sql).
   fuer_wen: string | null

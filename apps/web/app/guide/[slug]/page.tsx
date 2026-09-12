@@ -158,6 +158,20 @@ export default async function GuidePage({ params }: Props) {
                       ))}
                     </div>
 
+                    {section.duel && (
+                      <div className="pl-12 mt-6" aria-label={`Rundenurteil: ${section.duel.verdict}`}>
+                        <div className="grid grid-cols-[1fr_auto_1fr] items-stretch border-2 border-[#0A0A0A] bg-[#0A0A0A] gap-px">
+                          <div className={`px-3 py-2 text-center text-[10px] font-black uppercase tracking-widest ${section.duel.winner === 'left' ? 'bg-[#FFE500] text-[#0A0A0A]' : 'bg-white text-[#555]'}`}>
+                            {section.duel.leftLabel}
+                          </div>
+                          <div className="bg-[#0A0A0A] text-white px-3 py-2 font-[family-name:var(--font-display)] font-black text-xs" aria-hidden="true">VS</div>
+                          <div className={`px-3 py-2 text-center text-[10px] font-black uppercase tracking-widest ${section.duel.winner === 'right' ? 'bg-[#FFE500] text-[#0A0A0A]' : 'bg-white text-[#555]'}`}>
+                            {section.duel.rightLabel}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Inline product references */}
                     {section.productSlugs && section.productSlugs.length > 0 && (
                       <div className="pl-12 mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -197,6 +211,14 @@ export default async function GuidePage({ params }: Props) {
                               </div>
                             </Link>
                           ))}
+                      </div>
+                    )}
+
+                    {section.duel && (
+                      <div className="pl-12 mt-3">
+                        <p className="border-l-4 border-[#FFE500] bg-[#F5F5F5] px-4 py-3 text-sm font-bold leading-relaxed text-[#0A0A0A]">
+                          {section.duel.winner === 'draw' ? 'Unentschieden' : 'Rundensieger'}: {section.duel.verdict}
+                        </p>
                       </div>
                     )}
                   </div>

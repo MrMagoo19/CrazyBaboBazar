@@ -6,6 +6,12 @@ export type GuideSection = {
   heading: string
   body: string[] // paragraphs
   productSlugs?: string[] // optional inline product references
+  duel?: {
+    leftLabel: string
+    rightLabel: string
+    winner: 'left' | 'right' | 'draw'
+    verdict: string
+  }
 }
 
 export type Guide = {
@@ -29,8 +35,10 @@ import { guideGeschenkeMaennerAllesHaben } from './guides/geschenke-maenner-die-
 import { guideWichtelgeschenkeUnter20 } from './guides/wichtelgeschenke-unter-20-euro'
 import { guideBesteKuechenGadgets } from './guides/beste-kuechen-gadgets-2026'
 import { guideHomeOfficeSetupAnfaenger } from './guides/home-office-setup-anfaenger'
+import { guideStarTrekVsStarWars } from './guides/star-trek-vs-star-wars'
 
 export const guides: Guide[] = [
+  guideStarTrekVsStarWars,
   guideGeschenkeMaennerAllesHaben,
   guideWichtelgeschenkeUnter20,
   guideBesteKuechenGadgets,

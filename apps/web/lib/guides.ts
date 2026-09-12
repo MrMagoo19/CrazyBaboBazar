@@ -36,8 +36,10 @@ import { guideWichtelgeschenkeUnter20 } from './guides/wichtelgeschenke-unter-20
 import { guideBesteKuechenGadgets } from './guides/beste-kuechen-gadgets-2026'
 import { guideHomeOfficeSetupAnfaenger } from './guides/home-office-setup-anfaenger'
 import { guideStarTrekVsStarWars } from './guides/star-trek-vs-star-wars'
+import { guidePokemonVsDragonBall } from './guides/pokemon-vs-dragon-ball'
 
 export const guides: Guide[] = [
+  guidePokemonVsDragonBall,
   guideStarTrekVsStarWars,
   guideGeschenkeMaennerAllesHaben,
   guideWichtelgeschenkeUnter20,

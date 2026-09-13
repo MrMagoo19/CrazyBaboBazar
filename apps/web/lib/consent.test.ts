@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { consentStore } from './consent'
 import { CONSENT_COOKIE_NAME } from './consent-cookie'
 import { CLICK_SESSION_STORAGE_KEY } from './click-session'
+import { SWIPE_SESSION_STORAGE_KEY } from './swipe-session'
 
 const SESSION_ID = '3f1b9c2e-7a4d-4f8b-9c1a-2d3e4f5a6b7c'
 
@@ -88,10 +89,12 @@ describe('consentStore — kein Uebertrag aus Consent v1', () => {
 describe('consentStore — Widerruf raeumt die Sitzungskennung ab', () => {
   it('entfernt die Kennung bei einer Ablehnung', () => {
     window.sessionStorage.setItem(CLICK_SESSION_STORAGE_KEY, SESSION_ID)
+    window.sessionStorage.setItem(SWIPE_SESSION_STORAGE_KEY, SESSION_ID)
 
     consentStore.setConsent('declined')
 
     expect(window.sessionStorage.getItem(CLICK_SESSION_STORAGE_KEY)).toBeNull()
+    expect(window.sessionStorage.getItem(SWIPE_SESSION_STORAGE_KEY)).toBeNull()
   })
 
   it('entfernt bei clearConsent Kennung UND Entscheidung', () => {

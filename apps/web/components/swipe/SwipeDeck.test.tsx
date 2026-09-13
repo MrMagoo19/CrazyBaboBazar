@@ -5,6 +5,8 @@ import { act, cleanup, render, screen } from '@testing-library/react'
 // `vi.mock` wird von Vitest über alle Imports gehoben — SwipeDeck erhält beim
 // Laden also bereits die Mocks unten und nie den echten Supabase-Client.
 import { SwipeDeck } from './SwipeDeck'
+import { consentStore } from '@/lib/consent'
+import { SWIPE_SESSION_STORAGE_KEY } from '@/lib/swipe-session'
 
 /* -------------------------------------------------------------------------- */
 /* Typen des Supabase-Mocks                                                    */
@@ -202,7 +204,7 @@ vi.mock('./SwipeCard', async () => {
 /* Fixtures & Helfer                                                           */
 /* -------------------------------------------------------------------------- */
 
-const SESSION_KEY = 'cbb-swipe-session'
+const SESSION_ID = '3f1b9c2e-7a4d-4f8b-9c1a-2d3e4f5a6b7c'
 
 const productRow = (slug: string, name: string, persona = 'babo'): ProductRow => ({
   slug,
@@ -259,6 +261,9 @@ const hangUntilAborted = (signal: AbortSignal | null) =>
 describe('SwipeDeck', () => {
   beforeEach(() => {
     localStorage.clear()
+    sessionStorage.clear()
+    consentStore.setConsent('accepted')
+    sessionStorage.setItem(SWIPE_SESSION_STORAGE_KEY, SESSION_ID)
   })
 
   afterEach(() => {
@@ -268,6 +273,8 @@ describe('SwipeDeck', () => {
     vi.useRealTimers()
     supabase.reset()
     localStorage.clear()
+    sessionStorage.clear()
+    consentStore.clearConsent()
     vi.restoreAllMocks()
   })
 
@@ -284,6 +291,22 @@ describe('SwipeDeck', () => {
     expect(screen.getByText('Babo Boombox')).toBeTruthy()
     expect(screen.queryByText('Deck klemmt')).toBeNull()
     expect(screen.queryByText('Alles gesehen!')).toBeNull()
+  })
+
+  it('erzeugt ohne Einwilligung beim Öffnen keine Kennung und liest keine Swipes', async () => {
+    consentStore.clearConsent()
+    sessionStorage.clear()
+    supabase.setResponder((spec) => {
+      if (isDeckQuery(spec)) return { data: [BOOMBOX], error: null }
+      throw new Error(`Unerwartete Query: ${spec.table}/${spec.columns}`)
+    })
+
+    render(<SwipeDeck />)
+
+    expect(await screen.findByText('Babo Boombox')).toBeTruthy()
+    expect(sessionStorage.getItem(SWIPE_SESSION_STORAGE_KEY)).toBeNull()
+    expect(localStorage.length).toBe(0)
+    expect(supabase.callsFor('swipes')).toHaveLength(0)
   })
 
   it('zeigt bei sofortigem Supabase-Queryfehler den Fehlerzustand mit Retry', async () => {
@@ -377,7 +400,7 @@ describe('SwipeDeck', () => {
   })
 
   it('startet bei zwei Retry-Klicks im selben Tick nur einen zusätzlichen Load', async () => {
-    localStorage.setItem(SESSION_KEY, 'bestehende-session')
+    sessionStorage.setItem(SWIPE_SESSION_STORAGE_KEY, SESSION_ID)
 
     const retrySwipes = createDeferred<QueryResult>()
     let swipeQueries = 0
@@ -416,11 +439,11 @@ describe('SwipeDeck', () => {
     await flushPending()
 
     expect(supabase.callsFor('swipes')).toHaveLength(2)
-    expect(localStorage.getItem(SESSION_KEY)).toBe('bestehende-session')
+    expect(sessionStorage.getItem(SWIPE_SESSION_STORAGE_KEY)).toBe(SESSION_ID)
     expect(supabase.callsFor('swipes')[1].filters).toContainEqual({
       type: 'eq',
       column: 'session_id',
-      value: 'bestehende-session',
+      value: SESSION_ID,
     })
 
     // Kontrollierten Retry auflösen — sonst leaken Promise und Timeout-Timer.
@@ -431,6 +454,6 @@ describe('SwipeDeck', () => {
 
     expect(await screen.findByText('1 verbleibend')).toBeTruthy()
     expect(supabase.callsFor('swipes')).toHaveLength(2)
-    expect(localStorage.getItem(SESSION_KEY)).toBe('bestehende-session')
+    expect(sessionStorage.getItem(SWIPE_SESSION_STORAGE_KEY)).toBe(SESSION_ID)
   })
 })

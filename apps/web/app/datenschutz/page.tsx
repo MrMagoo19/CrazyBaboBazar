@@ -109,7 +109,7 @@ export default function DatenschutzPage() {
                 Wenn Sie auf einen Affiliate-Link klicken und zu Amazon weitergeleitet werden, kann Amazon mittels Cookies und ähnlicher Technologien die Herkunft des Besuchs nachvollziehen und Ihnen personalisierte Werbung anzeigen. Amazon ist für diese Datenverarbeitung selbst verantwortlich. Rechtsgrundlage auf unserer Seite ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Refinanzierung des Angebots).
               </p>
               <p className="text-sm leading-relaxed mb-3">
-                Der Klick läuft technisch über unsere eigene Weiterleitungsadresse. Ob dabei ein pseudonymisierter Zähl-Datensatz gespeichert wird, entscheiden ausschließlich Sie über den Hinweis-Banner — Einzelheiten in Abschnitt 6.
+                Der Klick läuft technisch über unsere eigene Weiterleitungsadresse. Ob dabei ein pseudonymisierter Zähl-Datensatz gespeichert wird, entscheiden ausschließlich Sie über den Hinweis-Banner — Einzelheiten in Abschnitt 7.
               </p>
               <p className="text-sm leading-relaxed">
                 Informationen zum Datenschutz bei Amazon finden Sie unter:{' '}
@@ -149,7 +149,29 @@ export default function DatenschutzPage() {
             {/* 6 */}
             <div className="border-l-2 border-[#FFE500] pl-6">
               <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
-                6. Klick-Messung bei Partnerlinks (nur mit Einwilligung)
+                6. Swipe-Bereich (nur mit Einwilligung)
+              </h2>
+              <p className="text-sm leading-relaxed mb-3">
+                Im Swipe-Bereich können Sie Produkte überspringen oder als interessant markieren.
+                Ohne Einwilligung funktioniert das Swipen nur innerhalb der aktuell geöffneten Seite:
+                Wir vergeben keine Kennung und speichern keine Swipe-Entscheidung in unserer Datenbank.
+              </p>
+              <p className="text-sm leading-relaxed mb-3">
+                Mit Ihrer Einwilligung speichern wir beim ersten aktiven Swipe eine zufällige
+                Sitzungskennung ausschließlich im <span className="text-[#0A0A0A]">sessionStorage</span>
+                Ihres Browser-Tabs. Sie endet spätestens beim Schließen des Tabs und wird nicht mit
+                der Kennung der Partnerlink-Messung zusammengeführt. In Supabase speichern wir die
+                Sitzungskennung, die Produkt-Kennung, die Swipe-Entscheidung und den Zeitpunkt.
+              </p>
+              <p className="text-sm leading-relaxed">
+                Beim bloßen Öffnen des Swipe-Bereichs wird keine neue Kennung erzeugt. Bei Ablehnung
+                oder Widerruf entfernen wir eine vorhandene Swipe-Sitzungskennung aus dem Tab.
+              </p>
+            </div>
+
+            <div className="border-l-2 border-[#FFE500] pl-6">
+              <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
+                7. Klick-Messung bei Partnerlinks (nur mit Einwilligung)
               </h2>
               <p className="text-sm leading-relaxed mb-3">
                 Partnerlinks auf dieser Website führen zunächst über unsere eigene
@@ -291,7 +313,7 @@ export default function DatenschutzPage() {
             {/* 7 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
               <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
-                7. Schriftarten (Google Fonts)
+                8. Schriftarten (Google Fonts)
               </h2>
               <p className="text-sm leading-relaxed">
                 Diese Website verwendet Google Fonts. Die Schriftarten werden beim ersten Aufruf vom Server des Hosting-Anbieters geladen — nicht von Google-Servern. Eine direkte Verbindung zu Google-Servern findet nicht statt, sodass keine Daten an Google übertragen werden.
@@ -301,7 +323,7 @@ export default function DatenschutzPage() {
             {/* 8 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
               <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
-                8. Ihre Rechte (Art. 15–22 DSGVO)
+                9. Ihre Rechte (Art. 15–22 DSGVO)
               </h2>
               <p className="text-sm leading-relaxed mb-3">
                 Sie haben gegenüber uns folgende Rechte hinsichtlich der Sie betreffenden personenbezogenen Daten:
@@ -329,7 +351,7 @@ export default function DatenschutzPage() {
             {/* 9 */}
             <div className="border-l-2 border-[#E0E0E0] pl-6">
               <h2 className="font-[family-name:var(--font-body)] font-semibold text-lg text-[#0A0A0A] mb-3">
-                9. Beschwerderecht bei der Aufsichtsbehörde (Art. 77 DSGVO)
+                10. Beschwerderecht bei der Aufsichtsbehörde (Art. 77 DSGVO)
               </h2>
               <p className="text-sm leading-relaxed">
                 Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung Ihrer personenbezogenen Daten zu beschweren. Die zuständige Aufsichtsbehörde richtet sich nach Ihrem gewöhnlichen Aufenthaltsort, Ihrem Arbeitsplatz oder dem Ort des mutmaßlichen Verstoßes. Eine Liste der deutschen Aufsichtsbehörden finden Sie auf der Website des Bundesbeauftragten für den Datenschutz (bfdi.bund.de).

@@ -25,6 +25,7 @@
  */
 
 import { clearClickSessionId } from './click-session'
+import { clearSwipeSessionId } from './swipe-session'
 import { deleteConsentCookie, readConsentCookie, writeConsentCookie } from './consent-cookie'
 import { SERVER_SNAPSHOT, type ConsentStore, type ConsentValue } from './consent-store'
 
@@ -78,7 +79,10 @@ function createCookieConsentStore(): ConsentStore & { clearConsent: () => void }
      * vergessen. Nach `declined` bleibt garantiert nichts Zaehlbares zurueck.
      */
     setConsent(value) {
-      if (value !== 'accepted') clearClickSessionId()
+      if (value !== 'accepted') {
+        clearClickSessionId()
+        clearSwipeSessionId()
+      }
       fallbackConsent = value
       writeConsentCookie(value)
       emitChange()
@@ -87,6 +91,7 @@ function createCookieConsentStore(): ConsentStore & { clearConsent: () => void }
     /** Vollstaendiger Widerruf: zurueck in den Zustand "noch nicht entschieden". */
     clearConsent() {
       clearClickSessionId()
+      clearSwipeSessionId()
       fallbackConsent = null
       deleteConsentCookie()
       emitChange()

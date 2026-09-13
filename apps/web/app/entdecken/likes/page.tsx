@@ -7,8 +7,7 @@ import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { getPriceBand } from '@/lib/db-types'
 import { Heart, RotateCcw, ArrowLeft, Share2, Check } from 'lucide-react'
-
-const SESSION_KEY = 'cbb-swipe-session'
+import { getStoredSwipeSessionId } from '@/lib/swipe-session'
 
 type Product = {
   slug: string
@@ -35,7 +34,7 @@ function LikesContent() {
       // Determine which session to load
       let sessionId: string | null = sharedSession
       if (!sessionId) {
-        try { sessionId = localStorage.getItem(SESSION_KEY) } catch {}
+        sessionId = getStoredSwipeSessionId()
         if (sessionId) setOwnSessionId(sessionId)
       }
 

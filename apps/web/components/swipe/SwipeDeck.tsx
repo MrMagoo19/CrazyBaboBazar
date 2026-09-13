@@ -7,6 +7,8 @@ import { getPriceBand } from '@/lib/db-types'
 import { SwipeCard } from './SwipeCard'
 import { Heart, RotateCcw, Flame } from 'lucide-react'
 import Link from 'next/link'
+import { consentStore } from '@/lib/consent'
+import { clearSwipeSessionId, getOrCreateSwipeSessionId, getStoredSwipeSessionId, removeLegacySwipeSessionId } from '@/lib/swipe-session'
 
 type Product = {
   slug: string
@@ -18,7 +20,6 @@ type Product = {
   shop_main_category: string | null
 }
 
-const SESSION_KEY = 'cbb-swipe-session'
 const REFILL_THRESHOLD = 4
 
 /**
@@ -98,19 +99,6 @@ function isUsableDeck(deck: InitialDeck): boolean {
   return deck.cards.length > 0 || deck.total > 0
 }
 
-function getOrCreateSession(): string {
-  try {
-    let id = localStorage.getItem(SESSION_KEY)
-    if (!id) {
-      id = crypto.randomUUID()
-      localStorage.setItem(SESSION_KEY, id)
-    }
-    return id
-  } catch {
-    return crypto.randomUUID()
-  }
-}
-
 export function SwipeDeck() {
   const [cards, setCards] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -176,16 +164,21 @@ export function SwipeDeck() {
   // So bleibt der Effekt unten eine reine Synchronisation mit einem externen
   // System — State wird ausschließlich im async Callback aktualisiert.
   const loadInitialDeck = useCallback(async (signal: AbortSignal): Promise<InitialDeck> => {
-    sessionId.current = getOrCreateSession()
+    removeLegacySwipeSessionId()
+    sessionId.current = consentStore.getSnapshot() === 'accepted'
+      ? (getStoredSwipeSessionId() ?? '')
+      : ''
 
     const sb = createClient()
 
     // Load already-swiped slugs + liked status
-    const { data: swipeData, error: swipeError } = await sb
-      .from('swipes')
-      .select('product_slug, liked')
-      .eq('session_id', sessionId.current)
-      .abortSignal(signal)
+    const { data: swipeData, error: swipeError } = sessionId.current
+      ? await sb
+          .from('swipes')
+          .select('product_slug, liked')
+          .eq('session_id', sessionId.current)
+          .abortSignal(signal)
+      : { data: [], error: null }
 
     if (swipeError) throw swipeError
 
@@ -303,13 +296,19 @@ export function SwipeDeck() {
       try { navigator.vibrate?.(40) } catch {}
     }
 
-    // Record in Supabase
-    const sb = createClient()
-    await sb.from('swipes').insert({
-      session_id: sessionId.current,
-      product_slug: product.slug,
-      liked,
-    })
+    // Persist only after explicit consent and an active swipe. Merely opening
+    // the page creates neither a browser identifier nor a database row.
+    if (consentStore.getSnapshot() === 'accepted') {
+      sessionId.current ||= getOrCreateSwipeSessionId() ?? ''
+      if (sessionId.current) {
+        const sb = createClient()
+        await sb.from('swipes').insert({
+          session_id: sessionId.current,
+          product_slug: product.slug,
+          liked,
+        })
+      }
+    }
 
     setTotal((t) => t + 1)
     if (liked) setLikes((l) => l + 1)
@@ -358,10 +357,10 @@ export function SwipeDeck() {
     deckLoadInFlight.current = true
 
     // Clear session
-    try { localStorage.removeItem(SESSION_KEY) } catch {}
+    clearSwipeSessionId()
     seenSlugs.current = new Set()
     personaWeights.current = {}
-    sessionId.current = getOrCreateSession()
+    sessionId.current = ''
     setLoadFailed(false)
     setLikes(0)
     setTotal(0)

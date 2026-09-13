@@ -8,6 +8,7 @@ export const guidePokemonVsDragonBall: Guide = {
   readTime: '12 min',
   category: 'Geek-Kultur',
   publishedAt: '2026-09-12',
+  updatedAt: '2026-09-13',
   keywords: ['pokemon vs dragon ball', 'pokemon geschenke', 'dragon ball geschenke', 'anime geschenke', 'nerd geschenke'],
   intro: [
     'Pokémon sammelt Monster, Dragon Ball sammelt Kugeln. Beide sammeln seit Jahrzehnten zuverlässig das Geld von Menschen, die früher ihr Taschengeld und heute ihr Erwachsenen-Gehalt dafür einsetzen. Fortschritt ist manchmal nur dieselbe Entscheidung mit Onlinebanking.',

@@ -217,7 +217,7 @@ export default async function GuidePage({ params }: Props) {
                     {section.duel && (
                       <div className="pl-12 mt-3">
                         <p className="border-l-4 border-[#FFE500] bg-[#F5F5F5] px-4 py-3 text-sm font-bold leading-relaxed text-[#0A0A0A]">
-                          {section.duel.winner === 'draw' ? 'Unentschieden' : 'Rundensieger'}: {section.duel.verdict}
+                          {section.duel.verdict}
                         </p>
                       </div>
                     )}

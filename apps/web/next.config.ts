@@ -17,6 +17,16 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'www.lego.com',
+        pathname: '/cdn/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.playmobil.com',
+        pathname: '/i/playmobil/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'www.40yards.de',
         pathname: '/cdn/shop/**',
       },

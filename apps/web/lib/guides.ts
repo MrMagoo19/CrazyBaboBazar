@@ -38,6 +38,7 @@ import { guideHomeOfficeSetupAnfaenger } from './guides/home-office-setup-anfaen
 import { guideStarTrekVsStarWars } from './guides/star-trek-vs-star-wars'
 import { guidePokemonVsDragonBall } from './guides/pokemon-vs-dragon-ball'
 import { guideDieHoehleDerLoewenProdukte } from './guides/die-hoehle-der-loewen-produkte'
+import { guideUglydollsVsFuggler } from './guides/uglydolls-vs-fuggler'
 
 export const guides: Guide[] = [
   guidePokemonVsDragonBall,
@@ -47,6 +48,7 @@ export const guides: Guide[] = [
   guideBesteKuechenGadgets,
   guideHomeOfficeSetupAnfaenger,
   guideDieHoehleDerLoewenProdukte,
+  guideUglydollsVsFuggler,
 ]
 
 export function getGuideBySlug(slug: string): Guide | undefined {

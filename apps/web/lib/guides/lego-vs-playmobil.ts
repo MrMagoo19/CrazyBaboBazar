@@ -67,7 +67,7 @@ export const guideLegoVsPlaymobil: Guide = {
         'Bei Supersportwagen geht es selten ums Rumkurven auf dem Laminat. Es geht ums Hinstellen, Anschauen und darum, jedem Besuch zu erzählen, wie lange das gedauert hat. LEGO kommt mit dem Technic-Set 42207, Playmobil mit Set 71020.',
         'Der Preisabstand ist brutal: Technic liegt im Band über 200 €, Playmobil im Band 50 – 100 € und kostet nach UVP weniger als ein Drittel. Trotzdem ist das die Runde, in der LEGOs Grundidee am meisten Sinn ergibt. Ein Sportwagen-Modell ist ein Bauprojekt, bei dem der Weg das Erlebnis ist. Das Playmobil-Auto ist Spielzeug zum Losfahren – günstig und direkt, aber eben eine andere Kategorie.',
       ],
-      productSlugs: ['lego-technic-42207-supersportwagen', 'playmobil-71020-supersportwagen'],
+      productSlugs: ['lego-technic-ferrari-sf-24-f1-rennauto', 'playmobil-71020-supersportwagen'],
       duel: { leftLabel: 'LEGO', rightLabel: 'Playmobil', winner: 'left', verdict: 'LEGO gewinnt: Beim Supersportwagen ist das Bauen der eigentliche Reiz – vorausgesetzt, das Budget reicht fürs obere Preisband.' },
     },
     {

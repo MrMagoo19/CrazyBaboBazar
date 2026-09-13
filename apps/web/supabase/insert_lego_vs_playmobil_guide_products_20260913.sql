@@ -1,6 +1,7 @@
 -- Production target: ydiihvzcxaaoqhmgoqvu.supabase.co
 -- PREPARED ONLY: requires explicit approval before production execution.
--- Adds 20 products for /guide/lego-vs-playmobil. Idempotent by slug.
+-- Adds 19 products and reuses the existing Ferrari SF-24 product for
+-- /guide/lego-vs-playmobil. Idempotent by slug.
 -- Preflight aborts if any of the 20 ASINs already exists under a slug
 -- other than the ones this script intends to write (no silent overwrite
 -- of unrelated existing product data).
@@ -33,7 +34,7 @@ BEGIN
       'playmobil-70205-puppenhaus',
       'lego-43297-maerchenschloss',
       'playmobil-71845-maerchenschloss',
-      'lego-technic-42207-supersportwagen',
+      'lego-technic-ferrari-sf-24-f1-rennauto',
       'playmobil-71020-supersportwagen',
       'lego-technic-42239-kultauto',
       'playmobil-71343-kultauto',
@@ -72,7 +73,6 @@ VALUES
 ('lego-43297-maerchenschloss','LEGO Set 43297 – Märchenschloss','Das Märchen beginnt mit der Bauanleitung.','LEGO-Set 43297 zum Thema Märchenschloss, im Guide „LEGO vs. Playmobil“ das Gegenstück zu Playmobil 71845. Der hinterlegte Preis entspricht der Hersteller-UVP; der aktuelle Amazon-Preis kann abweichen. Teilezahl, Altersempfehlung, Verkäufer und Lieferbarkeit bitte im Amazon-Listing prüfen.',9999,'EUR','https://www.amazon.de/dp/B0FR9JYZBR?tag=geeklist-21&linkCode=ogi&th=1',NULL,NULL,true,false,'miniboss','spielzeug','bauset','Spielzeug','LEGO',ARRAY['miniboss:spielzeug','lego','lego-vs-playmobil','maerchenschloss'],'Gewinnt Runde 5 knapp über die niedrigere UVP.','LEGO-Set 43297, Thema Märchenschloss, UVP-Band 50 – 100 €.',ARRAY['nach UVP 40 € günstiger als das Playmobil-Gegenstück'],ARRAY['erst Bauzeit, dann Märchen']),
 ('playmobil-71845-maerchenschloss','PLAYMOBIL Set 71845 – Märchenschloss','Schloss auf, Märchen an.','Playmobil-Set 71845 zum Thema Märchenschloss, im Guide „LEGO vs. Playmobil“ das Gegenstück zu LEGO 43297. Der hinterlegte Preis entspricht der Hersteller-UVP; der aktuelle Amazon-Preis kann abweichen. Teilezahl, Altersempfehlung, Verkäufer und Lieferbarkeit bitte im Amazon-Listing prüfen.',13999,'EUR','https://www.amazon.de/dp/B0DQVMTRKS?tag=geeklist-21&linkCode=ogi&th=1',NULL,NULL,true,false,'miniboss','spielzeug','spielset','Spielzeug','PLAYMOBIL',ARRAY['miniboss:spielzeug','playmobil','lego-vs-playmobil','maerchenschloss'],'Verliert Runde 5 knapp über den Preis.','Playmobil-Set 71845, Thema Märchenschloss, UVP-Band 100 – 200 €.',ARRAY['Schloss zum direkten Bespielen'],ARRAY['höheres UVP-Band als das LEGO-Gegenstück']),
 -- Runde 6: Supersportwagen (Sieger: LEGO)
-('lego-technic-42207-supersportwagen','LEGO Technic Set 42207 – Supersportwagen','Der Sportwagen, bei dem der Bau die Probefahrt ist.','LEGO-Technic-Set 42207 zum Thema Supersportwagen, im Guide „LEGO vs. Playmobil“ das Gegenstück zu Playmobil 71020. Der hinterlegte Preis entspricht der Hersteller-UVP; der aktuelle Amazon-Preis kann abweichen. Teilezahl, Altersempfehlung, Verkäufer und Lieferbarkeit bitte im Amazon-Listing prüfen.',22999,'EUR','https://www.amazon.de/dp/B0DHSCYDL2?tag=geeklist-21&linkCode=ogi&th=1',NULL,NULL,true,false,'babo','spielzeug','bauset','Spielzeug','LEGO',ARRAY['babo:spielzeug','lego','lego-technic','lego-vs-playmobil','supersportwagen'],'Gewinnt Runde 6: Beim Sportwagen-Modell ist das Bauen der Reiz.','LEGO-Technic-Set 42207, Thema Supersportwagen, UVP-Band über 200 €.',ARRAY['Sportwagen als Technic-Bauprojekt'],ARRAY['nach UVP mehr als dreimal so teuer wie das Playmobil-Gegenstück']),
 ('playmobil-71020-supersportwagen','PLAYMOBIL Set 71020 – Supersportwagen','Sportwagen-Gefühl im Kinderzimmer-Format.','Playmobil-Set 71020 zum Thema Supersportwagen, im Guide „LEGO vs. Playmobil“ das Gegenstück zu LEGO Technic 42207. Der hinterlegte Preis entspricht der Hersteller-UVP; der aktuelle Amazon-Preis kann abweichen. Teilezahl, Altersempfehlung, Verkäufer und Lieferbarkeit bitte im Amazon-Listing prüfen.',6999,'EUR','https://www.amazon.de/dp/B09QV55L2V?tag=geeklist-21&linkCode=ogi&th=1',NULL,NULL,true,false,'miniboss','spielzeug','spielset','Spielzeug','PLAYMOBIL',ARRAY['miniboss:spielzeug','playmobil','lego-vs-playmobil','supersportwagen'],'Verliert Runde 6 trotz deutlich niedrigerer UVP.','Playmobil-Set 71020, Thema Supersportwagen, UVP-Band 50 – 100 €.',ARRAY['weniger als ein Drittel der Technic-UVP','Spielauto zum direkten Losfahren'],ARRAY['kein Bauprojekt wie das Technic-Gegenstück']),
 -- Runde 7: Film-/Kultauto (Unentschieden)
 ('lego-technic-42239-kultauto','LEGO Technic Set 42239 – Film- und Kultauto','Kultauto fürs Regal. Erst bauen, dann bewundern.','LEGO-Technic-Set 42239 zum Thema Film- und Kultauto, im Guide „LEGO vs. Playmobil“ das Gegenstück zu Playmobil 71343. Der hinterlegte Preis entspricht der Hersteller-UVP; der aktuelle Amazon-Preis kann abweichen. Teilezahl, Altersempfehlung, Lizenz, Verkäufer und Lieferbarkeit bitte im Amazon-Listing prüfen.',18999,'EUR','https://www.amazon.de/dp/B0GGSBK9FM?tag=geeklist-21&linkCode=ogi&th=1',NULL,NULL,true,false,'babo','spielzeug','bauset','Spielzeug','LEGO',ARRAY['babo:spielzeug','lego','lego-technic','lego-vs-playmobil','kultauto'],'Runde 7 endet unentschieden: LEGO fürs Regal.','LEGO-Technic-Set 42239, Thema Film- und Kultauto, UVP-Band 100 – 200 €.',ARRAY['Kultauto als Technic-Bauprojekt'],ARRAY['nach UVP fast dreimal so teuer wie das Playmobil-Gegenstück']),
@@ -110,7 +110,6 @@ WITH product_images(slug, url) AS (VALUES
   ('playmobil-70205-puppenhaus','https://media.playmobil.com/i/playmobil/70205_product_detail'),
   ('lego-43297-maerchenschloss','https://m.media-amazon.com/images/I/81foyGHbHZL._AC_SL1500_.jpg'),
   ('playmobil-71845-maerchenschloss','https://media.playmobil.com/i/playmobil/71845_product_detail'),
-  ('lego-technic-42207-supersportwagen','https://www.lego.com/cdn/cs/set/assets/blt1dd4e21e38b03edd/42207_Prod_en-gb.png'),
   ('playmobil-71020-supersportwagen','https://media.playmobil.com/i/playmobil/71020_product_detail'),
   ('lego-technic-42239-kultauto','https://m.media-amazon.com/images/I/81kLQdho38L._AC_SL1500_.jpg'),
   ('playmobil-71343-kultauto','https://media.playmobil.com/i/playmobil/71343_product_detail'),
@@ -141,7 +140,7 @@ BEGIN
     'lego-technic-42215-baustelle','playmobil-70441-baustelle',
     'lego-10788-puppenhaus','playmobil-70205-puppenhaus',
     'lego-43297-maerchenschloss','playmobil-71845-maerchenschloss',
-    'lego-technic-42207-supersportwagen','playmobil-71020-supersportwagen',
+    'lego-technic-ferrari-sf-24-f1-rennauto','playmobil-71020-supersportwagen',
     'lego-technic-42239-kultauto','playmobil-71343-kultauto',
     'lego-31387-piraten','playmobil-71530-piraten',
     'lego-technic-42221-nasa-artemis-sls','playmobil-72011-raumfahrt',
@@ -165,7 +164,7 @@ WHERE slug IN (
   'playmobil-70205-puppenhaus',
   'lego-43297-maerchenschloss',
   'playmobil-71845-maerchenschloss',
-  'lego-technic-42207-supersportwagen',
+  'lego-technic-ferrari-sf-24-f1-rennauto',
   'playmobil-71020-supersportwagen',
   'lego-technic-42239-kultauto',
   'playmobil-71343-kultauto',

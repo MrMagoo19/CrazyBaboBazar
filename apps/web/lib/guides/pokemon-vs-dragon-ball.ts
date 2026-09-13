@@ -25,7 +25,7 @@ export const guidePokemonVsDragonBall: Guide = {
     {
       heading: 'Runde 2: Pikachu gegen Super-Saiyajin-Goku als Funko POP',
       body: ['Zwei Hauptfiguren, zwei übergroße Köpfe, erstaunlich wenig Platzbedarf. Pikachu muss für seine Wirkung nicht einmal die Frisur wechseln. Goku braucht dafür eine komplette Transformation und ungefähr sechs Folgen Anlauf.', 'Beide werden direkt von Amazon angeboten und liegen im kleinen Geschenkbereich. Das macht diese Runde zum unkompliziertesten Mitbringsel des Guides.'],
-      productSlugs: ['funko-pop-pikachu-games', 'funko-pop-super-saiyajin-goku-first-appearance'],
+      productSlugs: ['funko-pop-pikachu-games', 'funko-pop-super-saiyan-goku-first-appearance'],
       duel: { leftLabel: 'Pokémon', rightLabel: 'Dragon Ball', winner: 'draw', verdict: 'Unentschieden. Zwei Ikonen, ein gemeinsames Regalproblem.' },
     },
     {

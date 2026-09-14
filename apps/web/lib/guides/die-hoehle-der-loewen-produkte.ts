@@ -2,6 +2,7 @@ import type { Guide } from '../guides'
 
 export const guideDieHoehleDerLoewenProdukte: Guide = {
   slug: 'die-hoehle-der-loewen-produkte',
+  cover: '/images/guides/die-hoehle-der-loewen-produkte.webp',
   title: 'Die Höhle der Löwen: Diese 12 Produkte haben den Hype überlebt',
   subtitle: 'Zwölf Produkte aus der Sendung, die auch ohne Löwen-Applaus überlebt haben.',
   metaDescription: 'Kaufberatung zu 12 Produkten aus der Höhle der Löwen, die sich langfristig am Markt gehalten haben – ganz unabhängig davon, ob damals ein TV-Deal zustande kam.',

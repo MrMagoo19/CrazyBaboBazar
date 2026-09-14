@@ -2,6 +2,7 @@ import type { Guide } from '../guides'
 
 export const guideUglydollsVsFuggler: Guide = {
   slug: 'uglydolls-vs-fuggler',
+  cover: '/images/guides/uglydolls-vs-fuggler.webp',
   title: 'UglyDolls vs. Fuggler: Das Duell der schönsten Außenseiter',
   subtitle: 'Fünf echte Duelle statt zehn erzwungenen – und ein Endstand, der mehr über den heutigen Markt aussagt als über guten Geschmack.',
   metaDescription: 'UglyDolls gegen Fuggler: 10 Plüsch- und Sammelfiguren in 5 ehrlichen Duellen – mit offenem Blick auf Restbestand, Marketplace-Angebote, Knopfzellen und die aktuelle Marktlage.',

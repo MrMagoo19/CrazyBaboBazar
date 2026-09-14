@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { getPublishedProducts } from '@/lib/db'
 import { guides } from '@/lib/guides'
 import { GuideFinder } from '@/components/guide-finder'
@@ -42,25 +43,40 @@ export default async function GuidePage() {
               <Link
                 key={g.slug}
                 href={`/guide/${g.slug}`}
-                className="group flex flex-col border-2 border-[#0A0A0A] bg-white hover:bg-[#FFE500] transition-colors p-6"
+                className="group flex flex-col border-2 border-[#0A0A0A] bg-white hover:bg-[#FFE500] transition-colors"
               >
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="bg-[#0A0A0A] text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest">
-                    Guide
-                  </span>
-                  <span className="text-[#555] text-xs">{g.category}</span>
-                  <span className="text-[#555]">·</span>
-                  <span className="text-[#555] text-xs">{g.readTime}</span>
+                <div
+                  className="relative w-full overflow-hidden bg-[#F5F5F5]"
+                  style={{ aspectRatio: '3/2', borderBottom: '2.5px solid #0A0A0A' }}
+                >
+                  <Image
+                    src={g.cover}
+                    alt={`Cover-Grafik zum Guide „${g.title}“`}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
                 </div>
-                <h2 className="font-[family-name:var(--font-display)] font-black text-xl sm:text-2xl text-[#0A0A0A] leading-tight mb-3">
-                  {g.title}
-                </h2>
-                <p className="text-[#555] text-sm leading-relaxed">
-                  {g.subtitle}
-                </p>
-                <span className="mt-4 text-xs font-bold text-[#0A0A0A] font-[family-name:var(--font-mono)] uppercase tracking-widest inline-block group-hover:translate-x-0.5 transition-transform">
-                  Guide lesen →
-                </span>
+
+                <div className="flex flex-col flex-1 p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="bg-[#0A0A0A] text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest">
+                      Guide
+                    </span>
+                    <span className="text-[#555] text-xs">{g.category}</span>
+                    <span className="text-[#555]">·</span>
+                    <span className="text-[#555] text-xs">{g.readTime}</span>
+                  </div>
+                  <h2 className="font-[family-name:var(--font-display)] font-black text-xl sm:text-2xl text-[#0A0A0A] leading-tight mb-3">
+                    {g.title}
+                  </h2>
+                  <p className="text-[#555] text-sm leading-relaxed">
+                    {g.subtitle}
+                  </p>
+                  <span className="mt-4 text-xs font-bold text-[#0A0A0A] font-[family-name:var(--font-mono)] uppercase tracking-widest inline-block group-hover:translate-x-0.5 transition-transform">
+                    Guide lesen →
+                  </span>
+                </div>
               </Link>
             ))}
           </div>

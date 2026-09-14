@@ -2,6 +2,7 @@ import type { Guide } from '../guides'
 
 export const guideGeschenkeMaennerAllesHaben: Guide = {
   slug: 'geschenke-maenner-die-alles-haben',
+  cover: '/images/guides/geschenke-maenner-die-alles-haben.webp',
   title: 'Geschenke für Männer, die angeblich alles haben',
   subtitle: 'Zehn Kategorien, in denen fast jeder Mann noch eine Lücke hat — auch wenn er das Gegenteil behauptet.',
   metaDescription: 'Geschenke für Männer die alles haben: 30+ kuratierte Ideen aus Tech, Setup, BBQ, Retro-Gaming, Wellness und Irrenhaus. Voice-Bible-Bewertung statt Amazon-Liste.',

@@ -2,6 +2,7 @@ import type { Guide } from '../guides'
 
 export const guideDingeDieBeimEinzugFehlen: Guide = {
   slug: 'dinge-die-beim-einzug-fehlen',
+  cover: '/images/guides/dinge-die-beim-einzug-fehlen.webp',
   title: '20 Dinge, die beim Einzug fehlen – bis es zu spät ist',
   subtitle: 'Zwischen Umzugskarton und erstem Feierabend fehlt meistens genau das, worüber vorher niemand nachdenkt – hier ist die Liste dazu.',
   metaDescription: '20 Dinge, die beim Einzug oft fehlen: Werkzeug, Küchenhelfer, Erste-Hilfe und mehr für den stressfreien Start in die neue Wohnung.',

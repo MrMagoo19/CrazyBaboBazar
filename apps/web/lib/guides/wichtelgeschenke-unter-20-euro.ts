@@ -2,6 +2,7 @@ import type { Guide } from '../guides'
 
 export const guideWichtelgeschenkeUnter20: Guide = {
   slug: 'wichtelgeschenke-unter-20-euro',
+  cover: '/images/guides/wichtelgeschenke-unter-20-euro.webp',
   title: 'Wichtelgeschenke unter 20 Euro, die niemand vergisst',
   subtitle: '25 Ideen für die Kollegenrunde, die nicht in der Schublade landen — und trotzdem im Budget bleiben.',
   metaDescription: 'Wichtelgeschenke unter 20 Euro: von Anti-Stress-Cubes über Katzen-Suppenkellen bis Toilettengolf. 25 kuratierte Ideen für Kollegen, Familie und Freundeskreis.',

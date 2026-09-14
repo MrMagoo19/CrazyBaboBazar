@@ -2,6 +2,7 @@ import type { Guide } from '../guides'
 
 export const guideHomeOfficeSetupAnfaenger: Guide = {
   slug: 'home-office-setup-anfaenger',
+  cover: '/images/guides/home-office-setup-anfaenger.webp',
   title: 'Home-Office Setup für Anfänger: Der komplette Einkaufszettel',
   subtitle: 'Von Schreibtisch bis Kopfhörer — was du wirklich brauchst, in welcher Reihenfolge, und wo du sparen kannst.',
   metaDescription: 'Home-Office Setup einrichten: Schreibtisch, Monitor, Tastatur, Beleuchtung und Kabelmanagement. Was Anfänger wirklich brauchen — mit Empfehlungen für jedes Budget.',

@@ -18,6 +18,7 @@ export type Guide = {
   slug: string
   title: string
   subtitle: string
+  cover: string // 3:2 Cover, z. B. /images/guides/<slug>.webp
   metaDescription: string
   readTime: string
   category: string

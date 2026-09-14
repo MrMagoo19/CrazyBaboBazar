@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const guide = getGuideBySlug(slug)
   if (!guide) return {}
+  const coverUrl = `${SITE_URL}${guide.cover}`
   return {
     // Ohne Markensuffix: `title.template` im Root-Layout haengt ihn an (lib/seo-title.ts).
     title: guide.title,
@@ -33,11 +34,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'article',
       publishedTime: guide.publishedAt,
       modifiedTime: guide.updatedAt ?? guide.publishedAt,
+      images: [{ url: coverUrl, width: 1536, height: 1024 }],
     },
     twitter: {
       card: 'summary_large_image',
       title: guide.title,
       description: guide.metaDescription,
+      images: [coverUrl],
     },
   }
 }
@@ -57,12 +60,14 @@ export default async function GuidePage({ params }: Props) {
   const productMap = new Map<string, DbProduct>(products.map((p) => [p.slug, p]))
 
   const guideUrl = `${SITE_URL}/guide/${slug}`
+  const coverUrl = `${SITE_URL}${guide.cover}`
 
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: guide.title,
     description: guide.metaDescription,
+    image: [coverUrl],
     datePublished: guide.publishedAt,
     dateModified: guide.updatedAt ?? guide.publishedAt,
     author: { '@type': 'Organization', name: 'Crazy Babo Bazar' },
@@ -123,6 +128,25 @@ export default async function GuidePage({ params }: Props) {
             <p className="text-[#555] text-xl leading-relaxed">
               {guide.subtitle}
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── COVER ──────────────────────────────────────────── */}
+      <section className="border-b-2 border-[#0A0A0A]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+          <div
+            className="relative w-full overflow-hidden bg-[#F5F5F5] border-2 border-[#0A0A0A]"
+            style={{ aspectRatio: '3/2' }}
+          >
+            <Image
+              src={guide.cover}
+              alt={`Cover-Grafik zum Guide „${guide.title}“`}
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 1280px) 100vw, 1280px"
+            />
           </div>
         </div>
       </section>

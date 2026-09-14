@@ -368,6 +368,17 @@ describe('document title — /guide/[slug]', () => {
       guideMetadata({ params: Promise.resolve({ slug: 'gibt-es-nicht' }) })
     ).resolves.toEqual({})
   })
+
+  it.each(guides.map((g) => ({ slug: g.slug, cover: g.cover })))(
+    '$slug traegt das Cover als absolute URL in openGraph und twitter',
+    async ({ slug, cover }) => {
+      const metadata = await guideMetadata({ params: Promise.resolve({ slug }) })
+      const coverUrl = `https://www.crazybabobazar.com${cover}`
+
+      expect(metadata.openGraph?.images).toEqual([{ url: coverUrl, width: 1536, height: 1024 }])
+      expect(metadata.twitter?.images).toEqual([coverUrl])
+    }
+  )
 })
 
 /* -------------------------------------------------------------------------- */

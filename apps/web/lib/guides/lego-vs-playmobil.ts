@@ -2,6 +2,7 @@ import type { Guide } from '../guides'
 
 export const guideLegoVsPlaymobil: Guide = {
   slug: 'lego-vs-playmobil',
+  cover: '/images/guides/lego-vs-playmobil.webp',
   title: 'LEGO vs. Playmobil: 10 Top-Set-Duelle zwischen Bauen und Spielen',
   subtitle: 'Zehn Themenpaare, eine Grundsatzfrage: Soll das Geschenk erst gebaut oder sofort bespielt werden? Ein knapper Endstand mit klarem Muster.',
   metaDescription: 'LEGO oder Playmobil? 20 Sets in 10 Themen-Duellen – von der Ritterburg bis zum Todesstern. Ehrlicher Vergleich nach Spielidee und UVP-Preisband, mit Urteil pro Runde.',

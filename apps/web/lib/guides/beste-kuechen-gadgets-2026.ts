@@ -2,6 +2,7 @@ import type { Guide } from '../guides'
 
 export const guideBesteKuechenGadgets: Guide = {
   slug: 'beste-kuechen-gadgets-2026',
+  cover: '/images/guides/beste-kuechen-gadgets-2026.webp',
   title: 'Die besten Küchen-Gadgets 2026, die deine Küche upgraden',
   subtitle: 'Von Airfryer-Zubehör bis Cocktail-Kapselmaschine — was 2026 tatsächlich einen Unterschied macht.',
   metaDescription: 'Küchen-Gadgets 2026: Airfryer-Zubehör, Aarke-Wasserkocher, Bartesian-Cocktailmaschine, Ninja StaySharp und mehr. Ehrliche Bewertung mit Empfehlung nach Kochtyp.',

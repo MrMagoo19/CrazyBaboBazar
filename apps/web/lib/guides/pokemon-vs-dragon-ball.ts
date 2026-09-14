@@ -2,6 +2,7 @@ import type { Guide } from '../guides'
 
 export const guidePokemonVsDragonBall: Guide = {
   slug: 'pokemon-vs-dragon-ball',
+  cover: '/images/guides/pokemon-vs-dragon-ball.webp',
   title: 'Pokémon vs. Dragon Ball: 10 Duelle zwischen Sammeltrieb und Krawall',
   subtitle: 'Zwanzig Produkte, zwei Kindheiten und keine Chance, dass wir uns beim Sieger einigen.',
   metaDescription: 'Pokémon gegen Dragon Ball: 20 nerdige Geschenkideen in 10 ehrlichen Produktduellen – von Pikachu und Goku bis Manga, Sammelkarten, Games und Leuchtdeko.',

@@ -2,6 +2,7 @@ import type { Guide } from '../guides'
 
 export const guideStarTrekVsStarWars: Guide = {
   slug: 'star-trek-vs-star-wars',
+  cover: '/images/guides/star-trek-vs-star-wars.webp',
   title: 'Star Trek vs. Star Wars: 10 Nerd-Duelle, die gar nichts klären',
   subtitle: 'Zwanzig Geschenkideen, zehn direkte Vergleiche und exakt null Aussicht auf Frieden in der Kommentarspalte.',
   metaDescription: 'Star Trek oder Star Wars? 20 nerdige Geschenkideen in 10 direkten Produktduellen – von LEGO und Modellbau bis Bademantel, Brettspiel und Todesstern-Eis.',

@@ -2,6 +2,7 @@ import type { Guide } from '../guides'
 
 export const guideKBeautyVsDeutscheKosmetik: Guide = {
   slug: 'k-beauty-vs-deutsche-kosmetik',
+  cover: '/images/guides/k-beauty-vs-deutsche-kosmetik.webp',
   title: 'K-Beauty vs. deutsche Kosmetik: 8 Duelle im Inhaltsstoff-Check',
   subtitle: '8 Runden, 16 Produkte, ein Blick auf Duftstoffe, Exfolianten und Alkohol – statt auf Herkunftsetiketten.',
   metaDescription: 'K-Beauty gegen deutsche Kosmetik: 8 Duelle im Inhaltsstoff-Check für empfindliche Haut – Duftstoffe, Exfolianten und INCI-Listen im Vergleich.',

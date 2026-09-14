@@ -41,6 +41,7 @@ import { guideDieHoehleDerLoewenProdukte } from './guides/die-hoehle-der-loewen-
 import { guideUglydollsVsFuggler } from './guides/uglydolls-vs-fuggler'
 import { guideLegoVsPlaymobil } from './guides/lego-vs-playmobil'
 import { guideDingeDieBeimEinzugFehlen } from './guides/dinge-die-beim-einzug-fehlen'
+import { guideKBeautyVsDeutscheKosmetik } from './guides/k-beauty-vs-deutsche-kosmetik'
 
 export const guides: Guide[] = [
   guidePokemonVsDragonBall,
@@ -53,6 +54,7 @@ export const guides: Guide[] = [
   guideUglydollsVsFuggler,
   guideLegoVsPlaymobil,
   guideDingeDieBeimEinzugFehlen,
+  guideKBeautyVsDeutscheKosmetik,
 ]
 
 export function getGuideBySlug(slug: string): Guide | undefined {

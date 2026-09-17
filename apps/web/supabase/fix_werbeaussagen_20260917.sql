@@ -146,27 +146,44 @@ where slug = 'hyako-massagepistole-triggerpunkt';
 -- ---------------------------------------------------------------------------
 -- Selbstprüfung vor COMMIT
 -- ---------------------------------------------------------------------------
+-- KORRIGIERT 2026-09-18. Die ursprüngliche Fassung fragte nur `description`
+-- und `tagline` ab und meldete deshalb "bestanden", obwohl dieselben Aussagen
+-- in `editorial_note`, `pros` und `cons` standen und live ausgeliefert wurden.
+-- Eine Produktseite rendert neun Textfelder; eine Prüfung über zwei davon
+-- beweist nichts. Die Nacharbeit steht in `fix_werbeaussagen_w1b_20260918.sql`.
 do $$
 declare
   noch_publiziert int;
-  noch_knappheit  int;
-  noch_award      int;
+  treffer         int;
+  wo              text;
 begin
   select count(*) into noch_publiziert from public.products
    where slug in ('regaine-maenner-minoxidil-3-monatspackung','delay-spray-maenner-mega-xxl')
      and is_published = true;
-  select count(*) into noch_knappheit from public.products
-   where description ilike '%Bestandsanzeige%';
-  select count(*) into noch_award from public.products
-   where is_published and (description ilike '%Venus-Award%' or description ilike '%Preisgekrönt%'
-      or description ilike '%Bestseller auf Amazon%' or description ilike '%Friseure empfehlen%'
-      or tagline ilike '%Venus-Award%' or tagline ilike '%Friseure empfehlen%');
+  if noch_publiziert <> 0 then
+    raise exception 'A fehlgeschlagen: % noch publiziert', noch_publiziert;
+  end if;
 
-  if noch_publiziert <> 0 then raise exception 'A fehlgeschlagen: % noch publiziert', noch_publiziert; end if;
-  if noch_knappheit  <> 0 then raise exception 'B fehlgeschlagen: % Knappheitsangaben übrig', noch_knappheit; end if;
-  if noch_award      <> 0 then raise exception 'C fehlgeschlagen: % Behauptungen übrig', noch_award; end if;
+  with alle as (
+     select slug,'description' f, description t from public.products where is_published
+     union all select slug,'tagline',            tagline            from public.products where is_published
+     union all select slug,'editorial_note',     editorial_note     from public.products where is_published
+     union all select slug,'key_fact',           key_fact           from public.products where is_published
+     union all select slug,'fuer_wen',           fuer_wen           from public.products where is_published
+     union all select slug,'nicht_fuer',         nicht_fuer         from public.products where is_published
+     union all select slug,'alternative_reason', alternative_reason from public.products where is_published
+     union all select slug,'pros',  array_to_string(pros,' ~ ')     from public.products where is_published
+     union all select slug,'cons',  array_to_string(cons,' ~ ')     from public.products where is_published)
+  select count(*), string_agg(distinct slug||'/'||f, ', ')
+    into treffer, wo
+  from alle
+  where t ~* '(Bestandsanzeige|preisgekrönt|Venus-Award|Bestseller auf Amazon|Friseure empfehlen|nur noch [0-9]+ Exemplare)';
 
-  raise notice 'Selbstprüfung bestanden: A=0, B=0, C=0';
+  if treffer <> 0 then
+    raise exception 'B/C fehlgeschlagen: % Treffer in %', treffer, wo;
+  end if;
+
+  raise notice 'Selbstprüfung bestanden: depubliziert=0, Textfeld-Treffer=0';
 end $$;
 
 commit;
